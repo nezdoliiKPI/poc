@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  nanomq:
+    image: emqx/nanomq:latest
+    container_name: nanomq-broker
+    ports:
+      - "1883:1883"
+    restart: unless-stopped
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.0
+    command: start-dev
+    environment:
+      KC_DB: dev-file
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "1884:1884"
+    restart: unless-stopped
+  timescaledb:
+    image: timescale/timescaledb:latest-pg17
+    container_name: iot_timescaledb
+    environment:
+      POSTGRES_DB: iot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+volumes:
+  timescaledb_data:
