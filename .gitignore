@@ -38,5 +38,10 @@ build/
 ### Mac OS ###
 .DS_Store
 
+### Secrets ###
+/secrets/*
+!/secrets/.gitkeep
+
 *.pkcs8
 *.pem
+*.der

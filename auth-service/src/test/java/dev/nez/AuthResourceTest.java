@@ -29,7 +29,7 @@ public class AuthResourceTest {
                 .when()
                 .post("/api/device/auth/register")
                 .then()
-                .statusCode(201);
+                .statusCode(200);
 
         String loginBody = String.format("""
                 {
@@ -117,7 +117,7 @@ public class AuthResourceTest {
                 .when()
                 .post("/api/device/auth/register")
                 .then()
-                .statusCode(201);
+                .statusCode(200);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
@@ -125,7 +125,6 @@ public class AuthResourceTest {
                 .when()
                 .post("/api/device/auth/register")
                 .then()
-                .statusCode(409) // 409 Response.Status.CONFLICT
-                .body(equalTo("Device already exists"));
+                .statusCode(409);
     }
 }

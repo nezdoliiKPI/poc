@@ -1,11 +1,26 @@
 version: '3.8'
 services:
-  nanomq:
-    image: emqx/nanomq:latest
-    container_name: nanomq-broker
+
+  mosquitto:
+    build:
+      context: ../mosquitto
+      dockerfile: .dockerfile
+    container_name: iot_mosquitto
     ports:
+      - "1882:1882"
       - "1883:1883"
     restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    volumes:
+      - ../mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf
+      - ../secrets/jwks.json:/etc/mosquitto/certs/jwks.json:ro
+    networks:
+      - iot_network
+    command: mosquitto -c /etc/mosquitto/mosquitto.conf
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.0
     command: start-dev
@@ -16,6 +31,7 @@ services:
     ports:
       - "1884:1884"
     restart: unless-stopped
+
   timescaledb:
     image: timescale/timescaledb:latest-pg17
     container_name: iot_timescaledb
@@ -27,5 +43,10 @@ services:
       - "5432:5432"
     volumes:
       - timescaledb_data:/var/lib/postgresql/data
+
 volumes:
   timescaledb_data:
+
+networks:
+  iot_network:
+    driver: bridge

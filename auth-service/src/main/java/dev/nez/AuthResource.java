@@ -1,6 +1,7 @@
 package dev.nez;
 
 import dev.nez.dto.LoginRequest;
+import dev.nez.dto.LoginResponse;
 import dev.nez.dto.RegisterRequest;
 import dev.nez.dto.RegisterResponse;
 import io.quarkus.elytron.security.common.BcryptUtil;
@@ -20,13 +21,12 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.resteasy.reactive.RestResponse;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 @Path("/api/device")
 public class AuthResource {
@@ -34,50 +34,45 @@ public class AuthResource {
     @ConfigProperty(name = "auth.jwt.issuer", defaultValue = "auth-service")
     String jwtIssuer;
 
+    @ConfigProperty(name = "jwt.key.id")
+    String keyId;
+
     @POST
     @Path("/auth/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> login(LoginRequest request) {
+    public Uni<RestResponse<LoginResponse>> login(LoginRequest request) {
         Context context = Vertx.currentContext();
 
-        return Device.<Device>findByHardwareId(request.hardwareId())
+        return Device
+                .findByHardwareId(request.hardwareId())
                 .onItem().transformToUni(device -> {
                     if (device == null || device.status != Device.Status.ACTIVE) {
                         return Uni.createFrom().item(
-                            Response.status(Response.Status.UNAUTHORIZED)
-                                    .entity("Device not found or inactive")
-                                    .build()
-                        );
+                                RestResponse.status(RestResponse.Status.UNAUTHORIZED));
                     }
 
                     return Uni.createFrom()
                             .item(() -> BcryptUtil.matches(request.password(), device.passwordHash))
                             .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
-                            .emitOn(command -> context.runOnContext(v -> command.run()))
+                            .emitOn(command -> context.runOnContext(_ -> command.run()))
                             .onItem().transform(isMatch -> {
                                 if (!isMatch) {
-                                    return Response.status(Response.Status.UNAUTHORIZED)
-                                            .entity("Invalid credentials")
-                                            .build();
+                                    return RestResponse.<LoginResponse>status(RestResponse.Status.UNAUTHORIZED);
                                 }
 
                                 String token = Jwt.issuer(jwtIssuer)
-                                        .subject(request.hardwareId())
-                                        .expiresIn(Duration.ofHours(12))
-                                        .claim("pub", List.of(device.topic))
+                                        .subject(String.valueOf(device.id))
+                                        .expiresIn(Duration.ofHours(6))
+                                        .claim("publ", List.of(device.topic))
+                                        .jws().keyId(keyId)
                                         .sign();
 
-                                return Response
-                                        .ok(Map.of("token", token))
-                                        .build();
+                                return RestResponse.ok(new LoginResponse(device.id, token));
                             })
                             .onFailure().recoverWithItem(throwable -> {
-                                Log.error("Internal server error during token generation");
-                                return Response
-                                        .status(Response.Status.INTERNAL_SERVER_ERROR)
-                                        .entity(Map.of("error", "Internal server error during token generation"))
-                                        .build();
+                                Log.error("Internal server error during token generation:", throwable);
+                                return RestResponse.status(RestResponse.Status.INTERNAL_SERVER_ERROR);
                             });
                 });
     }
@@ -86,13 +81,13 @@ public class AuthResource {
     @Path("/auth/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> register(RegisterRequest request) {
+    public Uni<RestResponse<RegisterResponse>> register(RegisterRequest request) {
         Context context = Vertx.currentContext();
 
         return Uni.createFrom()
-                .item(() -> BcryptUtil.bcryptHash(request.password()))
+                .item(() -> BcryptUtil.bcryptHash(request.password(), 8))
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
-                .emitOn(command -> context.runOnContext(v -> command.run()))
+                .emitOn(command -> context.runOnContext(_ -> command.run()))
                 .chain(hashedPassword -> Panache.<Device>withTransaction(() -> {
                         Device device = new Device();
                         device.hardwareId = request.hardwareId();
@@ -102,21 +97,14 @@ public class AuthResource {
 
                         return device.persist();
                 }))
-                .onItem().transform(persistedDevice -> {
-                    return Response.status(Response.Status.CREATED)
-                        .entity(new RegisterResponse(
-                                persistedDevice.id,
-                                persistedDevice.hardwareId,
-                                request.password(), //TODO remove pass
-                                persistedDevice.topic
-                        ))
-                        .build();
-        })
-        .onFailure(PersistenceException.class)
-        .recoverWithItem(() -> Response
-                                    .status(Response.Status.CONFLICT)
-                                    .entity("Device already exists")
-                                    .build()
-        );
+                .onItem().transform(persistedDevice -> RestResponse.ok(
+                        new RegisterResponse(
+                            persistedDevice.id,
+                            persistedDevice.hardwareId,
+                            request.password(), //TODO remove pass
+                            persistedDevice.topic
+                )))
+                .onFailure(PersistenceException.class).recoverWithItem(
+                    () -> RestResponse.status(RestResponse.Status.CONFLICT));
     }
 }

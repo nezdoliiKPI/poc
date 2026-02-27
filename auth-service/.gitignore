@@ -46,3 +46,4 @@ nb-configuration.xml
 
 *.pkcs8
 *.pem
+*.der
