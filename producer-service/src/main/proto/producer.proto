@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "dev.nez.simulation.dto.mqtt";
+option java_outer_classname = "ProducerProtos";
+
+message TemperatureMessage {
+  int64 device_id = 1;
+  double temp = 2;
+}

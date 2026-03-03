@@ -1,14 +1,20 @@
-package dev.nez.consuming;
+package dev.nez.edge;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import dev.nez.edge.dto.mqtt.Temperature;
+import dev.nez.edge.dto.mqtt.TemperatureMessage;
 import io.quarkus.logging.Log;
+import io.quarkus.virtual.threads.VirtualThreads;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
+import io.smallrye.reactive.messaging.annotations.Merge;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
@@ -16,24 +22,30 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 @ApplicationScoped
-public class ConsumerService {
+public class TemperatureService {
 
-    @Incoming("telemetry-out")
-    public  Uni<Void> trash(Temperature  telemetry) {
+    @Inject
+    @VirtualThreads
+    ExecutorService virtualExecutor;
+
+    @Incoming("temp-out")
+    @Merge
+    public  Uni<Void> trash(Temperature telemetry) {
         return  Uni.createFrom().nullItem();
     }
 
-    @Incoming("telemetry-in")
-    @Outgoing("telemetry-out")
-    public Multi<Message<Temperature>> processByDevice(Multi<Message<byte[]>> stream) {
-        return stream
+    @Incoming("temp-j-in")
+    @Outgoing("temp-out")
+    public Multi<Message<Temperature>> consumeTemperatureJson(Multi<Message<byte[]>> stream) {
+        return stream.emitOn(virtualExecutor)
             .onItem().transformToMultiAndConcatenate(msg -> transformJsonMessage(msg, Temperature.class))
             .group().by(msg -> msg.getPayload().deviceId())
             .onItem().transformToMultiAndMerge(deviceStream -> deviceStream
                 .group().intoLists().of(5, Duration.ofSeconds(5))
-                    .onItem().transform(batch -> Message.of(processBatch(batch) , () -> {
+                    .map(batch -> Message.of(processBatch(batch) , () -> {
                         var size = batch.size();
                         var futures = new CompletableFuture[size];
 
@@ -43,6 +55,23 @@ public class ConsumerService {
                         return CompletableFuture.allOf(futures);
                     }))
             );
+    }
+
+    @Incoming("temp-p-in")
+    @Outgoing("temp-out")
+    public Uni<Temperature> consumeTemperatureProto(byte[] payload) {
+        return Uni.createFrom().item(() -> payload).emitOn(virtualExecutor)
+                .map(p -> {
+                    try {
+                        return TemperatureMessage.parseFrom(p);
+                    } catch (InvalidProtocolBufferException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .onFailure().invoke(e -> Log.error(e.getMessage()))
+                .onFailure().recoverWithNull()
+                .map(msg -> new Temperature(msg.getDeviceId(), msg.getTemp()))
+                .onItem().invoke(telemetry -> Log.info("Received from proto: " + telemetry));
     }
 
     private <T> Multi<Message<T>> transformJsonMessage(Message<byte[]> msg, Class<T> clazz) {
@@ -67,13 +96,3 @@ public class ConsumerService {
         return batch.getLast().getPayload();
     }
 }
-
-//    @Incoming("telemetry-in")
-//    public Uni<Void> consumeTelemetry(byte[] payload) {
-//        return Uni.createFrom().item(() -> Buffer.buffer(payload))
-//                .onItem().transform(buffer -> Json.decodeValue(buffer.getDelegate(), Telemetry.class))
-//                .onItem().invoke(telemetry -> Log.info("Received: " + telemetry))
-//                .onFailure().invoke(e -> Log.error(e.getMessage()))
-//                .onFailure().recoverWithNull()
-//                .replaceWithVoid();
-//    }
