@@ -3,6 +3,7 @@ package dev.nez.simulation;
 import dev.nez.simulation.client.ProducerClient;
 import dev.nez.simulation.model.Device;
 import dev.nez.simulation.dto.mqtt.Temperature;
+import dev.nez.simulation.model.MessageTiming;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
 
@@ -29,10 +30,7 @@ public class Simulator {
             new DeviceDataProducer(
                 dev1,
                 DeviceDataProducer.MESSAGE_TYPE.JSON,
-                TimeUnit.MILLISECONDS,
-                0L,
-                1000L,
-                1
+                new MessageTiming(TimeUnit.MILLISECONDS,0L, 2000L, 100000)
             ) {
                 @Override
                 public Object getData() {
@@ -45,10 +43,7 @@ public class Simulator {
             new DeviceDataProducer(
                 dev2,
                 DeviceDataProducer.MESSAGE_TYPE.PROTO,
-                TimeUnit.MILLISECONDS,
-                0L,
-                1000L,
-                1
+                new MessageTiming(TimeUnit.MILLISECONDS,0L, 2000L, 100000)
             ) {
                 @Override
                 public Object getData() {

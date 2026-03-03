@@ -27,10 +27,6 @@ import java.util.concurrent.ExecutorService;
 @ApplicationScoped
 public class TemperatureService {
 
-    @Inject
-    @VirtualThreads
-    ExecutorService virtualExecutor;
-
     @Incoming("temp-out")
     @Merge
     public  Uni<Void> trash(Temperature telemetry) {
@@ -40,7 +36,7 @@ public class TemperatureService {
     @Incoming("temp-j-in")
     @Outgoing("temp-out")
     public Multi<Message<Temperature>> consumeTemperatureJson(Multi<Message<byte[]>> stream) {
-        return stream.emitOn(virtualExecutor)
+        return stream
             .onItem().transformToMultiAndConcatenate(msg -> transformJsonMessage(msg, Temperature.class))
             .group().by(msg -> msg.getPayload().deviceId())
             .onItem().transformToMultiAndMerge(deviceStream -> deviceStream
@@ -60,7 +56,7 @@ public class TemperatureService {
     @Incoming("temp-p-in")
     @Outgoing("temp-out")
     public Uni<Temperature> consumeTemperatureProto(byte[] payload) {
-        return Uni.createFrom().item(() -> payload).emitOn(virtualExecutor)
+        return Uni.createFrom().item(() -> payload)
                 .map(p -> {
                     try {
                         return TemperatureMessage.parseFrom(p);
@@ -68,10 +64,10 @@ public class TemperatureService {
                         throw new RuntimeException(e);
                     }
                 })
-                .onFailure().invoke(e -> Log.error(e.getMessage()))
-                .onFailure().recoverWithNull()
                 .map(msg -> new Temperature(msg.getDeviceId(), msg.getTemp()))
-                .onItem().invoke(telemetry -> Log.info("Received from proto: " + telemetry));
+                .onItem().invoke(telemetry -> Log.info("Received from proto: " + telemetry))
+                .onFailure().invoke(e -> Log.error(e.getMessage()))
+                .onFailure().recoverWithNull();
     }
 
     private <T> Multi<Message<T>> transformJsonMessage(Message<byte[]> msg, Class<T> clazz) {

@@ -27,6 +27,9 @@ public class ProducerClient {
     private final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
 
+//    private final ScopedValue<DeviceDataProducer> producer =
+//            ScopedValue.newInstance();
+
     @RestClient
     AuthRestClient authClient;
 
@@ -72,6 +75,8 @@ public class ProducerClient {
                 .applySimpleAuth()
                 .buildAsync();
 
+        final var mainTiming = producer.mainTiming;
+
         client.connect().whenComplete((_, throwable) -> {
             if (throwable != null) {
                 Log.error("Connection error: " + brokerHost, throwable);
@@ -96,7 +101,7 @@ public class ProducerClient {
                     .topic(producer.device.topic())
                     .payload(payload)
                     .qos(MqttQos.AT_LEAST_ONCE)
-                    .messageExpiryInterval(producer.messageTtlSeconds)
+                    .messageExpiryInterval(mainTiming.messageTtlSeconds())
                     .send()
                     .whenComplete((_, pubThrowable) -> {
                         if (pubThrowable != null) {
@@ -105,7 +110,20 @@ public class ProducerClient {
                             Log.info("Published: " + producer.getData());
                         }
                     });
-            }, producer.initialDelay, producer.period, producer.unit);
+            }, mainTiming.initialDelay(), mainTiming.period(), mainTiming.unit());
         });
     }
+
+//    private byte[] serialize(byte[] payload) {
+//        return switch (producer.messageType) {
+//            case JSON -> Json.encodeToBuffer(producer.getData()).getBytes();
+//            case PROTO -> {
+//                if (producer.getData() instanceof ProtocolBuffer b) {
+//                    yield b.serialize();
+//                } else {
+//                    throw new RuntimeException("Unexpected data type: " + producer.getData().getClass());
+//                }
+//            }
+//        };
+//    }
 }

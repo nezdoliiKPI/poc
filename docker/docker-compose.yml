@@ -19,6 +19,8 @@ services:
       - ../secrets/jwks.json:/etc/mosquitto/certs/jwks.json:ro
     networks:
       - iot_network
+    tty: true
+    stdin_open: true
     command: mosquitto -c /etc/mosquitto/mosquitto.conf
 
   keycloak:
