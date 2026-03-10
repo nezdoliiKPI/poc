@@ -3,9 +3,9 @@ package dev.nez;
 import dev.nez.dto.LoginRequest;
 import dev.nez.dto.LoginResponse;
 import dev.nez.dto.RegisterRequest;
+import dev.nez.model.Device;
 import io.quarkus.elytron.security.common.BcryptUtil;
 
-import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.vertx.core.Vertx;
 import io.vertx.core.Context;
 
@@ -62,10 +62,14 @@ public class AuthResource {
                                     return RestResponse.<LoginResponse>status(RestResponse.Status.UNAUTHORIZED);
                                 }
 
+                                final var topics = device.getBatteryTopic().isPresent()
+                                        ? List.of(device.topic, device.batteryTopic)
+                                        : List.of(device.topic);
+
                                 final String token = Jwt.issuer(jwtIssuer)
                                         .subject(String.valueOf(device.id))
                                         .expiresIn(Duration.ofHours(6))
-                                        .claim("publ", List.of(device.topic))
+                                        .claim("publ", topics)
                                         .jws().keyId(keyId)
                                         .sign();
 
@@ -90,11 +94,14 @@ public class AuthResource {
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
                 .emitOn(command -> context.runOnContext(_ -> command.run()))
                 .chain(hashedPassword -> Panache.<Device>withTransaction(() -> {
-                        final Device device = new Device();
-                        device.hardwareId = request.hardwareId();
-                        device.passwordHash = hashedPassword;
-                        device.topic = request.topic();
-                        device.status = Device.Status.ACTIVE;
+                        final var device = new Device(
+                            request.hardwareId(),
+                            hashedPassword,
+                            Device.Status.ACTIVE,
+                            request.messageType(),
+                            request.topic(),
+                            request.batteryTopic()
+                        );
 
                         return device.persist();
                 }))

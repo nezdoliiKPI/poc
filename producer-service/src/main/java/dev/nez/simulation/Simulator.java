@@ -1,6 +1,7 @@
 package dev.nez.simulation;
 
 import dev.nez.simulation.client.ProducerClient;
+import dev.nez.simulation.dto.mqtt.Battery;
 import dev.nez.simulation.model.Device;
 import dev.nez.simulation.dto.mqtt.Temperature;
 import dev.nez.simulation.model.MessageTiming;
@@ -24,30 +25,36 @@ public class Simulator {
         Log.info("Start device simulation...");
 
         var dev1 = new Device("hardware1", "pass", "dev/temp/j");
-        var dev2 = new Device("hardware2", "pass", "dev/temp/p");
+        var dev2 = new Device("hardware2", "pass", "dev/temp/p", "dev/batt/p");
 
         producerClient.startSimulation(
             new DeviceDataProducer(
-                dev1,
-                DeviceDataProducer.MESSAGE_TYPE.JSON,
-                new MessageTiming(TimeUnit.MILLISECONDS,0L, 2000L, 100000)
+                    dev1,
+                    DeviceDataProducer.MessageType.JSON,
+                    new MessageTiming(TimeUnit.MILLISECONDS,0L, 2000L, 100000)
             ) {
                 @Override
                 public Object getData() {
-                    return new Temperature(this.deviceId, 20.0 + random.nextDouble() * 10.0);
+                    return new Temperature(this.deviceId, 20.0f + random.nextFloat() * 10.0f);
                 }
             }
         );
 
         producerClient.startSimulation(
             new DeviceDataProducer(
-                dev2,
-                DeviceDataProducer.MESSAGE_TYPE.PROTO,
-                new MessageTiming(TimeUnit.MILLISECONDS,0L, 2000L, 100000)
+                    dev2,
+                    DeviceDataProducer.MessageType.PROTO,
+                    new MessageTiming(TimeUnit.MILLISECONDS,0L, 2000L, 100000),
+                    new MessageTiming(TimeUnit.MILLISECONDS,0L, 5000L, 100000)
             ) {
                 @Override
                 public Object getData() {
-                    return new Temperature(this.deviceId, 40.0 + random.nextDouble() * 10.0);
+                    return new Temperature(this.deviceId, 40.0f + random.nextFloat() * 10.0f);
+                }
+
+                @Override
+                public Object getBatteryData() {
+                    return new Battery(this.deviceId, 99.0f);
                 }
             }
         );

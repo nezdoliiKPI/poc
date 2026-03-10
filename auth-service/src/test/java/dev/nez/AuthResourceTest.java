@@ -8,39 +8,24 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
-public class AuthResourceTest {
+public class AuthResourceTest extends AuthTestBase {
 
     @Test
     public void testSuccessfulLogin() {
-        String hardwareId = "hw-login-success";
-        String password = "mySecretPassword";
-
-        String registerBody = String.format("""
-                {
-                    "hardwareId": "%s",
-                    "password": "%s",
-                    "topic": "devices/%s"
-                }
-                """, hardwareId, password, hardwareId);
+        final String hardwareId = "hw-login-success";
+        final String password = "mySecretPassword";
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(registerBody)
+                .body(getRegisterBody(hardwareId, password))
                 .when()
                 .post("/api/device/auth/register")
                 .then()
-                .statusCode(200);
-
-        String loginBody = String.format("""
-                {
-                    "hardwareId": "%s",
-                    "password": "%s"
-                }
-                """, hardwareId, password);
+                .statusCode(201);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(loginBody)
+                .body(getLoginBody(hardwareId, password))
                 .when()
                 .post("/api/device/auth/login")
                 .then()
@@ -50,33 +35,18 @@ public class AuthResourceTest {
 
     @Test
     public void testLoginInvalidPassword() {
-        String hardwareId = "hw-login-invalid-pass";
-        String password = "mySecretPassword";
-
-        String registerBody = String.format("""
-                {
-                    "hardwareId": "%s",
-                    "password": "%s",
-                    "topic": "devices/%s"
-                }
-                """, hardwareId, password, hardwareId);
+        final String hardwareId = "hw-login-invalid-pass";
+        final String password = "mySecretPassword";
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(registerBody)
+                .body(getRegisterBody(hardwareId, password))
                 .when()
                 .post("/api/device/auth/register");
 
-        String loginBody = String.format("""
-                {
-                    "hardwareId": "%s",
-                    "password": "wrongPassword"
-                }
-                """, hardwareId);
-
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(loginBody)
+                .body(getLoginBody(hardwareId, "invalidPassword"))
                 .when()
                 .post("/api/device/auth/login")
                 .then()
@@ -85,16 +55,9 @@ public class AuthResourceTest {
 
     @Test
     public void testLoginDeviceNotFound() {
-        String loginBody = """
-                {
-                    "hardwareId": "hw-not-found",
-                    "password": "somePassword"
-                }
-                """;
-
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(loginBody)
+                .body(getLoginBody("hw-not-found", "somePassword"))
                 .when()
                 .post("/api/device/auth/login")
                 .then()
@@ -103,28 +66,50 @@ public class AuthResourceTest {
 
     @Test
     public void testDuplicateRegistration() {
-        String requestBody = """
-                {
-                    "hardwareId": "hw-duplicate",
-                    "password": "mySecretPassword",
-                    "topic": "devices/hw-duplicate"
-                }
-                """;
+        final String hardwareId = "hw-duplicate";
+        final String password = "mySecretPassword";
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(requestBody)
+                .body(getRegisterBody(hardwareId, password))
                 .when()
                 .post("/api/device/auth/register")
                 .then()
-                .statusCode(200);
+                .statusCode(201);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(requestBody)
+                .body(getRegisterBody(hardwareId, password))
                 .when()
                 .post("/api/device/auth/register")
                 .then()
                 .statusCode(409);
+    }
+}
+
+abstract class AuthTestBase {
+    protected String getRegisterBody(String hardwareId, String password) {
+        final String topic = "data";
+        final String batteryTopic = "battery/data";
+        final String messageType = "JSON";
+
+        return String.format("""
+                {
+                    "hardwareId": "%s",
+                    "password": "%s",
+                    "topic": "devices/%s",
+                    "batteryTopic": "devices/%s",
+                    "messageType": "%s"
+                }
+                """, hardwareId, password, topic, batteryTopic, messageType);
+    }
+
+    protected String getLoginBody(String hardwareId, String password) {
+        return  String.format("""
+                {
+                    "hardwareId": "%s",
+                    "password": "%s"
+                }
+                """, hardwareId, password);
     }
 }

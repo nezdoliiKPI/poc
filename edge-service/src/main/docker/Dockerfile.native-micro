@@ -10,7 +10,7 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native-micro -t quarkus/edge-service .
+# docker build -f src/main/docker/Dockerfile.native-micro -v quarkus/edge-service .
 #
 # Then run the container using:
 #

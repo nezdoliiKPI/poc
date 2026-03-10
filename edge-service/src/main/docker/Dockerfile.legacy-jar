@@ -7,7 +7,7 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.legacy-jar -t quarkus/edge-service-legacy-jar .
+# docker build -f src/main/docker/Dockerfile.legacy-jar -v quarkus/edge-service-legacy-jar .
 #
 # Then run the container using:
 #

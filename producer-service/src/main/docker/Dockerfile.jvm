@@ -7,7 +7,7 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.jvm -t quarkus/producer-service-jvm .
+# docker build -f src/main/docker/Dockerfile.jvm -v quarkus/producer-service-jvm .
 #
 # Then run the container using:
 #

@@ -5,15 +5,20 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 
 import dev.nez.simulation.DeviceDataProducer;
+import dev.nez.simulation.DeviceDataProducer.MessageType;
+
 import dev.nez.simulation.dto.rest.LoginRequest;
 import dev.nez.simulation.dto.rest.RegisterRequest;
 
 import dev.nez.simulation.dto.mqtt.ProtocolBuffer;
+import dev.nez.simulation.model.MessageTiming;
+import dev.nez.simulation.security.MqttTrustManagerProvider;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -27,11 +32,11 @@ public class ProducerClient {
     private final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
 
-//    private final ScopedValue<DeviceDataProducer> producer =
-//            ScopedValue.newInstance();
-
     @RestClient
     AuthRestClient authClient;
+
+    @Inject
+    MqttTrustManagerProvider provider;
 
     @ConfigProperty(name = "mqtt.broker.host", defaultValue = "localhost")
     String brokerHost;
@@ -39,17 +44,27 @@ public class ProducerClient {
     int brokerPort;
 
     public void startSimulation(DeviceDataProducer producer) {
-        registerDevice(new RegisterRequest(producer.device.hardwareId(), producer.device.password(), producer.device.topic()))
-            .chain(() -> authClient.login(new LoginRequest(producer.device.hardwareId(), producer.device.password())))
-            .subscribe().with(
-                loginResponse -> {
-                    producer.deviceId = loginResponse.deviceId();
-                    producer.token = loginResponse.token();
+        final var registerRequest = new RegisterRequest(
+            producer.device.hardwareId(),
+            producer.device.password(),
+            producer.device.topic(),
+            producer.device.batteryTopic(),
+            producer.messageType
+        );
 
-                    startDeviceConnection(producer);
-                },
-                throwable -> Log.error("Failed to initialize device simulation", throwable)
-            );
+        final var loginRequest = new LoginRequest(
+            producer.device.hardwareId(),
+            producer.device.password()
+        );
+
+        registerDevice(registerRequest)
+                .chain(() -> authClient.login(loginRequest))
+                .subscribe().with(loginResponse -> {
+                        producer.deviceId = loginResponse.deviceId();
+                        producer.token = loginResponse.token();
+                        startDeviceConnection(producer);
+                    },throwable -> Log.error("Failed to initialize device simulation", throwable)
+                );
     }
 
     private Uni<Void> registerDevice(RegisterRequest request) {
@@ -68,14 +83,15 @@ public class ProducerClient {
                 .identifier(producer.device.hardwareId())
                 .serverHost(brokerHost)
                 .serverPort(brokerPort)
+                .sslConfig()
+                    .trustManagerFactory(provider.provide())
+                .applySslConfig()
                 .automaticReconnectWithDefaultConfig()
                 .simpleAuth()
                     .username(producer.deviceId.toString())
                     .password(producer.token.getBytes())
                 .applySimpleAuth()
                 .buildAsync();
-
-        final var mainTiming = producer.mainTiming;
 
         client.connect().whenComplete((_, throwable) -> {
             if (throwable != null) {
@@ -84,46 +100,70 @@ public class ProducerClient {
             }
             Log.info("Connected to MQTT broker: " + brokerHost + ":" + brokerPort);
 
-            scheduler.scheduleAtFixedRate(() -> {
-                byte[] payload = switch (producer.messageType) {
-                    case JSON -> Json.encodeToBuffer(producer.getData()).getBytes();
-                    case PROTO -> {
-                        if (producer.getData() instanceof ProtocolBuffer b) {
-                            yield b.serialize();
-                        } else {
-                            throw new RuntimeException("Unexpected data type: " + producer.getData().getClass());
-                        }
-                    }
-                };
+            final var data = producer.getData();
+            final var topic = producer.device.topic();
+            final var mainTiming = producer.mainTiming;
 
-                client
+            startSendingMessages(
+                client,
+                producer.messageType,
+                data,
+                topic,
+                mainTiming
+            );
+
+            if (!producer.batteryIsPresent()) {
+                return;
+            }
+
+            final var batteryData = producer.getBatteryData();
+            final var batteryTopic = producer.device.batteryTopic();
+            final var batteryTiming = producer.batteryTiming;
+
+            startSendingMessages(
+                client,
+                producer.messageType,
+                batteryData,
+                batteryTopic,
+                batteryTiming
+            );
+        });
+    }
+
+    private byte[] serialize(Object payload,  MessageType messageType) {
+        return switch (messageType) {
+            case JSON -> Json.encodeToBuffer(payload).getBytes();
+            case PROTO -> {
+                if (payload instanceof ProtocolBuffer b) {
+                    yield b.serialize();
+                } else {
+                    throw new RuntimeException("Unexpected data type: " + payload.getClass());
+                }
+            }
+        };
+    }
+
+    private void startSendingMessages(
+        Mqtt5AsyncClient client,
+        MessageType messageType,
+        Object data,
+        String topic,
+        MessageTiming timing
+    ) {
+        scheduler.scheduleAtFixedRate(
+            () -> client
                     .publishWith()
-                    .topic(producer.device.topic())
-                    .payload(payload)
+                    .topic(topic)
+                    .payload(serialize(data, messageType))
                     .qos(MqttQos.AT_LEAST_ONCE)
-                    .messageExpiryInterval(mainTiming.messageTtlSeconds())
+                    .messageExpiryInterval(timing.messageTtlSeconds())
                     .send()
                     .whenComplete((_, pubThrowable) -> {
                         if (pubThrowable != null) {
                             Log.error("Send error", pubThrowable);
                         } else {
-                            Log.info("Published: " + producer.getData());
+                            Log.info("Published: " + data);
                         }
-                    });
-            }, mainTiming.initialDelay(), mainTiming.period(), mainTiming.unit());
-        });
+            }), timing.initialDelay(), timing.period(), timing.unit());
     }
-
-//    private byte[] serialize(byte[] payload) {
-//        return switch (producer.messageType) {
-//            case JSON -> Json.encodeToBuffer(producer.getData()).getBytes();
-//            case PROTO -> {
-//                if (producer.getData() instanceof ProtocolBuffer b) {
-//                    yield b.serialize();
-//                } else {
-//                    throw new RuntimeException("Unexpected data type: " + producer.getData().getClass());
-//                }
-//            }
-//        };
-//    }
 }

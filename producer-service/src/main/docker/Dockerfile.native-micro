@@ -10,7 +10,7 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native-micro -t quarkus/producer-service .
+# docker build -f src/main/docker/Dockerfile.native-micro -v quarkus/producer-service .
 #
 # Then run the container using:
 #

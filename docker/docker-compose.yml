@@ -15,8 +15,12 @@ services:
         soft: 65535
         hard: 65535
     volumes:
-      - ../mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf
-      - ../secrets/jwks.json:/etc/mosquitto/certs/jwks.json:ro
+      - ../mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf:ro
+      - ../secrets/jwt/jwks.json:/etc/mosquitto/certs/jwks.json:ro
+      # --- TLS ---
+      - ../secrets/tls/ca.crt:/etc/mosquitto/certs/tls/ca.crt:ro
+      - ../secrets/tls/server.crt:/etc/mosquitto/certs/tls/server.crt:ro
+      - ../secrets/tls/server.key:/etc/mosquitto/certs/tls/server.key:ro
     networks:
       - iot_network
     tty: true
