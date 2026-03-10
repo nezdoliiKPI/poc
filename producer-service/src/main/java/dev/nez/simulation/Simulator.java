@@ -3,7 +3,7 @@ package dev.nez.simulation;
 import dev.nez.simulation.client.ProducerClient;
 import dev.nez.simulation.dto.mqtt.Battery;
 import dev.nez.simulation.model.Device;
-import dev.nez.simulation.dto.mqtt.Temperature;
+import dev.nez.simulation.dto.mqtt.TemperatureHumidity;
 import dev.nez.simulation.model.MessageTiming;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
@@ -24,8 +24,8 @@ public class Simulator {
     void onStart(@Observes StartupEvent ev) {
         Log.info("Start device simulation...");
 
-        var dev1 = new Device("hardware1", "pass", "dev/temp/j");
-        var dev2 = new Device("hardware2", "pass", "dev/temp/p", "dev/batt/p");
+        var dev1 = new Device("hardware1", "pass", "dev/tempH/j");
+        var dev2 = new Device("hardware2", "pass", "dev/tempH/pow", "dev/batt/pow");
 
         producerClient.startSimulation(
             new DeviceDataProducer(
@@ -35,7 +35,11 @@ public class Simulator {
             ) {
                 @Override
                 public Object getData() {
-                    return new Temperature(this.deviceId, 20.0f + random.nextFloat() * 10.0f);
+                    return new TemperatureHumidity(
+                        this.deviceId,
+                        20.0f + random.nextFloat() * 10.0f,
+                        50.0f + random.nextFloat() * 50.0f
+                    );
                 }
             }
         );
@@ -49,7 +53,11 @@ public class Simulator {
             ) {
                 @Override
                 public Object getData() {
-                    return new Temperature(this.deviceId, 40.0f + random.nextFloat() * 10.0f);
+                    return new TemperatureHumidity(
+                        this.deviceId,
+                        40.0f + random.nextFloat() * 10.0f,
+                        40.0f + random.nextFloat() * 60.0f
+                    );
                 }
 
                 @Override

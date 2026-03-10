@@ -3,23 +3,29 @@ package dev.nez.simulation.dto.mqtt;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
- * Battery message body
+ * 3-Axis Vibration message body
  *
  * @param id unique device ID
- * @param v
+ * @param x  acceleration on X-axis (g)
+ * @param y  acceleration on Y-axis (g)
+ * @param z  acceleration on Z-axis (g)
  *
  */
 @RegisterForReflection
-public record Battery(
+public record Vibration(
     Long id,
-    Float v
+    Float x,
+    Float y,
+    Float z
 ) implements ProtocolBuffer {
 
     @Override
     public byte[] serialize() {
-        return BatteryMessage.newBuilder()
+        return VibrationMessage.newBuilder()
                 .setDeviceId(id)
-                .setVal(v)
+                .setX(x)
+                .setY(y)
+                .setZ(z)
                 .build()
                 .toByteArray();
     }

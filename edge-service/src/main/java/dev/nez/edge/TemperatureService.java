@@ -1,8 +1,8 @@
 package dev.nez.edge;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import dev.nez.edge.dto.mqtt.Temperature;
-import dev.nez.edge.dto.mqtt.TemperatureMessage;
+import dev.nez.edge.dto.mqtt.TemperatureHumidity;
+import dev.nez.edge.dto.mqtt.TemperatureHumidityMessage;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 
@@ -19,15 +19,15 @@ public class TemperatureService {
 
     @Incoming("temp-out")
     @Merge
-    public  Uni<Void> trash(Temperature telemetry) {
+    public  Uni<Void> trash(TemperatureHumidity telemetry) {
         return  Uni.createFrom().nullItem();
     }
 
     @Incoming("temp-j-in")
     @Outgoing("temp-out")
-    public Uni<Temperature> consumeTemperatureJson(byte[] payload) {
+    public Uni<TemperatureHumidity> consumeTemperatureJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
-                .map(p -> Json.decodeValue(Buffer.buffer(p).getDelegate(), Temperature.class))
+                .map(p -> Json.decodeValue(Buffer.buffer(p).getDelegate(), TemperatureHumidity.class))
                 .onItem().invoke(telemetry -> Log.info("Received from json: " + telemetry))
                 .onFailure().invoke(e -> Log.error(e.getMessage()))
                 .onFailure().recoverWithNull();
@@ -35,16 +35,16 @@ public class TemperatureService {
 
     @Incoming("temp-p-in")
     @Outgoing("temp-out")
-    public Uni<Temperature> consumeTemperatureProto(byte[] payload) {
+    public Uni<TemperatureHumidity> consumeTemperatureProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
                 .map(p -> {
                     try {
-                        return TemperatureMessage.parseFrom(p);
+                        return TemperatureHumidityMessage.parseFrom(p);
                     } catch (InvalidProtocolBufferException e) {
                         throw new RuntimeException(e);
                     }
                 })
-                .map(msg -> new Temperature(msg.getDeviceId(), msg.getTemp()))
+                .map(msg -> new TemperatureHumidity(msg.getDeviceId(), msg.getTemp(), msg.getHumidity()))
                 .onItem().invoke(telemetry -> Log.info("Received from proto: " + telemetry))
                 .onFailure().invoke(e -> Log.error(e.getMessage()))
                 .onFailure().recoverWithNull();

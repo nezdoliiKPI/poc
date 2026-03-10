@@ -4,9 +4,24 @@ option java_multiple_files = true;
 option java_package = "dev.nez.edge.dto.mqtt";
 option java_outer_classname = "ProducerProtos";
 
-message TemperatureMessage {
+message TemperatureHumidityMessage {
   int64 device_id = 1;
   float temp = 2;
+  float humidity = 3;
+}
+
+message PowerConsumptionMessage {
+  int64 device_id = 1;
+  float voltage = 2;
+  float current = 3;
+  float power = 4;
+}
+
+message VibrationMessage {
+  int64 device_id = 1;
+  float x = 2;
+  float y = 3;
+  float z = 4;
 }
 
 message BatteryMessage {

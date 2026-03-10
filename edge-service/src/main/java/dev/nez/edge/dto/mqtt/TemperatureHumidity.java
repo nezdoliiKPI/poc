@@ -3,8 +3,9 @@ package dev.nez.edge.dto.mqtt;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
-public record Temperature(
+public record TemperatureHumidity(
     Long id,
-    Float v
+    Float t,
+    Float h
 ) {
 }

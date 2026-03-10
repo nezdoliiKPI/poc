@@ -3,22 +3,26 @@ package dev.nez.simulation.dto.mqtt;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
- * Temperature message body
+ * Temperature and Humidity message body
  *
  * @param id unique device ID
- * @param v
+ * @param t temperature Celsius
+ * @param h humidity percentage (0.0 to 100.0)
+ *
  */
 @RegisterForReflection
-public record Temperature(
+public record TemperatureHumidity(
     Long id,
-    Float v
+    Float t,
+    Float h
 ) implements ProtocolBuffer {
 
     @Override
     public byte[] serialize() {
-        return TemperatureMessage.newBuilder()
+        return TemperatureHumidityMessage.newBuilder()
                 .setDeviceId(id)
-                .setTemp(v)
+                .setTemp(t)
+                .setHumidity(h)
                 .build()
                 .toByteArray();
     }
