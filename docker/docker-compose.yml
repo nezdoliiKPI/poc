@@ -23,7 +23,7 @@ services:
       - ../secrets/tls/server.key:/etc/mosquitto/certs/tls/server.key:ro
     networks:
       - iot_network
-    tty: true
+    tty: false    # true -- for instantly output
     stdin_open: true
     command: mosquitto -c /etc/mosquitto/mosquitto.conf
 

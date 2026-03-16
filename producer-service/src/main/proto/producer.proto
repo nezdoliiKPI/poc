@@ -4,12 +4,6 @@ option java_multiple_files = true;
 option java_package = "dev.nez.simulation.dto.mqtt";
 option java_outer_classname = "ProducerProtos";
 
-message TemperatureHumidityMessage {
-  int64 device_id = 1;
-  float temp = 2;
-  float humidity = 3;
-}
-
 message PowerConsumptionMessage {
   int64 device_id = 1;
   float voltage = 2;
@@ -17,11 +11,20 @@ message PowerConsumptionMessage {
   float power = 4;
 }
 
-message VibrationMessage {
+message AirQualityMessage {
   int64 device_id = 1;
-  float x = 2;
-  float y = 3;
-  float z = 4;
+  int32 co2 = 2;
+  float pm25 = 3;
+  float pm10 = 4;
+  float tvoc = 5;
+  float temperature = 6;
+  float humidity = 7;
+}
+
+message SmokeDetectorMessage {
+  int64 device_id = 1;
+  int32 smoke_raw = 2;
+  int32 co_level = 3;
 }
 
 message BatteryMessage {

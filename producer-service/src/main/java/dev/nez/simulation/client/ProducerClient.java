@@ -10,7 +10,7 @@ import dev.nez.simulation.DeviceDataProducer.MessageType;
 import dev.nez.simulation.dto.rest.LoginRequest;
 import dev.nez.simulation.dto.rest.RegisterRequest;
 
-import dev.nez.simulation.dto.mqtt.ProtocolBuffer;
+import dev.nez.simulation.dto.ProtocolBuffer;
 import dev.nez.simulation.model.MessageTiming;
 import dev.nez.simulation.security.MqttTrustManagerProvider;
 import io.quarkus.logging.Log;
@@ -162,7 +162,7 @@ public class ProducerClient {
                         if (pubThrowable != null) {
                             Log.error("Send error", pubThrowable);
                         } else {
-                            Log.info("Published: " + data);
+                            Log.debug("Published: " + data);
                         }
             }), timing.initialDelay(), timing.period(), timing.unit());
     }

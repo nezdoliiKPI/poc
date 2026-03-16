@@ -1,4 +1,4 @@
-package dev.nez.simulation.dto.mqtt;
+package dev.nez.simulation.dto;
 
 public interface ProtocolBuffer {
     byte[] serialize();

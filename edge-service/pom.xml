@@ -38,6 +38,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.hivemqclient</groupId>
+            <artifactId>quarkus-hivemq-client</artifactId>
+            <version>2.5.0</version>
+        </dependency>
 
         <!-- Source: https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
         <dependency>

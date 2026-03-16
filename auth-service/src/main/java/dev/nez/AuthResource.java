@@ -30,7 +30,7 @@ import java.util.List;
 
 @Path("/api/device/auth")
 public class AuthResource {
-    private final int BCRYPT_COST = 10;
+    private final int BCRYPT_COST = 8;
 
     @ConfigProperty(name = "auth.jwt.issuer", defaultValue = "auth-service")
     String jwtIssuer;

@@ -4,29 +4,26 @@ import dev.nez.simulation.dto.ProtocolBuffer;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
- * Power Consumption message body
+ * Smoke detector message body
  *
  * @param id    unique device ID
- * @param cv    current voltage (V)
- * @param cf    current flow (A)
- * @param pow   active power (W)
+ * @param sr    raw optical sensor value (0–1023 ADC)
+ * @param co    CO concentration in ppm
  *
  */
 @RegisterForReflection
-public record PowerConsumption(
+public record SmokeDetector(
     Long id,
-    Float cv,
-    Float cf,
-    Float pow
+    Integer sr,
+    Integer co
 ) implements ProtocolBuffer {
 
     @Override
     public byte[] serialize() {
-        return PowerConsumptionMessage.newBuilder()
+        return SmokeDetectorMessage.newBuilder()
                 .setDeviceId(id)
-                .setVoltage(cv)
-                .setCurrent(cf)
-                .setPower(pow)
+                .setSmokeRaw(sr)
+                .setCoLevel(co)
                 .build()
                 .toByteArray();
     }

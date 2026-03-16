@@ -1,5 +1,6 @@
 package dev.nez.simulation.dto.mqtt;
 
+import dev.nez.simulation.dto.ProtocolBuffer;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
