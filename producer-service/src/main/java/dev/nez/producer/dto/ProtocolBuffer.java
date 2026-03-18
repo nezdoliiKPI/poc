@@ -1,4 +1,4 @@
-package dev.nez.simulation.dto;
+package dev.nez.producer.dto;
 
 public interface ProtocolBuffer {
     byte[] serialize();

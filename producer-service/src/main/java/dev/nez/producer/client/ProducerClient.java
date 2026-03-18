@@ -1,18 +1,18 @@
-package dev.nez.simulation.client;
+package dev.nez.producer.client;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 
-import dev.nez.simulation.DeviceDataProducer;
-import dev.nez.simulation.DeviceDataProducer.MessageType;
+import dev.nez.producer.simulation.generator.DeviceDataGenerator;
+import dev.nez.producer.simulation.generator.DeviceDataGenerator.MessageType;
 
-import dev.nez.simulation.dto.rest.LoginRequest;
-import dev.nez.simulation.dto.rest.RegisterRequest;
+import dev.nez.producer.dto.rest.LoginRequest;
+import dev.nez.producer.dto.rest.RegisterRequest;
 
-import dev.nez.simulation.dto.ProtocolBuffer;
-import dev.nez.simulation.model.MessageTiming;
-import dev.nez.simulation.security.MqttTrustManagerProvider;
+import dev.nez.producer.dto.ProtocolBuffer;
+import dev.nez.producer.simulation.model.MessageTiming;
+import dev.nez.producer.security.MqttTrustManagerProvider;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.Json;
@@ -43,7 +43,7 @@ public class ProducerClient {
     @ConfigProperty(name = "mqtt.broker.port", defaultValue = "1883")
     int brokerPort;
 
-    public void startSimulation(DeviceDataProducer producer) {
+    public void startSimulation(DeviceDataGenerator producer) {
         final var registerRequest = new RegisterRequest(
             producer.device.hardwareId(),
             producer.device.password(),
@@ -77,7 +77,7 @@ public class ProducerClient {
             }).replaceWithVoid();
     }
 
-    private void startDeviceConnection(DeviceDataProducer producer) {
+    private void startDeviceConnection(DeviceDataGenerator producer) {
         final Mqtt5AsyncClient client = MqttClient.builder()
                 .useMqttVersion5()
                 .identifier(producer.device.hardwareId())
@@ -98,19 +98,14 @@ public class ProducerClient {
                 Log.error("Connection error: " + brokerHost, throwable);
                 return;
             }
-            Log.info("Connected to MQTT broker: " + brokerHost + ":" + brokerPort);
+            Log.debug("Connected to MQTT broker: " + brokerHost + ":" + brokerPort);
 
             final var data = producer.getData();
             final var topic = producer.device.topic();
             final var mainTiming = producer.mainTiming;
 
             startSendingMessages(
-                client,
-                producer.messageType,
-                data,
-                topic,
-                mainTiming
-            );
+                    client, producer.messageType, data, topic, mainTiming);
 
             if (!producer.batteryIsPresent()) {
                 return;
@@ -121,12 +116,7 @@ public class ProducerClient {
             final var batteryTiming = producer.batteryTiming;
 
             startSendingMessages(
-                client,
-                producer.messageType,
-                batteryData,
-                batteryTopic,
-                batteryTiming
-            );
+                    client, producer.messageType, batteryData, batteryTopic, batteryTiming);
         });
     }
 

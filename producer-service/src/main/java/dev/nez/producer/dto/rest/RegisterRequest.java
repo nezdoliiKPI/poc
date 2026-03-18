@@ -1,6 +1,6 @@
-package dev.nez.simulation.dto.rest;
+package dev.nez.producer.dto.rest;
 
-import dev.nez.simulation.DeviceDataProducer.MessageType;
+import dev.nez.producer.simulation.generator.DeviceDataGenerator.MessageType;
 
 public record RegisterRequest(
     String hardwareId,

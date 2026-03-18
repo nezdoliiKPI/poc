@@ -1,4 +1,4 @@
-package dev.nez.simulation.security;
+package dev.nez.producer.security;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;

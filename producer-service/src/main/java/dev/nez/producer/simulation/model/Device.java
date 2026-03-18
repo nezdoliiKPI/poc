@@ -1,4 +1,4 @@
-package dev.nez.simulation.model;
+package dev.nez.producer.simulation.model;
 
 import io.smallrye.common.constraint.Nullable;
 

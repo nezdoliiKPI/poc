@@ -1,13 +1,13 @@
-package dev.nez.simulation;
+package dev.nez.producer.simulation.generator;
 
-import dev.nez.simulation.model.Device;
-import dev.nez.simulation.model.MessageTiming;
+import dev.nez.producer.simulation.model.Device;
+import dev.nez.producer.simulation.model.MessageTiming;
 import io.smallrye.common.constraint.NotNull;
 import io.smallrye.common.constraint.Nullable;
 
 import java.util.Random;
 
-public abstract class DeviceDataProducer {
+public abstract class DeviceDataGenerator {
     protected final Random random = new Random();
 
     public final Device device;
@@ -22,7 +22,7 @@ public abstract class DeviceDataProducer {
         JSON, PROTO
     }
 
-    protected DeviceDataProducer(
+    protected DeviceDataGenerator(
         @NotNull Device device,
         @NotNull MessageType messageType,
         @NotNull MessageTiming mainTiming,
@@ -41,10 +41,10 @@ public abstract class DeviceDataProducer {
         }
     }
 
-    protected DeviceDataProducer(
-            @NotNull Device device,
-            @NotNull MessageType messageType,
-            @NotNull MessageTiming mainTiming
+    protected DeviceDataGenerator(
+        @NotNull Device device,
+        @NotNull MessageType messageType,
+        @NotNull MessageTiming mainTiming
     ) {
         this(device, messageType, mainTiming, null);
     }

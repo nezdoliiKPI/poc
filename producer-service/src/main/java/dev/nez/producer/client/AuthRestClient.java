@@ -1,8 +1,8 @@
-package dev.nez.simulation.client;
+package dev.nez.producer.client;
 
-import dev.nez.simulation.dto.rest.LoginRequest;
-import dev.nez.simulation.dto.rest.LoginResponse;
-import dev.nez.simulation.dto.rest.RegisterRequest;
+import dev.nez.producer.dto.rest.LoginRequest;
+import dev.nez.producer.dto.rest.LoginResponse;
+import dev.nez.producer.dto.rest.RegisterRequest;
 import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
