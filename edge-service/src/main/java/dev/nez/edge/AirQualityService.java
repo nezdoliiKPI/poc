@@ -17,8 +17,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @ApplicationScoped
 public class AirQualityService {
 
-    final AtomicLong counter = new AtomicLong(0);
-
     @Incoming("air-j-in")
     public Uni<AirQuality> consumeAirQJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
@@ -48,10 +46,6 @@ public class AirQualityService {
                         msg.getHumidity()
                 ))
                 .onItem().invoke(telemetry -> Log.debug("Received from proto: " + telemetry))
-                .onItem().invoke(_ -> {
-                    var val = counter.incrementAndGet();
-                    if (val % 5000 == 0) Log.info("Received count " + val);
-                })
                 .onFailure().invoke(e -> Log.error(e.getMessage()))
                 .onFailure().recoverWithNull();
     }

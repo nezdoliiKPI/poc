@@ -23,7 +23,7 @@ services:
       - ../secrets/tls/server.key:/etc/mosquitto/certs/tls/server.key:ro
     networks:
       - iot_network
-    tty: false    # true -- for instantly output
+    tty: false # true -- for instantly output
     stdin_open: true
     command: mosquitto -c /etc/mosquitto/mosquitto.conf
 
@@ -47,6 +47,7 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+    restart: unless-stopped
     volumes:
       - timescaledb_data:/var/lib/postgresql/data
 
