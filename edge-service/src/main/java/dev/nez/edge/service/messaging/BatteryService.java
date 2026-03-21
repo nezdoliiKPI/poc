@@ -1,49 +1,43 @@
-package dev.nez.edge;
+package dev.nez.edge.service.messaging;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.edge.dto.mqtt.Battery;
 import dev.nez.edge.dto.mqtt.BatteryMessage;
+
+import dev.nez.edge.service.metrics.MetricsRecorder;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.reactive.messaging.annotations.Merge;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 @ApplicationScoped
 public class BatteryService {
+    private static final String CHANNEL_BATT_JSON = "batt-j-in";
+    private static final String CHANNEL_BATT_PROTO = "batt-p-in";
 
-    @Incoming("batt-out")
-    @Merge
-    public Uni<Void> trash(Battery telemetry) {
-        return  Uni.createFrom().nullItem();
-    }
+    @Inject
+    MetricsRecorder recorder;
 
-    @Incoming("batt-j-in")
-    @Outgoing("batt-out")
+    @Incoming(CHANNEL_BATT_JSON)
     public Uni<Battery> consumeTemperatureJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
+                .invoke(() -> recorder.recordMqttMessageReceived(CHANNEL_BATT_JSON))
                 .map(p -> Json.decodeValue(Buffer.buffer(p).getDelegate(), Battery.class))
-                .onItem().invoke(telemetry -> Log.info("Received from json: " + telemetry))
+                .invoke(telemetry -> Log.info("Received from json: " + telemetry))
                 .onFailure().invoke(e -> Log.error(e.getMessage()))
                 .onFailure().recoverWithNull();
     }
 
-    @Incoming("batt-p-in")
-    @Outgoing("batt-out")
+    @Incoming(CHANNEL_BATT_PROTO)
     public Uni<Battery> consumeTemperatureProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
-                .map(p -> {
-                    try {
-                        return BatteryMessage.parseFrom(p);
-                    } catch (InvalidProtocolBufferException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
+                .invoke(() -> recorder.recordMqttMessageReceived(CHANNEL_BATT_PROTO))
+                .map(Unchecked.function(p -> BatteryMessage.parseFrom(p)))
                 .map(msg -> new Battery(msg.getDeviceId(), msg.getVal()))
-                .onItem().invoke(telemetry -> Log.info("Received from proto: " + telemetry))
+                .invoke(telemetry -> Log.info("Received from proto: " + telemetry))
                 .onFailure().invoke(e -> Log.error(e.getMessage()))
                 .onFailure().recoverWithNull();
     }

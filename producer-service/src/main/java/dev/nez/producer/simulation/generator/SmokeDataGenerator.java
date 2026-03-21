@@ -5,6 +5,8 @@ import dev.nez.producer.dto.mqtt.SmokeDetector;
 import dev.nez.producer.simulation.model.Device;
 import dev.nez.producer.simulation.model.MessageTiming;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class SmokeDataGenerator extends DeviceDataGenerator {
@@ -25,8 +27,8 @@ public class SmokeDataGenerator extends DeviceDataGenerator {
 
     @Override
     public Object getData() {
-        final var sr = 15 + random.nextInt(26);
-        final var co = random.nextInt(10) > 8 ? 1 + random.nextInt(2) : 0;
+        final var sr = 15 + rnd.nextInt(26);
+        final var co = rnd.nextInt(10) > 8 ? 1 + rnd.nextInt(2) : 0;
 
         return new SmokeDetector(this.deviceId, sr, co);
     }

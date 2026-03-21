@@ -8,7 +8,7 @@ import io.smallrye.common.constraint.Nullable;
 import java.util.Random;
 
 public abstract class DeviceDataGenerator {
-    protected final Random random = new Random();
+    protected final Random rnd = new Random();
 
     public final Device device;
     public final MessageType messageType;

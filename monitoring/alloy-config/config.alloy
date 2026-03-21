@@ -1,12 +1,17 @@
-// Collect metrics from edge-service
-prometheus.scrape "edge_service" {
-  targets = [
-    {"__address__" = "host.docker.internal:8082", "app" = "edge-service"},
-    {"__address__" = "host.docker.internal:8080", "app" = "auth-service"},
-  ]
-  metrics_path = "/q/metrics"
-  scrape_interval = "15s"
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
 
+  output {
+    metrics = [otelcol.exporter.prometheus.to_prom.input]
+  }
+}
+
+otelcol.exporter.prometheus "to_prom" {
   forward_to = [prometheus.remote_write.local_prom.receiver]
 }
 
