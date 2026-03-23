@@ -1,4 +1,4 @@
-package dev.nez.edge.service.metrics;
+package dev.nez.edge.service.metrics.recorder;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.enterprise.context.ApplicationScoped;
