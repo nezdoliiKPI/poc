@@ -3,7 +3,6 @@ package dev.nez.edge.service.messaging;
 import dev.nez.edge.dto.mqtt.PowerConsumption;
 import dev.nez.edge.dto.mqtt.PowerConsumptionMessage;
 import dev.nez.edge.service.metrics.Interceptor.RecordConsumingMessage;
-import dev.nez.edge.service.metrics.recorder.MetricsRecorder;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
