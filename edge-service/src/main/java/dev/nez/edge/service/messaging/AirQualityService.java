@@ -19,7 +19,7 @@ public class AirQualityService {
     private static final String CHANNEL_AIR_PROTO = "air-p-in";
 
     @Incoming(CHANNEL_AIR_JSON)
-    @RecordConsumingMessage(topic = CHANNEL_AIR_JSON)
+    @RecordConsumingMessage(CHANNEL_AIR_JSON)
     public Uni<AirQuality> consumeAirQJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
                 .map(p -> Json.decodeValue(Buffer.buffer(p).getDelegate(), AirQuality.class))
@@ -29,7 +29,7 @@ public class AirQualityService {
     }
 
     @Incoming(CHANNEL_AIR_PROTO)
-    @RecordConsumingMessage(topic = CHANNEL_AIR_PROTO)
+    @RecordConsumingMessage(CHANNEL_AIR_PROTO)
     public Uni<AirQuality> consumeAirQProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
                 .map(Unchecked.function(p -> AirQualityMessage.parseFrom(p)))

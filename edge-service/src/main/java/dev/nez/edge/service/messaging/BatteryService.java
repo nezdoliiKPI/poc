@@ -18,7 +18,7 @@ public class BatteryService {
     private static final String CHANNEL_BATT_PROTO = "batt-p-in";
 
     @Incoming(CHANNEL_BATT_JSON)
-    @RecordConsumingMessage(topic = CHANNEL_BATT_JSON)
+    @RecordConsumingMessage(CHANNEL_BATT_JSON)
     public Uni<Battery> consumeTemperatureJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
                 .map(p -> Json.decodeValue(Buffer.buffer(p).getDelegate(), Battery.class))
@@ -28,7 +28,7 @@ public class BatteryService {
     }
 
     @Incoming(CHANNEL_BATT_PROTO)
-    @RecordConsumingMessage(topic = CHANNEL_BATT_PROTO)
+    @RecordConsumingMessage(CHANNEL_BATT_PROTO)
     public Uni<Battery> consumeTemperatureProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
                 .map(Unchecked.function(p -> BatteryMessage.parseFrom(p)))

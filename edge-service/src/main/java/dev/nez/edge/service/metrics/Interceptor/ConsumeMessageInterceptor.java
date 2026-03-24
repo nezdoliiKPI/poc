@@ -8,7 +8,7 @@ import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
 
 @SuppressWarnings("unused")
-@RecordConsumingMessage(topic = "")
+@RecordConsumingMessage("")
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION)
 public class ConsumeMessageInterceptor {
@@ -19,7 +19,7 @@ public class ConsumeMessageInterceptor {
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {
         final RecordConsumingMessage annotation = context.getMethod().getAnnotation(RecordConsumingMessage.class);
-        final String channel = annotation.topic();
+        final String channel = annotation.value();
 
         recorder.recordMqttMessageReceived(channel);
         return context.proceed();

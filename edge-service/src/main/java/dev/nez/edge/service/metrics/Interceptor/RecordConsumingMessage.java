@@ -10,5 +10,5 @@ import java.lang.annotation.*;
 public @interface RecordConsumingMessage {
 
     @Nonbinding
-    String topic();
+    String value();
 }

@@ -14,7 +14,7 @@ public class PowerConsumptionService {
     private static final String CHANNEL_POWER_PROTO = "power-p-in";
 
     @Incoming(CHANNEL_POWER_PROTO)
-    @RecordConsumingMessage(topic = CHANNEL_POWER_PROTO)
+    @RecordConsumingMessage(CHANNEL_POWER_PROTO)
     public Uni<PowerConsumption> consumeAirQProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
                 .map(Unchecked.function(p -> PowerConsumptionMessage.parseFrom(p)))
