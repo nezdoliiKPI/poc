@@ -32,6 +32,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
+@SuppressWarnings({
+    "CdiInjectionPointsInspection",
+    "ReactiveStreamsUnusedPublisher"
+})
 @ApplicationScoped
 @Connector(MqttConnector.CONNECTOR_NAME)
 public class MqttConnector  implements InboundConnector {
@@ -47,7 +51,6 @@ public class MqttConnector  implements InboundConnector {
     Vertx vertx;
 
     @Override
-    @SuppressWarnings("ReactiveStreamsUnusedPublisher")
     public Flow.Publisher<? extends Message<?>> getPublisher(Config config) {
         final String channelName = config.getOptionalValue("channel-name", String.class)
                 .orElseThrow(() -> new IllegalArgumentException("channel-name not found"));

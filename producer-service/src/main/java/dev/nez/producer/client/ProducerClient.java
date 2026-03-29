@@ -148,7 +148,7 @@ public class ProducerClient {
                     .topic(topic)
                     .payload(serialize(data, messageType))
                     .qos(MqttQos.AT_LEAST_ONCE)
-                    .messageExpiryInterval(3000000) // TODO timing.messageTtlSeconds()
+                    .messageExpiryInterval(timing.messageTtlSeconds())
                     .send()
                     .whenComplete((_, pubThrowable) -> {
                         if (pubThrowable != null) {
