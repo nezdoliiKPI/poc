@@ -1,4 +1,4 @@
-package dev.nez.edge.service.metrics.Interceptor;
+package dev.nez.edge.interceptor;
 
 import jakarta.enterprise.util.Nonbinding;
 import jakarta.interceptor.InterceptorBinding;

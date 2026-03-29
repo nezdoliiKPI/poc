@@ -1,6 +1,7 @@
 package dev.nez.producer.dto.mqtt;
 
 import dev.nez.producer.dto.ProtocolBuffer;
+import dev.nez.simulation.dto.mqtt.AirQualityMessage;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**

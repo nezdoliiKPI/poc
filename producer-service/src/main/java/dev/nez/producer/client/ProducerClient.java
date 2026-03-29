@@ -15,6 +15,7 @@ import dev.nez.producer.simulation.model.MessageTiming;
 import dev.nez.producer.security.MqttTrustManagerProvider;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.core.json.Json;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,6 +27,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Supplier;
 
 @ApplicationScoped
 public class ProducerClient {
@@ -69,12 +71,12 @@ public class ProducerClient {
 
     private Uni<Void> registerDevice(RegisterRequest request) {
         return authClient.register(request)
-            .onFailure(WebApplicationException.class).recoverWithItem(ex -> {
+            .onFailure(WebApplicationException.class).recoverWithItem(Unchecked.function(ex -> {
                     if (ex.getResponse().getStatus() == 409) {
                     return null;
                 }
                 throw new RuntimeException("Registration failed: " + ex.getMessage());
-            }).replaceWithVoid();
+            })).replaceWithVoid();
     }
 
     private void startDeviceConnection(DeviceDataGenerator producer) {
@@ -100,23 +102,21 @@ public class ProducerClient {
             }
             Log.debug("Connected to MQTT broker: " + brokerHost + ":" + brokerPort);
 
-            final var data = producer.getData();
             final var topic = producer.device.topic();
             final var mainTiming = producer.mainTiming;
 
             startSendingMessages(
-                    client, producer.messageType, data, topic, mainTiming);
+                    client, producer.messageType, producer::getData, topic, mainTiming);
 
             if (!producer.batteryIsPresent()) {
                 return;
             }
 
-            final var batteryData = producer.getBatteryData();
             final var batteryTopic = producer.device.batteryTopic();
             final var batteryTiming = producer.batteryTiming;
 
             startSendingMessages(
-                    client, producer.messageType, batteryData, batteryTopic, batteryTiming);
+                    client, producer.messageType, producer::getBatteryData, batteryTopic, batteryTiming);
         });
     }
 
@@ -136,17 +136,19 @@ public class ProducerClient {
     private void startSendingMessages(
         Mqtt5AsyncClient client,
         MessageType messageType,
-        Object data,
+        Supplier<Object> dataProvider,
         String topic,
         MessageTiming timing
     ) {
-        scheduler.scheduleAtFixedRate(
-            () -> client
+        scheduler.scheduleAtFixedRate(() -> {
+                final var data = dataProvider.get();
+
+                client
                     .publishWith()
                     .topic(topic)
                     .payload(serialize(data, messageType))
                     .qos(MqttQos.AT_LEAST_ONCE)
-                    .messageExpiryInterval(timing.messageTtlSeconds())
+                    .messageExpiryInterval(3000000) // TODO timing.messageTtlSeconds()
                     .send()
                     .whenComplete((_, pubThrowable) -> {
                         if (pubThrowable != null) {
@@ -154,6 +156,7 @@ public class ProducerClient {
                         } else {
                             Log.debug("Published: " + data);
                         }
-            }), timing.initialDelay(), timing.period(), timing.unit());
+                    });
+        }, timing.initialDelay(), timing.period(), timing.unit());
     }
 }

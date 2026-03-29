@@ -2,8 +2,7 @@ package dev.nez.edge.service.messaging;
 
 import dev.nez.edge.dto.mqtt.PowerConsumption;
 import dev.nez.edge.dto.mqtt.PowerConsumptionMessage;
-import dev.nez.edge.service.metrics.Interceptor.RecordConsumingMessage;
-import io.quarkus.logging.Log;
+import dev.nez.edge.interceptor.RecordConsumingMessage;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,7 +14,7 @@ public class PowerConsumptionService {
 
     @Incoming(CHANNEL_POWER_PROTO)
     @RecordConsumingMessage(CHANNEL_POWER_PROTO)
-    public Uni<PowerConsumption> consumeAirQProto(byte[] payload) {
+    public Uni<PowerConsumption> consumePowerProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
                 .map(Unchecked.function(p -> PowerConsumptionMessage.parseFrom(p)))
                 .map(msg -> new PowerConsumption(
@@ -23,9 +22,6 @@ public class PowerConsumptionService {
                         msg.getVoltage(),
                         msg.getCurrent(),
                         msg.getPower()
-                ))
-                .invoke(telemetry -> Log.debug("Received from proto: " + telemetry))
-                .onFailure().invoke(e -> Log.error(e.getMessage()))
-                .onFailure().recoverWithNull();
+                ));
     }
 }

@@ -1,12 +1,14 @@
 package dev.nez.edge.service.messaging;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.edge.dto.mqtt.AirQuality;
 import dev.nez.edge.dto.mqtt.AirQualityMessage;
-import dev.nez.edge.service.metrics.Interceptor.RecordConsumingMessage;
-import io.quarkus.logging.Log;
+import dev.nez.edge.exception.DecodeMessageException;
+import dev.nez.edge.interceptor.RecordConsumingMessage;
 import io.smallrye.mutiny.Uni;
 
 import io.smallrye.mutiny.unchecked.Unchecked;
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.mutiny.core.buffer.Buffer;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,17 +24,26 @@ public class AirQualityService {
     @RecordConsumingMessage(CHANNEL_AIR_JSON)
     public Uni<AirQuality> consumeAirQJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
-                .map(p -> Json.decodeValue(Buffer.buffer(p).getDelegate(), AirQuality.class))
-                .invoke(telemetry -> Log.debug("Received from json: " + telemetry))
-                .onFailure().invoke(e -> Log.error(e.getMessage()))
-                .onFailure().recoverWithNull();
+                .map(Unchecked.function(p -> {
+                    try {
+                        return Json.decodeValue(Buffer.buffer(p).getDelegate(), AirQuality.class);
+                    } catch (final DecodeException e) {
+                        throw new DecodeMessageException(e.getMessage(), e);
+                    }
+                }));
     }
 
     @Incoming(CHANNEL_AIR_PROTO)
     @RecordConsumingMessage(CHANNEL_AIR_PROTO)
     public Uni<AirQuality> consumeAirQProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
-                .map(Unchecked.function(p -> AirQualityMessage.parseFrom(p)))
+                .map(Unchecked.function(p -> {
+                    try {
+                        return AirQualityMessage.parseFrom(p);
+                    } catch (final InvalidProtocolBufferException e) {
+                        throw new DecodeMessageException(e.getMessage(), e);
+                    }
+                }))
                 .map(msg -> new AirQuality(
                         msg.getDeviceId(),
                         msg.getCo2(),
@@ -41,9 +52,6 @@ public class AirQualityService {
                         msg.getTvoc(),
                         msg.getTemperature(),
                         msg.getHumidity()
-                ))
-                .invoke(telemetry -> Log.debug("Received from proto: " + telemetry))
-                .onFailure().invoke(e -> Log.error(e.getMessage()))
-                .onFailure().recoverWithNull();
+                ));
     }
 }
