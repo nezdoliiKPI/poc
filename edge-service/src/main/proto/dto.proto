@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "dev.nez.edge.dto.mqtt";
-option java_outer_classname = "ProducerProtos";
+option java_outer_classname = "DtoProtos";
 
 message PowerConsumptionMessage {
   int64 device_id = 1;

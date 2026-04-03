@@ -109,7 +109,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(mqtt_messages_received_total{job=\"edge-service\"}[3m]))",
+          "expr": "sum(rate(mqtt_message_processing_duration_milliseconds_count{job=\"edge-service\"}[3m]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -133,6 +133,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

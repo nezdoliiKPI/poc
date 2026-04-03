@@ -141,22 +141,22 @@ public class ProducerClient {
         MessageTiming timing
     ) {
         scheduler.scheduleAtFixedRate(() -> {
-                final var data = dataProvider.get();
+            final var data = dataProvider.get();
 
-                client
-                    .publishWith()
-                    .topic(topic)
-                    .payload(serialize(data, messageType))
-                    .qos(MqttQos.AT_LEAST_ONCE)
-                    .messageExpiryInterval(timing.messageTtlSeconds())
-                    .send()
-                    .whenComplete((_, pubThrowable) -> {
-                        if (pubThrowable != null) {
-                            Log.error("Send error", pubThrowable);
-                        } else {
-                            Log.debug("Published: " + data);
-                        }
-                    });
+            client
+                .publishWith()
+                .topic(topic)
+                .payload(serialize(data, messageType))
+                .qos(MqttQos.AT_LEAST_ONCE)
+                .messageExpiryInterval(timing.messageTtlSeconds())
+                .send()
+                .whenComplete((_, pubThrowable) -> {
+                    if (pubThrowable != null) {
+                        Log.error("Send error", pubThrowable);
+                    } else {
+                        Log.debug("Published: " + data);
+                    }
+                });
         }, timing.initialDelay(), timing.period(), timing.unit());
     }
 }

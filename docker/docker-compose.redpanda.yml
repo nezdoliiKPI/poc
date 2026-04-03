@@ -1,0 +1,40 @@
+version: '3.8'
+name: redpanda-local
+
+services:
+
+  redpanda:
+    build: ../redpanda
+    image: configured-redpanda:local
+    container_name: redpanda-0
+    restart: unless-stopped
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+    ports:
+      - 18091:8091  # Schema Registry
+      - 18092:8092  # HTTP Proxy
+      - 19092:19092 # Kafka API (Сюди підключається Quarkus)
+      - 19644:9644  # Admin API
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+
+  console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: redpanda-console
+    entrypoint: /app/console
+    ports:
+      - 8099:8080
+    environment:
+      - KAFKA_BROKERS=redpanda-0:9092
+      - KAFKA_SCHEMAREGISTRY_URL=http://redpanda-0:8091
+    depends_on:
+      - redpanda
+
+volumes:
+  redpanda-data:
+    driver: local

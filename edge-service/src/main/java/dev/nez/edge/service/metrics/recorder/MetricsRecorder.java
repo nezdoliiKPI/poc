@@ -15,10 +15,11 @@ public class MetricsRecorder {
     }
 
     public void recordMessageProcessingError(String topicName, String exceptionType) {
-        registry.counter("mqtt_messages_processing_errors_total",
-                         "topic", topicName,
-                         "error_type", exceptionType)
-                .increment();
+        registry.counter(
+        "mqtt_messages_processing_errors_total",
+        "topic", topicName,
+            "error_type", exceptionType
+        ).increment();
     }
 
     public Timer.Sample startTimer() {

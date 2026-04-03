@@ -12,7 +12,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * @param tvoc  Total Volatile Organic Compounds in mg/m³
  * @param t     ambient t in Celsius
  * @param h     relative h percentage (0.0 to 100.0)
- *
  */
 @RegisterForReflection
 public record AirQuality(

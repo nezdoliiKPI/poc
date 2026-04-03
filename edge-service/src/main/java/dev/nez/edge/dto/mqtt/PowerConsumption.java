@@ -9,7 +9,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * @param cv    current voltage (V)
  * @param cf    current flow (A)
  * @param pow   active power (W)
- *
  */
 @RegisterForReflection
 public record PowerConsumption(

@@ -6,6 +6,7 @@ import dev.nez.producer.simulation.generator.DeviceDataGenerator;
 import dev.nez.producer.simulation.generator.PowerDataGenerator;
 import dev.nez.producer.simulation.generator.SmokeDataGenerator;
 
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -37,6 +38,12 @@ public class Simulator {
 
     void onStart(@Observes StartupEvent ev) {
         final var devices = initDataGenerators();
+
+        final float intensity = devices.stream()
+                .map(DeviceDataGenerator::getIntensityPerSecond)
+                .reduce(0.0f, Float::sum);
+
+        Log.info("Predicted messages per second: " + intensity);
 
         for (var generator  : devices) {
             producerClient.startSimulation(generator);

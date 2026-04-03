@@ -53,10 +53,21 @@ public abstract class DeviceDataGenerator {
         return batteryTiming != null;
     }
 
+    public float getIntensityPerSecond() {
+        final double millis = 1_000.0;
+
+        final double mainIntensity = millis / (mainTiming.period() * mainTiming.unit().toMillis(1));
+        final double batteryIntensity = batteryIsPresent()
+                ? millis / (batteryTiming.period() * batteryTiming.unit().toMillis(1))
+                : 0;
+
+        return (float) (mainIntensity + batteryIntensity);
+    }
+
     public abstract Object getData();
 
     public Object getBatteryData() {
-        if (batteryTiming != null) {
+        if (batteryIsPresent()) {
             throw new UnsupportedOperationException(
                     "BatteryTiming is already set, but getBatteryData() not implemented yet.");
         } else  {

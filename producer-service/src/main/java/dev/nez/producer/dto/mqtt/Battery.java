@@ -9,7 +9,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  *
  * @param id unique device ID
  * @param v
- *
  */
 @RegisterForReflection
 public record Battery(

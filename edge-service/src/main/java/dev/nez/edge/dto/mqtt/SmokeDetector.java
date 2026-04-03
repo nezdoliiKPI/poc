@@ -8,7 +8,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * @param id    unique device ID
  * @param sr    raw optical sensor value (0–1023 ADC)
  * @param co    CO concentration in ppm
- *
  */
 @RegisterForReflection
 public record SmokeDetector(
