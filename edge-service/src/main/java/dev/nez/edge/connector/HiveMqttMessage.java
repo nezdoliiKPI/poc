@@ -10,8 +10,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public record HiveMqttMessage(
-        Mqtt5Publish publish,
-        FailureStrategy failureStrategy
+    Mqtt5Publish publish,
+    FailureStrategy failureStrategy
 ) implements Message<byte[]> {
 
     @Override
