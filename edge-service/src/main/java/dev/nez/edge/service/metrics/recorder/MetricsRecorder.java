@@ -32,10 +32,10 @@ public class MetricsRecorder {
                 .tags("topic", topicName)
                 .publishPercentileHistogram()
                 .serviceLevelObjectives(
-                        Duration.ofMillis(5),
-                        Duration.ofMillis(20),
-                        Duration.ofMillis(100),
-                        Duration.ofMillis(500)
+                    Duration.ofMillis(5),
+                    Duration.ofMillis(20),
+                    Duration.ofMillis(100),
+                    Duration.ofMillis(500)
                 )
                 .minimumExpectedValue(Duration.ofMillis(1))
                 .maximumExpectedValue(Duration.ofMillis(2000))

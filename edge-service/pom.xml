@@ -11,8 +11,15 @@
     <artifactId>edge-service</artifactId>
 
     <properties>
-        <protobuf.version>4.33.5</protobuf.version>
+        <protobuf.version>4.34.1</protobuf.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -38,10 +45,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-messaging</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.quarkus</groupId>-->
-<!--            <artifactId>quarkus-messaging-kafka</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-messaging-kafka</artifactId>
+        </dependency>
 
         <!-- MQTT5 connector sources -->
         <dependency>
@@ -65,6 +72,14 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/io.confluent/kafka-protobuf-serializer -->
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-protobuf-serializer</artifactId>
+            <version>8.1.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
