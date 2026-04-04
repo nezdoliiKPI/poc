@@ -2,11 +2,11 @@ package dev.nez.edge.service.metrics.recorder;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Singleton;
 
 import java.time.Duration;
 
-@ApplicationScoped
+@Singleton
 public class MetricsRecorder {
     private final MeterRegistry registry;
 

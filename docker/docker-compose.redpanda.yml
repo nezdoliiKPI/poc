@@ -27,11 +27,11 @@ services:
     image: docker.redpanda.com/redpandadata/console:latest
     container_name: redpanda-console
     entrypoint: /app/console
+    command: --config.filepath=/console-config.yml
     ports:
       - 8099:8080
-    environment:
-      - KAFKA_BROKERS=redpanda-0:9092
-      - KAFKA_SCHEMAREGISTRY_URL=http://redpanda-0:8091
+    volumes:
+      - ../redpanda/console-config.yml:/console-config.yml
     depends_on:
       - redpanda
 

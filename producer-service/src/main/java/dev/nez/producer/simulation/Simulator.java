@@ -60,7 +60,7 @@ public class Simulator {
                 "hardware" + deviceId++,
                 "pass",
                 "dev/air/p",
-                "dev/batt/pow",
+                "dev/batt/p",
                 DeviceDataGenerator.MessageType.PROTO
             ));
         }
@@ -70,7 +70,7 @@ public class Simulator {
                 "hardware" + deviceId++,
                 "pass",
                 "dev/air/j",
-                "dev/batt/pow",
+                "dev/batt/j",
                 DeviceDataGenerator.MessageType.JSON
             ));
         }
@@ -89,7 +89,7 @@ public class Simulator {
                 "hardware" + deviceId++,
                 "pass",
                 "dev/smoke/p",
-                "dev/batt/pow",
+                "dev/batt/p",
                 DeviceDataGenerator.MessageType.PROTO
             ));
         }
