@@ -157,7 +157,7 @@ public class ProducerClient {
                     if (pubThrowable != null) {
                         Log.error("Send error", pubThrowable);
                     } else {
-                        Log.debug("Published: " + data);
+                        Log.debug("Published data " + data + " in topic " + topic);
                     }
                 });
         }, timing.initialDelay(), timing.period(), timing.unit());

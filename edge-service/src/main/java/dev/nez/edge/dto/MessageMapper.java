@@ -8,6 +8,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.edge.data.AirQualityData;
 import dev.nez.edge.data.BatteryData;
 import dev.nez.edge.data.PowerConsumptionData;
+import dev.nez.edge.data.SmokeDetectorData;
 import dev.nez.edge.dto.mqtt.AirQuality;
 import dev.nez.edge.dto.mqtt.Battery;
 
@@ -87,6 +88,18 @@ public class MessageMapper {
     public BatteryData fromProtoBattery(byte[] payload) throws DecodeMessageException {
         try {
             return BatteryData.parseFrom(payload)
+                .toBuilder()
+                .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
+                .build();
+
+        } catch (final InvalidProtocolBufferException e) {
+            throw new DecodeMessageException(e.getMessage(), e);
+        }
+    }
+
+    public SmokeDetectorData fromProtoSmoke(byte[] payload) throws DecodeMessageException {
+        try {
+            return SmokeDetectorData.parseFrom(payload)
                 .toBuilder()
                 .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
                 .build();

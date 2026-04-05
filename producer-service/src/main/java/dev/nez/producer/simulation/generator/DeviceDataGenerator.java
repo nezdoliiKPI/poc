@@ -2,6 +2,7 @@ package dev.nez.producer.simulation.generator;
 
 import dev.nez.producer.simulation.model.Device;
 import dev.nez.producer.simulation.model.MessageTiming;
+
 import io.smallrye.common.constraint.NotNull;
 import io.smallrye.common.constraint.Nullable;
 
