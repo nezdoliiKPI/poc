@@ -1,13 +1,10 @@
-package dev.nez.edge.interceptor;
+package dev.nez.consumer.interceptor;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
 import com.google.protobuf.util.JsonFormat.Printer;
 
-import dev.nez.edge.exception.DecodeMessageException;
-import dev.nez.edge.service.metrics.recorder.MetricsRecorder;
-
+import dev.nez.consumer.metrics.recorder.MetricsRecorder;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
@@ -39,19 +36,15 @@ public class ConsumeMessageInterceptor {
             final var timer = recorder.startTimer();
 
             return ((Uni<?>) context.proceed())
-                .invoke(telemetry -> {
-                    try {
-                        Log.debug("Received from " + topicName + ": " + protoPrinter.print((MessageOrBuilder) telemetry));
-                    } catch (final InvalidProtocolBufferException e) {
-                        Log.warn("Failed to parse telemetry to JSON for debug log", e);
-                    }
-                })
+                .invoke(Unchecked.consumer(telemetry -> Log.debug(
+                    "Received from " + topicName + ": " + protoPrinter.print((MessageOrBuilder) telemetry)))
+                )
                 .eventually(() -> recorder.recordProcessingTime(timer, topicName))
                 .onFailure().invoke(throwable -> {
                     recorder.recordMessageProcessingError(topicName, throwable.getClass().getSimpleName());
-                    Log.error("Decode message error from topic " + topicName, throwable);
+                    Log.error("Processing message error from topic " + topicName, throwable);
                 })
-                .onFailure(DecodeMessageException.class).recoverWithNull();
+                .onFailure().recoverWithNull();
         }));
     }
 }

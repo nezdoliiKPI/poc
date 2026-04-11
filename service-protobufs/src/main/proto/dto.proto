@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package mqtt;
+
+option java_multiple_files = true;
+option java_package = "dev.nez.proto.mqtt";
+option java_outer_classname = "Protos";
+
+// Represents a single reading of power consumption telemetry from a device.
+//
+// Attributes:
+//   - device_id: The unique identifier of the sensor or device.
+//   - voltage:   The electrical voltage level in volts (V).
+//   - current:   The electrical current flow in amperes (A).
+//   - power:     The active power consumption in watts (W).
+message PowerConsumptionMessage {
+  int64 device_id = 1;
+  float voltage = 2;
+  float current = 3;
+  float power = 4;
+}
+
+// Represents a single reading of indoor air quality telemetry from a device.
+//
+// Attributes:
+//   - device_id:   The unique identifier of the sensor or device.
+//   - co2:         The carbon dioxide concentration in parts per million (ppm).
+//   - pm25:        The concentration of fine particulate matter (< 2.5 µm) in micrograms per cubic meter (µg/m³).
+//   - pm10:        The concentration of coarse particulate matter (< 10 µm) in micrograms per cubic meter (µg/m³).
+//   - tvoc:        The total volatile organic compounds index or concentration level.
+//   - temperature: The ambient temperature in degrees Celsius (°C).
+//   - humidity:    The relative humidity percentage (%).
+message AirQualityMessage {
+  int64 device_id = 1;
+  int32 co2 = 2;
+  float pm25 = 3;
+  float pm10 = 4;
+  float tvoc = 5;
+  float temperature = 6;
+  float humidity = 7;
+}
+
+// Represents a single reading of smoke and gas telemetry from a detector.
+//
+// Attributes:
+//   - device_id: The unique identifier of the sensor or device.
+//   - smoke_raw: The raw analog value indicating smoke density or particle obstruction.
+//   - co_level:  The carbon monoxide concentration level, typically in parts per million (ppm).
+message SmokeDetectorMessage {
+  int64 device_id = 1;
+  int32 smoke_raw = 2;
+  int32 co_level = 3;
+}
+
+// Represents a single reading of battery status telemetry from a device.
+//
+// Attributes:
+//   - device_id: The unique identifier of the sensor or device.
+//   - val:       The current battery level, typically represented as a percentage (%) or raw voltage (V).
+message BatteryMessage {
+  int64 device_id = 1;
+  float val = 2;
+}

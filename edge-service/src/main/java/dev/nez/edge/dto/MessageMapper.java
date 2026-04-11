@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.ObjectReader;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import dev.nez.edge.data.AirQualityData;
-import dev.nez.edge.data.BatteryData;
-import dev.nez.edge.data.PowerConsumptionData;
-import dev.nez.edge.data.SmokeDetectorData;
+import dev.nez.proto.timeddata.AirQualityData;
+import dev.nez.proto.timeddata.BatteryData;
+import dev.nez.proto.timeddata.PowerConsumptionData;
+import dev.nez.proto.timeddata.SmokeDetectorData;
+
 import dev.nez.edge.dto.mqtt.AirQuality;
 import dev.nez.edge.dto.mqtt.Battery;
 

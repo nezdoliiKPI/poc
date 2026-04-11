@@ -1,6 +1,6 @@
 package dev.nez.edge.service.messaging;
 
-import dev.nez.edge.data.PowerConsumptionData;
+import dev.nez.proto.timeddata.PowerConsumptionData;
 import dev.nez.edge.dto.MessageMapper;
 import dev.nez.edge.interceptor.RecordConsumingMessage;
 

@@ -1,6 +1,6 @@
 package dev.nez.edge.service.messaging;
 
-import dev.nez.edge.data.SmokeDetectorData;
+import dev.nez.proto.timeddata.SmokeDetectorData;
 import dev.nez.edge.dto.MessageMapper;
 import dev.nez.edge.interceptor.RecordConsumingMessage;
 
