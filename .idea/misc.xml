@@ -10,6 +10,7 @@
         <option value="$PROJECT_DIR$/auth-service/pom.xml" />
         <option value="$PROJECT_DIR$/main-service/pom.xml" />
         <option value="$PROJECT_DIR$/service-protobufs/pom.xml" />
+        <option value="$PROJECT_DIR$/protobufs/pom.xml" />
       </list>
     </option>
   </component>

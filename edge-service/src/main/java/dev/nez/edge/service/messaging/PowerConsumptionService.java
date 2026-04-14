@@ -2,7 +2,7 @@ package dev.nez.edge.service.messaging;
 
 import dev.nez.proto.timeddata.PowerConsumptionData;
 import dev.nez.edge.dto.MessageMapper;
-import dev.nez.edge.interceptor.RecordConsumingMessage;
+import dev.nez.edge.interceptor.InterceptConsumingMessage;
 
 import io.smallrye.mutiny.Uni;
 
@@ -22,7 +22,7 @@ public class PowerConsumptionService {
 
     @Incoming(CHANNEL_POWER_PROTO_IN)
     @Outgoing(CHANNEL_POWER_OUT)
-    @RecordConsumingMessage(CHANNEL_POWER_PROTO_IN)
+    @InterceptConsumingMessage(CHANNEL_POWER_PROTO_IN)
     public Uni<PowerConsumptionData> consumePowerProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
             .map(p -> mapper.fromProtoPowerConsumption(p));

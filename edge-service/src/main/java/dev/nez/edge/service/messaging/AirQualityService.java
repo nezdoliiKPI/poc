@@ -3,7 +3,7 @@ package dev.nez.edge.service.messaging;
 import dev.nez.proto.timeddata.AirQualityData;
 import dev.nez.edge.dto.MessageMapper;
 
-import dev.nez.edge.interceptor.RecordConsumingMessage;
+import dev.nez.edge.interceptor.InterceptConsumingMessage;
 
 import io.smallrye.mutiny.Uni;
 
@@ -24,7 +24,7 @@ public class AirQualityService {
 
     @Incoming(CHANNEL_AIR_JSON_IN)
     @Outgoing(CHANNEL_AIR_OUT)
-    @RecordConsumingMessage(CHANNEL_AIR_JSON_IN)
+    @InterceptConsumingMessage(CHANNEL_AIR_JSON_IN)
     public Uni<AirQualityData> consumeAirQJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
             .map(p -> mapper.fromJsonAirQuality(p));
@@ -32,7 +32,7 @@ public class AirQualityService {
 
     @Incoming(CHANNEL_AIR_PROTO_IN)
     @Outgoing(CHANNEL_AIR_OUT)
-    @RecordConsumingMessage(CHANNEL_AIR_PROTO_IN)
+    @InterceptConsumingMessage(CHANNEL_AIR_PROTO_IN)
     public Uni<AirQualityData> consumeAirQProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
             .map(p -> mapper.fromProtoAirQuality(p));

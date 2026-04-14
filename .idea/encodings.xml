@@ -9,8 +9,8 @@
     <file url="file://$PROJECT_DIR$/main-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/producer-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/producer-service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/service-protobufs/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/service-protobufs/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/protobufs/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/protobufs/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
