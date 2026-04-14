@@ -91,11 +91,11 @@ public class ProducerClient {
                 .sslConfig()
                     .trustManagerFactory(provider.provide())
                 .applySslConfig()
-                .automaticReconnectWithDefaultConfig()
                 .simpleAuth()
                     .username(producer.deviceId.toString())
                     .password(producer.token.getBytes())
                 .applySimpleAuth()
+                .automaticReconnectWithDefaultConfig()
                 .buildAsync();
 
         client.connect().whenComplete((_, throwable) -> {

@@ -16,7 +16,7 @@ public class MetricsRecorder {
 
     public void recordMessageProcessingError(String topicName, String exceptionType) {
         registry.counter(
-        "mqtt_messages_processing_errors_total",
+        "messages_processing_errors_total",
         "topic", topicName,
             "error_type", exceptionType
         ).increment();
@@ -27,7 +27,7 @@ public class MetricsRecorder {
     }
 
     public void recordProcessingTime(Timer.Sample sample, String topicName) {
-        Timer timer = Timer.builder("mqtt_message_processing_duration")
+        Timer timer = Timer.builder("message_processing_duration")
                 .description("Time taken to process MQTT messages")
                 .tags("topic", topicName)
                 .publishPercentileHistogram()

@@ -2,7 +2,7 @@ package dev.nez.edge.service.messaging;
 
 import dev.nez.proto.timeddata.BatteryData;
 import dev.nez.edge.dto.MessageMapper;
-import dev.nez.edge.interceptor.RecordConsumingMessage;
+import dev.nez.edge.interceptor.InterceptConsumingMessage;
 
 import io.smallrye.mutiny.Uni;
 
@@ -23,7 +23,7 @@ public class BatteryService {
 
     @Incoming(CHANNEL_BATT_JSON_IN)
     @Outgoing(CHANNEL_BATT_OUT)
-    @RecordConsumingMessage(CHANNEL_BATT_JSON_IN)
+    @InterceptConsumingMessage(CHANNEL_BATT_JSON_IN)
     public Uni<BatteryData> consumeTemperatureJson(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
             .map(p -> mapper.fromJsonBattery(p));
@@ -31,7 +31,7 @@ public class BatteryService {
 
     @Incoming(CHANNEL_BATT_PROTO_IN)
     @Outgoing(CHANNEL_BATT_OUT)
-    @RecordConsumingMessage(CHANNEL_BATT_PROTO_IN)
+    @InterceptConsumingMessage(CHANNEL_BATT_PROTO_IN)
     public Uni<BatteryData> consumeTemperatureProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
             .map(p -> mapper.fromProtoBattery(p));

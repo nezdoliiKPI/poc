@@ -2,7 +2,7 @@ package dev.nez.edge.service.messaging;
 
 import dev.nez.proto.timeddata.SmokeDetectorData;
 import dev.nez.edge.dto.MessageMapper;
-import dev.nez.edge.interceptor.RecordConsumingMessage;
+import dev.nez.edge.interceptor.InterceptConsumingMessage;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +21,7 @@ public class SmokeDetectorService {
 
     @Incoming(CHANNEL_SMOKE_PROTO_IN)
     @Outgoing(CHANNEL_SMOKE_OUT)
-    @RecordConsumingMessage(CHANNEL_SMOKE_PROTO_IN)
+    @InterceptConsumingMessage(CHANNEL_SMOKE_PROTO_IN)
     public Uni<SmokeDetectorData> consumeSmokeDetectorProto(byte[] payload) {
         return Uni.createFrom().item(() -> payload)
             .map(p -> mapper.fromProtoSmoke(p));

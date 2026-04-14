@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface RecordConsumingMessage {
+public @interface InterceptConsumingMessage {
 
     @Nonbinding
     String value();

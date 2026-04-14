@@ -19,7 +19,7 @@ import jakarta.interceptor.InvocationContext;
     "unused"
 })
 @Interceptor
-@RecordConsumingMessage("")
+@InterceptConsumingMessage("")
 @Priority(Interceptor.Priority.APPLICATION)
 public class ConsumeMessageInterceptor {
     private static final Printer protoPrinter = JsonFormat.printer().omittingInsignificantWhitespace();
@@ -29,16 +29,18 @@ public class ConsumeMessageInterceptor {
 
     @AroundInvoke
     public Object intercept(InvocationContext context) {
-        final RecordConsumingMessage annotation = context.getMethod().getAnnotation(RecordConsumingMessage.class);
+        final InterceptConsumingMessage annotation = context.getMethod().getAnnotation(InterceptConsumingMessage.class);
         final String topicName = annotation.value();
 
         return Uni.createFrom().deferred(Unchecked.supplier(() -> {
             final var timer = recorder.startTimer();
 
             return ((Uni<?>) context.proceed())
-                .invoke(Unchecked.consumer(telemetry -> Log.debug(
-                    "Received from " + topicName + ": " + protoPrinter.print((MessageOrBuilder) telemetry)))
-                )
+                .invoke(Unchecked.consumer(telemetry -> {
+                    if (Log.isDebugEnabled()) {
+                        Log.debug("Received from " + topicName + ": " + protoPrinter.print((MessageOrBuilder) telemetry));
+                    }
+                }))
                 .eventually(() -> recorder.recordProcessingTime(timer, topicName))
                 .onFailure().invoke(throwable -> {
                     recorder.recordMessageProcessingError(topicName, throwable.getClass().getSimpleName());

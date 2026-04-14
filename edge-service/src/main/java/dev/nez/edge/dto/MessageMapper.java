@@ -19,15 +19,17 @@ import io.vertx.core.json.DecodeException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import com.google.protobuf.util.Timestamps;
-
 import java.io.IOException;
+import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Singleton
 public class MessageMapper {
     private final ObjectMapper objectMapper;
     private final JsonMessageReader<AirQuality> jsonAirQualityReader;
     private final JsonMessageReader<Battery> jsonBatteryReader;
+
+    private final AtomicInteger nanoCounter = new AtomicInteger(0);
 
     @Inject
     public MessageMapper(ObjectMapper objectMapper) {
@@ -41,7 +43,7 @@ public class MessageMapper {
         try {
             return PowerConsumptionData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
+                .setTimestamp(getCurrentTimestamp())
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
@@ -53,7 +55,7 @@ public class MessageMapper {
         final AirQuality dto = jsonAirQualityReader.fromJson(payload);
 
         return AirQualityData.newBuilder()
-            .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
+            .setTimestamp(getCurrentTimestamp())
             .setDeviceId(dto.id())
             .setCo2(dto.co2())
             .setPm25(dto.pm25())
@@ -68,7 +70,7 @@ public class MessageMapper {
         try {
             return AirQualityData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
+                .setTimestamp(getCurrentTimestamp())
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
@@ -80,7 +82,7 @@ public class MessageMapper {
         final Battery dto = jsonBatteryReader.fromJson(payload);
 
         return BatteryData.newBuilder()
-            .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
+            .setTimestamp(getCurrentTimestamp())
             .setDeviceId(dto.id())
             .setVal(dto.v())
             .build();
@@ -90,7 +92,7 @@ public class MessageMapper {
         try {
             return BatteryData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
+                .setTimestamp(getCurrentTimestamp())
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
@@ -102,7 +104,7 @@ public class MessageMapper {
         try {
             return SmokeDetectorData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
+                .setTimestamp(getCurrentTimestamp())
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
@@ -110,6 +112,16 @@ public class MessageMapper {
         }
     }
 
+    private com.google.protobuf.Timestamp getCurrentTimestamp() {
+        final Instant time = Instant.now();
+        final int offset = nanoCounter.getAndUpdate(n -> (n + 1) % 1_000);
+        final int millis = time.getNano() / 1_000_000;
+
+        return com.google.protobuf.Timestamp.newBuilder()
+            .setSeconds(time.getEpochSecond())
+            .setNanos(millis * 1_000_000 + offset * 1_000)
+            .build();
+    }
 
     private class JsonMessageReader<T> {
         private final ObjectReader reader;

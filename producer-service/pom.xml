@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>dev.nez</groupId>
-            <artifactId>service-protobufs</artifactId>
+            <artifactId>protobufs</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

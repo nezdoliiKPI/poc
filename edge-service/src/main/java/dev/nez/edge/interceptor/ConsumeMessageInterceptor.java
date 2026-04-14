@@ -1,12 +1,11 @@
 package dev.nez.edge.interceptor;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
 import com.google.protobuf.util.JsonFormat.Printer;
 
 import dev.nez.edge.exception.DecodeMessageException;
-import dev.nez.edge.service.metrics.recorder.MetricsRecorder;
+import dev.nez.edge.metrics.recorder.MetricsRecorder;
 
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -22,7 +21,7 @@ import jakarta.interceptor.InvocationContext;
     "unused"
 })
 @Interceptor
-@RecordConsumingMessage("")
+@InterceptConsumingMessage("")
 @Priority(Interceptor.Priority.APPLICATION)
 public class ConsumeMessageInterceptor {
     private static final Printer protoPrinter = JsonFormat.printer().omittingInsignificantWhitespace();
@@ -32,20 +31,18 @@ public class ConsumeMessageInterceptor {
 
     @AroundInvoke
     public Object intercept(InvocationContext context) {
-        final RecordConsumingMessage annotation = context.getMethod().getAnnotation(RecordConsumingMessage.class);
+        final InterceptConsumingMessage annotation = context.getMethod().getAnnotation(InterceptConsumingMessage.class);
         final String topicName = annotation.value();
 
         return Uni.createFrom().deferred(Unchecked.supplier(() -> {
             final var timer = recorder.startTimer();
 
             return ((Uni<?>) context.proceed())
-                .invoke(telemetry -> {
-                    try {
+                .invoke(Unchecked.consumer(telemetry -> {
+                    if (Log.isDebugEnabled()) {
                         Log.debug("Received from " + topicName + ": " + protoPrinter.print((MessageOrBuilder) telemetry));
-                    } catch (final InvalidProtocolBufferException e) {
-                        Log.warn("Failed to parse telemetry to JSON for debug log", e);
                     }
-                })
+                }))
                 .eventually(() -> recorder.recordProcessingTime(timer, topicName))
                 .onFailure().invoke(throwable -> {
                     recorder.recordMessageProcessingError(topicName, throwable.getClass().getSimpleName());
