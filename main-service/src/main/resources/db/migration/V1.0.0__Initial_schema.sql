@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 CREATE SEQUENCE power_consumption_seq INCREMENT BY 50;
 
 CREATE TABLE power_consumption (
-   id BIGINT,
+   id BIGINT DEFAULT nextval('power_consumption_seq'),
 
    device_id BIGINT NOT NULL,
    voltage REAL,
@@ -39,7 +39,7 @@ SELECT add_retention_policy('power_consumption', INTERVAL '30 days');
 CREATE SEQUENCE air_quality_seq INCREMENT BY 50;
 
 CREATE TABLE air_quality (
-     id BIGINT,
+     id BIGINT DEFAULT nextval('power_consumption_seq'),
 
      device_id BIGINT NOT NULL,
      co2 INTEGER,
@@ -75,7 +75,7 @@ SELECT add_retention_policy('air_quality', INTERVAL '30 days');
 CREATE SEQUENCE battery_data_seq INCREMENT BY 50;
 
 CREATE TABLE battery_data (
-      id BIGINT,
+      id BIGINT DEFAULT nextval('power_consumption_seq'),
 
       device_id BIGINT NOT NULL,
       val REAL,
@@ -106,7 +106,7 @@ SELECT add_retention_policy('battery_data', INTERVAL '30 days');
 CREATE SEQUENCE smoke_detector_seq INCREMENT BY 50;
 
 CREATE TABLE smoke_detector (
-    id BIGINT,
+    id BIGINT DEFAULT nextval('power_consumption_seq'),
 
     device_id BIGINT NOT NULL,
     smoke_raw INTEGER,

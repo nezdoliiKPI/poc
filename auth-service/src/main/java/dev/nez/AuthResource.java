@@ -6,14 +6,10 @@ import dev.nez.dto.RegisterRequest;
 import dev.nez.model.Device;
 import io.quarkus.elytron.security.common.BcryptUtil;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.Context;
-
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.logging.Log;
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.infrastructure.Infrastructure;
 
 import jakarta.persistence.PersistenceException;
 import jakarta.ws.rs.Consumes;
@@ -43,8 +39,6 @@ public class AuthResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<RestResponse<LoginResponse>> login(LoginRequest request) {
-        Context context = Vertx.currentContext();
-
         return Device
                 .findByHardwareId(request.hardwareId())
                 .chain(device -> {
@@ -55,8 +49,6 @@ public class AuthResource {
 
                     return Uni.createFrom()
                             .item(() -> BcryptUtil.matches(request.password(), device.passwordHash))
-                            .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
-                            .emitOn(command -> context.runOnContext(_ -> command.run()))
                             .map(isMatch -> {
                                 if (!isMatch) {
                                     return RestResponse.<LoginResponse>status(RestResponse.Status.UNAUTHORIZED);
@@ -87,12 +79,8 @@ public class AuthResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<RestResponse<Void>> register(RegisterRequest request) {
-        Context context = Vertx.currentContext();
-
         return Uni.createFrom()
                 .item(() -> BcryptUtil.bcryptHash(request.password(), BCRYPT_COST))
-                .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
-                .emitOn(command -> context.runOnContext(_ -> command.run()))
                 .chain(hashedPassword -> Panache.<Device>withTransaction(() -> {
                         final var device = new Device(
                             request.hardwareId(),

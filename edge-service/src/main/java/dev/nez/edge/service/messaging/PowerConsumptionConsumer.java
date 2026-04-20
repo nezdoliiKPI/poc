@@ -13,7 +13,8 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 @ApplicationScoped
-public class PowerConsumptionService {
+public class PowerConsumptionConsumer {
+    private static final String CHANNEL_POWER_JSON_IN = "power-j-in";
     private static final String CHANNEL_POWER_PROTO_IN = "power-p-in";
     private static final String CHANNEL_POWER_OUT = "power-out";
 
@@ -24,7 +25,13 @@ public class PowerConsumptionService {
     @Outgoing(CHANNEL_POWER_OUT)
     @InterceptConsumingMessage(CHANNEL_POWER_PROTO_IN)
     public Uni<PowerConsumptionData> consumePowerProto(byte[] payload) {
-        return Uni.createFrom().item(() -> payload)
-            .map(p -> mapper.fromProtoPowerConsumption(p));
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromProtoPowerConsumption(p));
+    }
+
+    @Incoming(CHANNEL_POWER_JSON_IN)
+    @Outgoing(CHANNEL_POWER_OUT)
+    @InterceptConsumingMessage(CHANNEL_POWER_JSON_IN)
+    public Uni<PowerConsumptionData> consumePowerJson(byte[] payload) {
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromJsonPowerConsumption(p));
     }
 }

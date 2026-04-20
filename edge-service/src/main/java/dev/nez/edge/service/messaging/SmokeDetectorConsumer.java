@@ -12,7 +12,8 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 @ApplicationScoped
-public class SmokeDetectorService {
+public class SmokeDetectorConsumer {
+    private static final String CHANNEL_SMOKE_JSON_IN = "smoke-j-in";
     private static final String CHANNEL_SMOKE_PROTO_IN = "smoke-p-in";
     private static final String CHANNEL_SMOKE_OUT = "smoke-out";
 
@@ -23,7 +24,13 @@ public class SmokeDetectorService {
     @Outgoing(CHANNEL_SMOKE_OUT)
     @InterceptConsumingMessage(CHANNEL_SMOKE_PROTO_IN)
     public Uni<SmokeDetectorData> consumeSmokeDetectorProto(byte[] payload) {
-        return Uni.createFrom().item(() -> payload)
-            .map(p -> mapper.fromProtoSmoke(p));
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromProtoSmoke(p));
+    }
+
+    @Incoming(CHANNEL_SMOKE_JSON_IN)
+    @Outgoing(CHANNEL_SMOKE_OUT)
+    @InterceptConsumingMessage(CHANNEL_SMOKE_JSON_IN)
+    public Uni<SmokeDetectorData> consumeSmokeDetectorJson(byte[] payload) {
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromJsonSmokeDetector(p));
     }
 }

@@ -105,7 +105,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(message_processing_duration_milliseconds_count{job=\"main-service\"}[3m]))",
+          "expr": "sum(rate(messages_processed_total{job=\"main-service\"}[3m]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -228,6 +228,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }

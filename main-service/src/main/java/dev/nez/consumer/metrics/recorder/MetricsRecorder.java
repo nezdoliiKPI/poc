@@ -14,6 +14,13 @@ public class MetricsRecorder {
         this.registry = registry;
     }
 
+    public void recordMessagesProcessed(String topicName, int count) {
+        registry.counter(
+            "messages_processed_total",
+            "topic", topicName
+        ).increment(count);
+    }
+
     public void recordMessageProcessingError(String topicName, String exceptionType) {
         registry.counter(
         "messages_processing_errors_total",

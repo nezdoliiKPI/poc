@@ -17,24 +17,18 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 @ApplicationScoped
 public class Simulator {
 
     @Inject
+    SimulationConfig config;
+
+    @Inject
     ProducerClient producerClient;
-
-    @ConfigProperty(name = "gen.air.proto", defaultValue = "0")
-    Integer numAirQualityDevicesProto;
-
-    @ConfigProperty(name = "gen.air.json", defaultValue = "0")
-    Integer numAirQualityDevicesJson;
-
-    @ConfigProperty(name = "gen.power.proto", defaultValue = "0")
-    Integer numPowerConsumptionDevicesProto;
-
-    @ConfigProperty(name = "gen.smoke.proto", defaultValue = "0")
-    Integer numSmokeDetectorProto;
 
     void onStart(@Observes StartupEvent ev) {
         final var devices = initDataGenerators();
@@ -53,47 +47,70 @@ public class Simulator {
     private ArrayList<DeviceDataGenerator> initDataGenerators() {
         final var generators = new ArrayList<DeviceDataGenerator>(1000);
 
-        int deviceId = 1;
+        final String batteryTopicProto = config.battery().proto().topic();
+        final String batteryTopicJson = config.battery().json().topic();
 
-        for (int i = 0; i < numAirQualityDevicesProto; i++) {
-            generators.add(new AirDataGenerator(
-                "hardware" + deviceId++,
-                "pass",
-                "dev/air/p",
-                "dev/batt/p",
-                DeviceDataGenerator.MessageType.PROTO
-            ));
-        }
+        final var deviceId = new AtomicInteger(0);
 
-        for (int i = 0; i < numAirQualityDevicesJson; i++) {
-            generators.add(new AirDataGenerator(
-                "hardware" + deviceId++,
-                "pass",
-                "dev/air/j",
-                "dev/batt/j",
-                DeviceDataGenerator.MessageType.JSON
-            ));
-        }
+        // AIR
+        addGenerators(generators, config.air().proto().count(), () -> new AirDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.air().proto().topic(),
+            batteryTopicProto,
+            DeviceDataGenerator.MessageType.PROTO
+        ));
 
-        for (int i = 0; i < numPowerConsumptionDevicesProto; i++) {
-            generators.add(new PowerDataGenerator(
-                "hardware" + deviceId++,
-                "pass",
-                "dev/power/p",
-                DeviceDataGenerator.MessageType.PROTO
-            ));
-        }
+        addGenerators(generators, config.air().json().count(), () -> new AirDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.air().json().topic(),
+            batteryTopicJson,
+            DeviceDataGenerator.MessageType.JSON
+        ));
 
-        for (int i = 0; i < numSmokeDetectorProto; i++) {
-            generators.add(new SmokeDataGenerator(
-                "hardware" + deviceId++,
-                "pass",
-                "dev/smoke/p",
-                "dev/batt/p",
-                DeviceDataGenerator.MessageType.PROTO
-            ));
-        }
+        // POWER
+        addGenerators(generators, config.power().proto().count(), () -> new PowerDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.power().proto().topic(),
+            DeviceDataGenerator.MessageType.PROTO
+        ));
+
+        addGenerators(generators, config.power().json().count(), () -> new PowerDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.power().json().topic(),
+            DeviceDataGenerator.MessageType.JSON
+        ));
+
+        // SMOKE
+        addGenerators(generators, config.smoke().proto().count(), () -> new SmokeDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.smoke().proto().topic(),
+            batteryTopicProto,
+            DeviceDataGenerator.MessageType.PROTO
+        ));
+
+        addGenerators(generators, config.smoke().json().count(), () -> new SmokeDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.smoke().json().topic(),
+            batteryTopicJson,
+            DeviceDataGenerator.MessageType.JSON
+        ));
 
         return generators;
+    }
+
+    private void addGenerators(
+        List<DeviceDataGenerator> list,
+        int count,
+        Supplier<DeviceDataGenerator> factory
+    ) {
+        for (int i = 0; i < count; i++) {
+            list.add(factory.get());
+        }
     }
 }

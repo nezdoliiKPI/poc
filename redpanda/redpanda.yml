@@ -1,5 +1,6 @@
 redpanda:
   data_directory: /var/lib/redpanda/data
+  log_retention_ms: 43200000
   node_id: 0
   seed_servers: []
   rpc_server:

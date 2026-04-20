@@ -21,7 +21,7 @@ public class PowerDataGenerator extends DeviceDataGenerator{
         final Random rnd = ThreadLocalRandom.current();
 
         final var device = new Device(hardwareId, password, topic);
-        final var mainTiming = new MessageTiming(TimeUnit.SECONDS, rnd.nextInt(10), 1, 1);
+        final var mainTiming = new MessageTiming(TimeUnit.SECONDS, rnd.nextInt(2), 1, 1);
 
         super(device, messageType, mainTiming);
     }

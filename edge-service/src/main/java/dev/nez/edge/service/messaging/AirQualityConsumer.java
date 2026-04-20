@@ -14,7 +14,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 @ApplicationScoped
-public class AirQualityService {
+public class AirQualityConsumer {
     private static final String CHANNEL_AIR_JSON_IN = "air-j-in";
     private static final String CHANNEL_AIR_PROTO_IN = "air-p-in";
     private static final String CHANNEL_AIR_OUT = "air-out";
@@ -26,15 +26,13 @@ public class AirQualityService {
     @Outgoing(CHANNEL_AIR_OUT)
     @InterceptConsumingMessage(CHANNEL_AIR_JSON_IN)
     public Uni<AirQualityData> consumeAirQJson(byte[] payload) {
-        return Uni.createFrom().item(() -> payload)
-            .map(p -> mapper.fromJsonAirQuality(p));
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromJsonAirQuality(p));
     }
 
     @Incoming(CHANNEL_AIR_PROTO_IN)
     @Outgoing(CHANNEL_AIR_OUT)
     @InterceptConsumingMessage(CHANNEL_AIR_PROTO_IN)
     public Uni<AirQualityData> consumeAirQProto(byte[] payload) {
-        return Uni.createFrom().item(() -> payload)
-            .map(p -> mapper.fromProtoAirQuality(p));
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromProtoAirQuality(p));
     }
 }

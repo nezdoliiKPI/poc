@@ -13,7 +13,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 @ApplicationScoped
-public class BatteryService {
+public class BatteryConsumer {
     private static final String CHANNEL_BATT_JSON_IN = "batt-j-in";
     private static final String CHANNEL_BATT_PROTO_IN = "batt-p-in";
     private static final String CHANNEL_BATT_OUT = "batt-out";
@@ -25,15 +25,13 @@ public class BatteryService {
     @Outgoing(CHANNEL_BATT_OUT)
     @InterceptConsumingMessage(CHANNEL_BATT_JSON_IN)
     public Uni<BatteryData> consumeTemperatureJson(byte[] payload) {
-        return Uni.createFrom().item(() -> payload)
-            .map(p -> mapper.fromJsonBattery(p));
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromJsonBattery(p));
     }
 
     @Incoming(CHANNEL_BATT_PROTO_IN)
     @Outgoing(CHANNEL_BATT_OUT)
     @InterceptConsumingMessage(CHANNEL_BATT_PROTO_IN)
     public Uni<BatteryData> consumeTemperatureProto(byte[] payload) {
-        return Uni.createFrom().item(() -> payload)
-            .map(p -> mapper.fromProtoBattery(p));
+        return Uni.createFrom().item(() -> payload).map(p -> mapper.fromProtoBattery(p));
     }
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import dev.nez.edge.dto.mqtt.PowerConsumption;
+import dev.nez.edge.dto.mqtt.SmokeDetector;
 import dev.nez.proto.timeddata.AirQualityData;
 import dev.nez.proto.timeddata.BatteryData;
 import dev.nez.proto.timeddata.PowerConsumptionData;
@@ -13,7 +15,7 @@ import dev.nez.proto.timeddata.SmokeDetectorData;
 import dev.nez.edge.dto.mqtt.AirQuality;
 import dev.nez.edge.dto.mqtt.Battery;
 
-import dev.nez.edge.exception.DecodeMessageException;
+import dev.nez.edge.exception.MessageParseException;
 import io.vertx.core.json.DecodeException;
 
 import jakarta.inject.Inject;
@@ -26,36 +28,56 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Singleton
 public class MessageMapper {
     private final ObjectMapper objectMapper;
+
+    private final JsonMessageReader<SmokeDetector> jsonSmokeDetectorReader;
+    private final JsonMessageReader<PowerConsumption> jsonPowerConsumptionReader;
     private final JsonMessageReader<AirQuality> jsonAirQualityReader;
     private final JsonMessageReader<Battery> jsonBatteryReader;
 
-    private final AtomicInteger nanoCounter = new AtomicInteger(0);
+    private final AtomicInteger nanoCounterSmoke = new AtomicInteger(0);
+    private final AtomicInteger nanoCounterPower = new AtomicInteger(0);
+    private final AtomicInteger nanoCounterBattery = new AtomicInteger(0);
+    private final AtomicInteger nanoCounterAir = new AtomicInteger(0);
 
     @Inject
     public MessageMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
 
+        this.jsonSmokeDetectorReader = new JsonMessageReader<>(SmokeDetector.class);
+        this.jsonPowerConsumptionReader = new JsonMessageReader<>(PowerConsumption.class);
         this.jsonAirQualityReader = new JsonMessageReader<>(AirQuality.class);
         this.jsonBatteryReader = new JsonMessageReader<>(Battery.class);
     }
 
-    public PowerConsumptionData fromProtoPowerConsumption(byte[] payload) throws DecodeMessageException {
+    public PowerConsumptionData fromProtoPowerConsumption(byte[] payload) throws MessageParseException {
         try {
             return PowerConsumptionData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(getCurrentTimestamp())
+                .setTimestamp(getCurrentTimestamp(nanoCounterPower))
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
-            throw new DecodeMessageException(e.getMessage(), e);
+            throw new MessageParseException(e.getMessage(), e);
         }
     }
 
-    public AirQualityData fromJsonAirQuality(byte[] payload) throws DecodeMessageException {
+    public PowerConsumptionData fromJsonPowerConsumption(byte[] payload) throws MessageParseException {
+        final PowerConsumption dto = jsonPowerConsumptionReader.fromJson(payload);
+
+        return PowerConsumptionData.newBuilder()
+            .setTimestamp(getCurrentTimestamp(nanoCounterPower))
+            .setDeviceId(dto.id())
+            .setVoltage(dto.cv())
+            .setCurrent(dto.cf())
+            .setPower(dto.pow())
+            .build();
+    }
+
+    public AirQualityData fromJsonAirQuality(byte[] payload) throws MessageParseException {
         final AirQuality dto = jsonAirQualityReader.fromJson(payload);
 
         return AirQualityData.newBuilder()
-            .setTimestamp(getCurrentTimestamp())
+            .setTimestamp(getCurrentTimestamp(nanoCounterAir))
             .setDeviceId(dto.id())
             .setCo2(dto.co2())
             .setPm25(dto.pm25())
@@ -66,53 +88,64 @@ public class MessageMapper {
             .build();
     }
 
-    public AirQualityData fromProtoAirQuality(byte[] payload) throws DecodeMessageException {
+    public AirQualityData fromProtoAirQuality(byte[] payload) throws MessageParseException {
         try {
             return AirQualityData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(getCurrentTimestamp())
+                .setTimestamp(getCurrentTimestamp(nanoCounterAir))
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
-            throw new DecodeMessageException(e.getMessage(), e);
+            throw new MessageParseException(e.getMessage(), e);
         }
     }
 
-    public BatteryData fromJsonBattery(byte[] payload) throws DecodeMessageException {
+    public BatteryData fromJsonBattery(byte[] payload) throws MessageParseException {
         final Battery dto = jsonBatteryReader.fromJson(payload);
 
         return BatteryData.newBuilder()
-            .setTimestamp(getCurrentTimestamp())
+            .setTimestamp(getCurrentTimestamp(nanoCounterBattery))
             .setDeviceId(dto.id())
             .setVal(dto.v())
             .build();
     }
 
-    public BatteryData fromProtoBattery(byte[] payload) throws DecodeMessageException {
+    public BatteryData fromProtoBattery(byte[] payload) throws MessageParseException {
         try {
             return BatteryData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(getCurrentTimestamp())
+                .setTimestamp(getCurrentTimestamp(nanoCounterBattery))
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
-            throw new DecodeMessageException(e.getMessage(), e);
+            throw new MessageParseException(e.getMessage(), e);
         }
     }
 
-    public SmokeDetectorData fromProtoSmoke(byte[] payload) throws DecodeMessageException {
+    public SmokeDetectorData fromProtoSmoke(byte[] payload) throws MessageParseException {
         try {
             return SmokeDetectorData.parseFrom(payload)
                 .toBuilder()
-                .setTimestamp(getCurrentTimestamp())
+                .setTimestamp(getCurrentTimestamp(nanoCounterSmoke))
                 .build();
 
         } catch (final InvalidProtocolBufferException e) {
-            throw new DecodeMessageException(e.getMessage(), e);
+            throw new MessageParseException(e.getMessage(), e);
         }
     }
 
-    private com.google.protobuf.Timestamp getCurrentTimestamp() {
+    public SmokeDetectorData fromJsonSmokeDetector(byte[] payload) throws MessageParseException {
+        final SmokeDetector dto = jsonSmokeDetectorReader.fromJson(payload);
+
+        return SmokeDetectorData.newBuilder()
+            .setTimestamp(getCurrentTimestamp(nanoCounterSmoke))
+            .setDeviceId(dto.id())
+            .setSmokeRaw(dto.sr())
+            .setCoLevel(dto.co())
+            .build();
+    }
+
+    private com.google.protobuf.Timestamp getCurrentTimestamp(AtomicInteger nanoCounter) {
         final Instant time = Instant.now();
         final int offset = nanoCounter.getAndUpdate(n -> (n + 1) % 1_000);
         final int millis = time.getNano() / 1_000_000;
@@ -130,21 +163,21 @@ public class MessageMapper {
             this.reader = objectMapper.readerFor(clazz);
         }
 
-        public T fromJson(byte[] payload) throws DecodeMessageException {
+        public T fromJson(byte[] payload) throws MessageParseException {
             try {
                 return reader.readValue(payload);
             } catch (final DecodeException | IOException e) {
-                throw new DecodeMessageException(e.getMessage(), e);
+                throw new MessageParseException(e.getMessage(), e);
             }
         }
     }
 
     @Deprecated
-    public <T> T fromJson(byte[] payload, Class<T> clazz) throws DecodeMessageException {
+    public <T> T fromJson(byte[] payload, Class<T> clazz) throws MessageParseException {
         try {
             return objectMapper.readValue(payload, clazz);
         } catch (final DecodeException | IOException e) {
-            throw new DecodeMessageException(e.getMessage(), e);
+            throw new MessageParseException(e.getMessage(), e);
         }
     }
 }

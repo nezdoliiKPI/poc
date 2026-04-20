@@ -4,7 +4,7 @@ import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
 import com.google.protobuf.util.JsonFormat.Printer;
 
-import dev.nez.edge.exception.DecodeMessageException;
+import dev.nez.edge.exception.MessageParseException;
 import dev.nez.edge.metrics.recorder.MetricsRecorder;
 
 import io.quarkus.logging.Log;
@@ -48,7 +48,7 @@ public class ConsumeMessageInterceptor {
                     recorder.recordMessageProcessingError(topicName, throwable.getClass().getSimpleName());
                     Log.error("Decode message error from topic " + topicName, throwable);
                 })
-                .onFailure(DecodeMessageException.class).recoverWithNull();
+                .onFailure(MessageParseException.class).recoverWithNull();
         }));
     }
 }

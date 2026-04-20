@@ -21,7 +21,7 @@ public class AirDataGenerator extends DeviceDataGenerator{
         final Random rnd = ThreadLocalRandom.current();
 
         final var device = new Device(hardwareId, password, topic, batteryTopic);
-        final var mainTiming = new MessageTiming(TimeUnit.SECONDS, rnd.nextInt(10), 60, 60);
+        final var mainTiming = new MessageTiming(TimeUnit.SECONDS, rnd.nextInt(2), 60, 60);
         final var batteryTiming = new MessageTiming(TimeUnit.MINUTES, 0, 30, 30);
 
         super(device, messageType, mainTiming, batteryTiming);
