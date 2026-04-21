@@ -1,25 +1,30 @@
 package dev.nez.consumer.consumer;
 
 import dev.nez.consumer.DataMapper;
-import dev.nez.consumer.interceptor.InterceptConsumingMessage;
+
 import dev.nez.proto.timeddata.BatteryData;
-import io.quarkus.hibernate.reactive.panache.Panache;
 import io.smallrye.mutiny.Uni;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 
+import java.util.List;
+
 @ApplicationScoped
-public class BatteryDataConsumer {
+public class BatteryDataConsumer extends BaseBatchConsumer<BatteryData> {
     private static final String CHANNEL_BATTERY_IN = "batt-in";
 
     @Inject
     DataMapper dataMapper;
 
+    private static final String sql = """
+        INSERT INTO battery_data (device_id, val, time_date)
+        VALUES ($1, $2, $3)
+    """;
+
     @Incoming(CHANNEL_BATTERY_IN)
-    @InterceptConsumingMessage(CHANNEL_BATTERY_IN)
-    public Uni<BatteryData> consumePowerProto(BatteryData data) {
-        return Uni.createFrom().item(data)
-            .call(air -> Panache.withTransaction(() -> dataMapper.toEntity(air).persist()));
+    public Uni<Void> consumeBattery(List<BatteryData> batch) {
+        return consumeBatch(batch, sql, CHANNEL_BATTERY_IN, dataMapper::toTuple);
     }
 }
