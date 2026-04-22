@@ -15,7 +15,6 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 @Singleton
 public class DataMapper {
@@ -53,7 +52,7 @@ public class DataMapper {
     }
 
     public Tuple toTuple(AirQualityData proto) {
-        return Tuple.wrap(List.of(
+        return Tuple.wrap(new Object[] {
            proto.getDeviceId(),
            proto.getCo2(),
            proto.getPm25(),
@@ -62,7 +61,7 @@ public class DataMapper {
            proto.getTemperature(),
            proto.getHumidity(),
            toOffsetDateTime(proto.getTimestamp())
-        ));
+        });
     }
 
     public BatteryDataEntity toEntity(BatteryData proto) {
@@ -75,7 +74,6 @@ public class DataMapper {
 
     public Tuple toTuple(BatteryData proto) {
         return Tuple.of(
-            proto.getDeviceId(),
             proto.getDeviceId(),
             proto.getVal(),
             toOffsetDateTime(proto.getTimestamp())

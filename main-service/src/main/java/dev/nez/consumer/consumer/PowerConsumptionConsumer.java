@@ -21,6 +21,7 @@ public class PowerConsumptionConsumer extends BaseBatchConsumer<PowerConsumption
     private static final String sql = """
         INSERT INTO power_consumption (device_id, voltage, current, power, time_date)
         VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
     @Incoming(CHANNEL_POWER_IN)

@@ -21,6 +21,7 @@ public class BatteryDataConsumer extends BaseBatchConsumer<BatteryData> {
     private static final String sql = """
         INSERT INTO battery_data (device_id, val, time_date)
         VALUES ($1, $2, $3)
+        ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
     @Incoming(CHANNEL_BATTERY_IN)

@@ -105,7 +105,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(messages_processed_total{job=\"main-service\"}[3m]))",
+          "expr": "sum(rate(messages_processed_total{job=\"main-service\"}[10s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -203,7 +203,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(message_processing_duration_milliseconds_count{job=\"edge-service\"}[3m]))",
+          "expr": "sum(rate(message_processing_duration_milliseconds_count{job=\"edge-service\"}[10s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -228,6 +228,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 6,
+  "version": 7,
   "weekStart": ""
 }

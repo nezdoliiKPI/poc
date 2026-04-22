@@ -21,6 +21,7 @@ public class SmokeDetectorConsumer extends BaseBatchConsumer<SmokeDetectorData> 
     private static final String sql = """
         INSERT INTO smoke_detector (device_id, smoke_raw, co_level, time_date)
         VALUES ($1, $2, $3, $4)
+        ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
     @Incoming(CHANNEL_SMOKE_IN)

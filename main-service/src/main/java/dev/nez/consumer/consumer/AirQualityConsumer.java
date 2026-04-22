@@ -21,6 +21,7 @@ public class AirQualityConsumer extends BaseBatchConsumer<AirQualityData> {
     private static final String sql = """
         INSERT INTO air_quality (device_id, co2, pm25, pm10, tvoc, temperature, humidity, time_date)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
     @Incoming(CHANNEL_AIR_IN)

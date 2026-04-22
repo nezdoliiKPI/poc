@@ -1,6 +1,8 @@
 package dev.nez.producer.simulation;
 
 import dev.nez.producer.client.ProducerClient;
+import dev.nez.producer.client.ProducerClient.DeviceSession;
+import dev.nez.producer.simulation.config.DynamicConfig;
 import dev.nez.producer.simulation.generator.AirDataGenerator;
 import dev.nez.producer.simulation.generator.DeviceDataGenerator;
 import dev.nez.producer.simulation.generator.PowerDataGenerator;
@@ -14,103 +16,139 @@ import jakarta.enterprise.event.Observes;
 
 import jakarta.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 @ApplicationScoped
 public class Simulator {
+    private final DynamicConfig config;
+    private final ProducerClient client;
+    private final Map<String, ArrayList<DeviceSession>> simulations = new HashMap<>();
+    private final GeneratorFactory creator;
 
     @Inject
-    SimulationConfig config;
-
-    @Inject
-    ProducerClient producerClient;
+    public Simulator(DynamicConfig config, ProducerClient client) {
+        this.config = config;
+        this.client = client;
+        this.creator = new GeneratorFactory();
+    }
 
     void onStart(@Observes StartupEvent ev) {
-        final var devices = initDataGenerators();
+        initSimulations();
 
-        final float intensity = devices.stream()
-                .map(DeviceDataGenerator::getIntensityPerSecond)
-                .reduce(0.0f, Float::sum);
+        Log.info("Predicted messages per second: " + getIntensity());
 
-        Log.info("Predicted messages per second: " + intensity);
+        simulations.values().stream()
+            .flatMap(ArrayList::stream)
+            .forEach(DeviceSession::run);
+    }
 
-        for (var generator  : devices) {
-            producerClient.startSimulation(generator);
+    private float getIntensity() {
+        return simulations.values().stream()
+            .flatMap(ArrayList::stream)
+            .map(DeviceSession::getIntensityPerSecond)
+            .reduce(0.0f, Float::sum);
+    }
+
+    private void initSimulations() {
+        // AIR
+        simulations.put(config.getAirProtoTopic(), new ArrayList<>());
+        simulations.put(config.getAirJsonTopic(), new ArrayList<>());
+
+        addGenerators(config.getAirProtoTopic(), config.getAirProtoCount());
+        addGenerators(config.getAirJsonTopic(), config.getAirJsonCount());
+
+        // POWER
+        simulations.put(config.getPowerProtoTopic(), new ArrayList<>());
+        simulations.put(config.getPowerJsonTopic(), new ArrayList<>());
+
+        addGenerators(config.getPowerProtoTopic(), config.getPowerProtoCount());
+        addGenerators(config.getPowerJsonTopic(), config.getPowerJsonCount());
+
+        // SMOKE
+        simulations.put(config.getSmokeProtoTopic(), new ArrayList<>());
+        simulations.put(config.getSmokeJsonTopic(), new ArrayList<>());
+
+        addGenerators(config.getSmokeProtoTopic(), config.getSmokeProtoCount());
+        addGenerators(config.getSmokeJsonTopic(), config.getSmokeJsonCount());
+    }
+
+    private void addGenerators(String topic, int count) {
+        var factory = creator.getSupplier(topic);
+        var arr = simulations.get(topic);
+
+        for (int i = 0; i < count; i++) {
+            arr.add(client.createSession(factory.get()));
         }
     }
 
-    private ArrayList<DeviceDataGenerator> initDataGenerators() {
-        final var generators = new ArrayList<DeviceDataGenerator>(1000);
+    private class GeneratorFactory {
+        private final AtomicInteger deviceId = new AtomicInteger(0);
+        private final Map<String, Supplier<DeviceDataGenerator>> suppliers = new HashMap<>();
 
-        final String batteryTopicProto = config.battery().proto().topic();
-        final String batteryTopicJson = config.battery().json().topic();
+        public Supplier<DeviceDataGenerator> getSupplier(String topic) {
+            var gen = suppliers.get(topic);
+            if (gen == null) {
+                throw new IllegalArgumentException("No supplier for topic " + topic);
+            }
+            return gen;
+        }
 
-        final var deviceId = new AtomicInteger(0);
+        public GeneratorFactory() {
+            final String batteryTopicProto = config.getBatteryProtoTopic();
+            final String batteryTopicJson = config.getBatteryJsonTopic();
 
-        // AIR
-        addGenerators(generators, config.air().proto().count(), () -> new AirDataGenerator(
-            "hardware" + deviceId.incrementAndGet(),
-            "pass",
-            config.air().proto().topic(),
-            batteryTopicProto,
-            DeviceDataGenerator.MessageType.PROTO
-        ));
+            // AIR
+            suppliers.put(config.getAirProtoTopic(), () -> new AirDataGenerator(
+                "hardware" + deviceId.incrementAndGet(),
+                "pass",
+                config.getAirProtoTopic(),
+                batteryTopicProto,
+                DeviceDataGenerator.MessageType.PROTO
+            ));
 
-        addGenerators(generators, config.air().json().count(), () -> new AirDataGenerator(
-            "hardware" + deviceId.incrementAndGet(),
-            "pass",
-            config.air().json().topic(),
-            batteryTopicJson,
-            DeviceDataGenerator.MessageType.JSON
-        ));
+            suppliers.put(config.getAirJsonTopic(), () -> new AirDataGenerator(
+                "hardware" + deviceId.incrementAndGet(),
+                "pass",
+                config.getAirJsonTopic(),
+                batteryTopicJson,
+                DeviceDataGenerator.MessageType.JSON
+            ));
 
-        // POWER
-        addGenerators(generators, config.power().proto().count(), () -> new PowerDataGenerator(
-            "hardware" + deviceId.incrementAndGet(),
-            "pass",
-            config.power().proto().topic(),
-            DeviceDataGenerator.MessageType.PROTO
-        ));
+            // POWER
+            suppliers.put(config.getPowerProtoTopic(), () -> new PowerDataGenerator(
+                "hardware" + deviceId.incrementAndGet(),
+                "pass",
+                config.getPowerProtoTopic(),
+                DeviceDataGenerator.MessageType.PROTO
+            ));
 
-        addGenerators(generators, config.power().json().count(), () -> new PowerDataGenerator(
-            "hardware" + deviceId.incrementAndGet(),
-            "pass",
-            config.power().json().topic(),
-            DeviceDataGenerator.MessageType.JSON
-        ));
+            suppliers.put(config.getPowerJsonTopic(), () -> new PowerDataGenerator(
+                "hardware" + deviceId.incrementAndGet(),
+                "pass",
+                config.getPowerJsonTopic(),
+                DeviceDataGenerator.MessageType.JSON
+            ));
 
-        // SMOKE
-        addGenerators(generators, config.smoke().proto().count(), () -> new SmokeDataGenerator(
-            "hardware" + deviceId.incrementAndGet(),
-            "pass",
-            config.smoke().proto().topic(),
-            batteryTopicProto,
-            DeviceDataGenerator.MessageType.PROTO
-        ));
+            // SMOKE
+            suppliers.put(config.getSmokeProtoTopic(), () -> new SmokeDataGenerator(
+                "hardware" + deviceId.incrementAndGet(),
+                "pass",
+                config.getSmokeProtoTopic(),
+                batteryTopicProto,
+                DeviceDataGenerator.MessageType.PROTO
+            ));
 
-        addGenerators(generators, config.smoke().json().count(), () -> new SmokeDataGenerator(
-            "hardware" + deviceId.incrementAndGet(),
-            "pass",
-            config.smoke().json().topic(),
-            batteryTopicJson,
-            DeviceDataGenerator.MessageType.JSON
-        ));
-
-        return generators;
-    }
-
-    private void addGenerators(
-        List<DeviceDataGenerator> list,
-        int count,
-        Supplier<DeviceDataGenerator> factory
-    ) {
-        for (int i = 0; i < count; i++) {
-            list.add(factory.get());
+            suppliers.put(config.getSmokeJsonTopic(), () -> new SmokeDataGenerator(
+                "hardware" + deviceId.incrementAndGet(),
+                "pass",
+                config.getSmokeJsonTopic(),
+                batteryTopicJson,
+                DeviceDataGenerator.MessageType.JSON
+            ));
         }
     }
 }

@@ -20,13 +20,13 @@ public interface AuthRestClient {
 
     @POST
     @Path("/api/device/auth/register")
-    @Retry(maxRetries = 5, delay = 3, delayUnit = ChronoUnit.SECONDS)
+    @Retry(maxRetries = 10, delay = 1, delayUnit = ChronoUnit.SECONDS)
     @Consumes(MediaType.APPLICATION_JSON)
     Uni<Response> register(RegisterRequest request);
 
     @POST
     @Path("/api/device/auth/login")
-    @Retry(maxRetries = 5, delay = 3, delayUnit = ChronoUnit.SECONDS)
+    @Retry(maxRetries = 10, delay = 1, delayUnit = ChronoUnit.SECONDS)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     Uni<LoginResponse> login(LoginRequest request);

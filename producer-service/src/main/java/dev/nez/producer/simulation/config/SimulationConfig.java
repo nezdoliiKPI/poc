@@ -1,4 +1,4 @@
-package dev.nez.producer.simulation;
+package dev.nez.producer.simulation.config;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;

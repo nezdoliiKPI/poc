@@ -28,19 +28,23 @@ services:
     stdin_open: true
     command: mosquitto -c /etc/mosquitto/mosquitto.conf
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.5.0
-    command: start-dev
-    environment:
-      KC_DB: dev-file
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - "1884:1884"
-    restart: unless-stopped
+#  keycloak:
+#    image: quay.io/keycloak/keycloak:26.5.0
+#    command: start-dev
+#    environment:
+#      KC_DB: dev-file
+#      KEYCLOAK_ADMIN: admin
+#      KEYCLOAK_ADMIN_PASSWORD: admin
+#    ports:
+#      - "1884:1884"
+#    restart: unless-stopped
 
   timescaledb:
-    image: timescale/timescaledb:latest-pg17
+    image: timescale/timescaledb:latest-pg18
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
     container_name: iot_timescaledb
     environment:
       POSTGRES_DB: iot

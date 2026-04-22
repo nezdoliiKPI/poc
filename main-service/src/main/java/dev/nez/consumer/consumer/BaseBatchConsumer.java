@@ -1,6 +1,7 @@
 package dev.nez.consumer.consumer;
 
 import dev.nez.consumer.metrics.recorder.MetricsRecorder;
+import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 
@@ -31,6 +32,10 @@ public abstract class BaseBatchConsumer<T> {
 
         return sqlClient.withTransaction(
             conn -> conn.preparedQuery(sql).executeBatch(tuples)).replaceWithVoid()
-            .eventually(() -> recorder.recordMessagesProcessed(channel, batch.size()));
+            .eventually(() -> recorder.recordMessagesProcessed(channel, batch.size()))
+            .onFailure().invoke(throwable -> {
+                recorder.recordMessageProcessingError(channel, throwable.getClass().getSimpleName());
+                Log.error("Consume messages error from topic " + channel, throwable);
+            });
     }
 }
