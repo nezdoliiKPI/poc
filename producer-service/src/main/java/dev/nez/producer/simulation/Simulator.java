@@ -3,6 +3,7 @@ package dev.nez.producer.simulation;
 import dev.nez.producer.client.ProducerClient;
 import dev.nez.producer.client.ProducerClient.DeviceSession;
 import dev.nez.producer.simulation.config.DynamicConfig;
+import dev.nez.producer.simulation.config.DynamicConfig.ConfigChangeEvent;
 import dev.nez.producer.simulation.generator.AirDataGenerator;
 import dev.nez.producer.simulation.generator.DeviceDataGenerator;
 import dev.nez.producer.simulation.generator.PowerDataGenerator;
@@ -19,6 +20,7 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -39,18 +41,47 @@ public class Simulator {
     void onStart(@Observes StartupEvent ev) {
         initSimulations();
 
-        Log.info("Predicted messages per second: " + getIntensity());
-
         simulations.values().stream()
             .flatMap(ArrayList::stream)
             .forEach(DeviceSession::run);
+
+        Log.info("Predicted messages per second: " + getIntensity());
     }
 
-    private float getIntensity() {
-        return simulations.values().stream()
-            .flatMap(ArrayList::stream)
-            .map(DeviceSession::getIntensityPerSecond)
-            .reduce(0.0f, Float::sum);
+    void onConfigChange(@Observes ConfigChangeEvent event) {
+        Log.info("Configuration changed, topic: " + event.topic() + ", count: " + event.newCount());
+
+        final var sessions = Objects.requireNonNull(
+            simulations.get(event.topic()),
+            "Not found topic: " + event.topic()
+        );
+
+        final int newCount = event.newCount();
+
+        if (sessions.size() < newCount) {
+            addGenerators(event.topic(), newCount - sessions.size());
+        }
+
+        for (int i = 0; i < sessions.size(); i++) {
+            var session = sessions.get(i);
+            if (i < newCount) session.run(); else session.stop();
+        }
+
+        Log.info("Predicted messages per second: " + getIntensity());
+    }
+
+    public float getIntensity() {
+        float totalIntensity = 0.0f;
+
+        for (var sessionList : simulations.values()) {
+            for (var deviceSession : sessionList) {
+                if (deviceSession.isRunning()) {
+                    totalIntensity += deviceSession.getIntensityPerSecond();
+                }
+            }
+        }
+
+        return totalIntensity;
     }
 
     private void initSimulations() {

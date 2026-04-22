@@ -78,7 +78,6 @@ public class ProducerClient {
 
         public void run() {
             if (!isRunning.compareAndSet(false, true)) {
-                Log.debug("Simulation is already running for " + producer.device.hardwareId());
                 return;
             }
 
