@@ -39,7 +39,7 @@ SELECT add_retention_policy('power_consumption', INTERVAL '30 days');
 CREATE SEQUENCE air_quality_seq INCREMENT BY 50;
 
 CREATE TABLE air_quality (
-     id BIGINT DEFAULT nextval('power_consumption_seq'),
+     id BIGINT DEFAULT nextval('air_quality_seq'),
 
      device_id BIGINT NOT NULL,
      co2 INTEGER,
@@ -75,7 +75,7 @@ SELECT add_retention_policy('air_quality', INTERVAL '30 days');
 CREATE SEQUENCE battery_data_seq INCREMENT BY 50;
 
 CREATE TABLE battery_data (
-      id BIGINT DEFAULT nextval('power_consumption_seq'),
+      id BIGINT DEFAULT nextval('battery_data_seq'),
 
       device_id BIGINT NOT NULL,
       val REAL,
@@ -106,7 +106,7 @@ SELECT add_retention_policy('battery_data', INTERVAL '30 days');
 CREATE SEQUENCE smoke_detector_seq INCREMENT BY 50;
 
 CREATE TABLE smoke_detector (
-    id BIGINT DEFAULT nextval('power_consumption_seq'),
+    id BIGINT DEFAULT nextval('smoke_detector_seq'),
 
     device_id BIGINT NOT NULL,
     smoke_raw INTEGER,

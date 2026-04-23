@@ -19,7 +19,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Bulkhead;
+import org.eclipse.microprofile.faulttolerance.exceptions.BulkheadException;
 import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import java.time.Duration;
 import java.util.List;
@@ -38,6 +41,7 @@ public class AuthResource {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Bulkhead(value = 100, waitingTaskQueue = 1000)
     public Uni<RestResponse<LoginResponse>> login(LoginRequest request) {
         return Device
                 .findByHardwareId(request.hardwareId())
@@ -78,6 +82,7 @@ public class AuthResource {
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @Bulkhead(value = 100, waitingTaskQueue = 1000)
     public Uni<RestResponse<Void>> register(RegisterRequest request) {
         return Uni.createFrom()
                 .item(() -> BcryptUtil.bcryptHash(request.password(), BCRYPT_COST))
@@ -96,5 +101,10 @@ public class AuthResource {
                 .replaceWith(RestResponse.<Void>status(RestResponse.Status.CREATED))
                 .onFailure(PersistenceException.class)
                 .recoverWithItem(RestResponse.status(RestResponse.Status.CONFLICT));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<String> mapBulkheadException(BulkheadException ex) {
+        return RestResponse.status(RestResponse.Status.TOO_MANY_REQUESTS);
     }
 }

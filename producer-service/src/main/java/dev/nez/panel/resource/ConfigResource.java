@@ -11,7 +11,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.faulttolerance.Bulkhead;
+import org.eclipse.microprofile.faulttolerance.exceptions.BulkheadException;
 import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 @Path("/api/panel")
 public class ConfigResource {
@@ -26,7 +29,8 @@ public class ConfigResource {
     @Path("/update")
     @Consumes(MediaType.APPLICATION_JSON)
     @RunOnVirtualThread
-    public synchronized RestResponse<Float> update(ConfigUpdate request) {
+    @Bulkhead(value = 1)
+    public RestResponse<Float> update(ConfigUpdate request) {
         config.setAirJsonCount(request.airJsonCount());
         config.setAirProtoCount(request.airProtoCount());
         config.setPowerJsonCount(request.powerJsonCount());
@@ -35,5 +39,13 @@ public class ConfigResource {
         config.setSmokeJsonCount(request.smokeJsonCount());
 
         return RestResponse.ok(simulator.getIntensity());
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<String> mapBulkheadException(BulkheadException ex) {
+        return RestResponse.status(
+            RestResponse.Status.TOO_MANY_REQUESTS,
+            "Your request is currently being processed. Please try again later."
+        );
     }
 }

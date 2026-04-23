@@ -17,29 +17,27 @@ import dev.nez.producer.security.MqttTrustManagerProvider;
 import io.quarkus.logging.Log;
 
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.unchecked.Unchecked;
 
 import io.vertx.core.json.Json;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.WebApplicationException;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 @ApplicationScoped
 public class ProducerClient {
-    private final ScheduledExecutorService scheduler =
-        Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @ConfigProperty(name = "mqtt.broker.host", defaultValue = "localhost")
     String brokerHost;
@@ -58,11 +56,13 @@ public class ProducerClient {
 
     public class DeviceSession {
         private final DeviceDataGenerator producer;
-        private final AtomicBoolean isRunning = new AtomicBoolean(false);
-        private boolean isRegistered = false;
 
+        private final AtomicReference<CompletableFuture<Void>> future = new AtomicReference<>();
+        private final AtomicBoolean isRunning = new AtomicBoolean(false);
+        private final AtomicBoolean isRegistered = new AtomicBoolean(false);
+
+        private final ArrayList<ScheduledFuture<?>> tasks = new ArrayList<>();
         private Mqtt5AsyncClient mqttClient;
-        private final List<ScheduledFuture<?>> tasks = new ArrayList<>();
 
         private DeviceSession(DeviceDataGenerator producer) {
             this.producer = producer;
@@ -71,7 +71,6 @@ public class ProducerClient {
         public float getIntensityPerSecond() {
             return producer.getIntensityPerSecond();
         }
-
         public boolean isRunning() {
             return isRunning.get();
         }
@@ -83,30 +82,35 @@ public class ProducerClient {
 
             Log.debug("Starting simulation for " + producer.device.hardwareId());
 
-            Uni<Void> setupSequence = isRegistered
+            Uni<Void> setupSequence = isRegistered.get()
                 ? Uni.createFrom().voidItem()
                 : registerAndLogin();
 
-            setupSequence.subscribe().with(_ -> {
-                    if (isRunning.get()) {
-                        connectAndSchedule();
-                    }
-                },
-                throwable -> {
+            future.set(setupSequence.subscribeAsCompletionStage().whenComplete((_, throwable) -> {
+                if (throwable != null) {
                     Log.error("Initialization sequence failed for " + producer.device.hardwareId(), throwable);
                     isRunning.set(false);
+                } else if (isRunning.get()) {
+                    connectAndSchedule();
                 }
-            );
+            }));
         }
 
         public void stop() {
-            if (isRunning.compareAndSet(true, false)) {
-                Log.info("Stopping sending messages for " + producer.device.hardwareId());
+            if (!isRunning.compareAndSet(true, false)) {
+                return;
+            }
 
-                for (ScheduledFuture<?> task : tasks) {
-                    task.cancel(false);
-                }
-                tasks.clear();
+            Log.debug("Stopping sending messages for " + producer.device.hardwareId());
+
+            future.getAndSet(null).join();
+
+            for (ScheduledFuture<?> task : tasks) {
+                task.cancel(false);
+            }
+            tasks.clear();
+
+            if (mqttClient != null) {
                 mqttClient.disconnect();
             }
         }
@@ -125,10 +129,11 @@ public class ProducerClient {
                 producer.device.password()
             );
 
-            return registerDevice(registerRequest)
+            return Uni.createFrom().voidItem()
+                .call(() -> authClient.register(registerRequest))
                 .chain(() -> authClient.login(loginRequest))
                 .invoke(loginResponse -> {
-                    isRegistered = true;
+                    isRegistered.set(true);
                     producer.deviceId = loginResponse.deviceId();
                     producer.token = loginResponse.token();
                 })
@@ -193,16 +198,6 @@ public class ProducerClient {
                     });
             }, timing.initialDelay(), timing.period(), timing.unit());
         }
-    }
-
-    private Uni<Void> registerDevice(RegisterRequest request) {
-        return authClient.register(request)
-            .onFailure(WebApplicationException.class).recoverWithItem(Unchecked.function(ex -> {
-                if (ex.getResponse().getStatus() == 409) {
-                    return null;
-                }
-                throw new RuntimeException("Registration failed: " + ex.getMessage());
-            })).replaceWithVoid();
     }
 
     private byte[] serialize(Object payload, MessageType messageType) {

@@ -14,27 +14,27 @@ public class DynamicConfig {
 
     private final SimulationConfig baseConfig;
 
-    private final AtomicInteger airJsonCount;
-    private final AtomicInteger airProtoCount;
+    private Integer airJsonCount;
+    private Integer airProtoCount;
 
-    private final AtomicInteger powerJsonCount;
-    private final AtomicInteger powerProtoCount;
+    private Integer powerJsonCount;
+    private Integer powerProtoCount;
 
-    private final AtomicInteger smokeJsonCount;
-    private final AtomicInteger smokeProtoCount;
+    private Integer smokeJsonCount;
+    private Integer smokeProtoCount;
 
     @Inject
     public DynamicConfig(SimulationConfig config) {
         baseConfig = config;
 
-        this.airJsonCount = new AtomicInteger(baseConfig.air().json().count());
-        this.airProtoCount = new AtomicInteger(baseConfig.air().proto().count());
+        this.airJsonCount = baseConfig.air().json().count();
+        this.airProtoCount = baseConfig.air().proto().count();
 
-        this.powerJsonCount = new AtomicInteger(baseConfig.power().json().count());
-        this.powerProtoCount = new AtomicInteger(baseConfig.power().proto().count());
+        this.powerJsonCount = baseConfig.power().json().count();
+        this.powerProtoCount = baseConfig.power().proto().count();
 
-        this.smokeJsonCount = new AtomicInteger(baseConfig.smoke().json().count());
-        this.smokeProtoCount = new AtomicInteger(baseConfig.smoke().proto().count());
+        this.smokeJsonCount = baseConfig.smoke().json().count();
+        this.smokeProtoCount = baseConfig.smoke().proto().count();
     }
 
     public record ConfigChangeEvent(
@@ -47,25 +47,23 @@ public class DynamicConfig {
     public String getAirJsonTopic() {
         return baseConfig.air().json().topic();
     }
-    public Integer getAirJsonCount() {
-        return airJsonCount.get();
+    public int getAirJsonCount() {
+        return airJsonCount;
     }
 
     public void setAirJsonCount(int newCount) {
-        if (airJsonCount.getAndSet(newCount) != newCount) {
+        if (airJsonCount != newCount) {
+            airJsonCount = newCount;
             notifier.fire(new ConfigChangeEvent(getAirJsonTopic(), newCount));
         }
     }
 
-    public String getAirProtoTopic() {
-        return baseConfig.air().proto().topic();
-    }
-    public Integer getAirProtoCount() {
-        return airProtoCount.get();
-    }
+    public String getAirProtoTopic() { return baseConfig.air().proto().topic();}
+    public int getAirProtoCount() {return airProtoCount;}
 
     public void setAirProtoCount(int newCount) {
-        if (airProtoCount.getAndSet(newCount) != newCount) {
+        if (airProtoCount != newCount) {
+            airProtoCount = newCount;
             notifier.fire(new ConfigChangeEvent(getAirProtoTopic(), newCount));
         }
     }
@@ -75,12 +73,13 @@ public class DynamicConfig {
     public String getPowerJsonTopic() {
         return baseConfig.power().json().topic();
     }
-    public Integer getPowerJsonCount() {
-        return powerJsonCount.get();
+    public int getPowerJsonCount() {
+        return powerJsonCount;
     }
 
     public void setPowerJsonCount(int newCount) {
-        if (powerJsonCount.getAndSet(newCount) != newCount) {
+        if (powerJsonCount != newCount) {
+            powerJsonCount = newCount;
             notifier.fire(new ConfigChangeEvent(getPowerJsonTopic(), newCount));
         }
     }
@@ -88,12 +87,13 @@ public class DynamicConfig {
     public String getPowerProtoTopic() {
         return baseConfig.power().proto().topic();
     }
-    public Integer getPowerProtoCount() {
-        return powerProtoCount.get();
+    public int getPowerProtoCount() {
+        return powerProtoCount;
     }
 
     public void setPowerProtoCount(int newCount) {
-        if (powerProtoCount.getAndSet(newCount) != newCount) {
+        if (powerProtoCount != newCount) {
+            powerProtoCount = newCount;
             notifier.fire(new ConfigChangeEvent(getPowerProtoTopic(), newCount));
         }
     }
@@ -103,12 +103,13 @@ public class DynamicConfig {
     public String getSmokeJsonTopic() {
         return baseConfig.smoke().json().topic();
     }
-    public Integer getSmokeJsonCount() {
-        return smokeJsonCount.get();
+    public int getSmokeJsonCount() {
+        return smokeJsonCount;
     }
 
     public void setSmokeJsonCount(int newCount) {
-        if (smokeJsonCount.getAndSet(newCount) != newCount) {
+        if (smokeJsonCount != newCount) {
+            smokeJsonCount = newCount;
             notifier.fire(new ConfigChangeEvent(getSmokeJsonTopic(), newCount));
         }
     }
@@ -116,12 +117,13 @@ public class DynamicConfig {
     public String getSmokeProtoTopic() {
         return baseConfig.smoke().proto().topic();
     }
-    public Integer getSmokeProtoCount() {
-        return smokeProtoCount.get();
+    public int getSmokeProtoCount() {
+        return smokeProtoCount;
     }
 
     public void setSmokeProtoCount(int newCount) {
-        if (smokeProtoCount.getAndSet(newCount) != newCount) {
+        if (smokeProtoCount != newCount) {
+            smokeProtoCount = newCount;
             notifier.fire(new ConfigChangeEvent(getSmokeProtoTopic(), newCount));
         }
     }

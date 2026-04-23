@@ -1,4 +1,4 @@
-package dev.nez.edge.service.messaging;
+package dev.nez.edge.messaging;
 
 import dev.nez.proto.timeddata.BatteryData;
 import dev.nez.edge.dto.MessageMapper;
