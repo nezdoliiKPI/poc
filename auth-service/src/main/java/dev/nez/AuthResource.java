@@ -11,6 +11,7 @@ import io.quarkus.logging.Log;
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.mutiny.Uni;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -83,6 +84,7 @@ public class AuthResource {
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("admin")
     @Bulkhead(value = 100, waitingTaskQueue = 1000)
     public Uni<RestResponse<Void>> register(@Valid RegisterRequest request) {
         return Uni.createFrom()
