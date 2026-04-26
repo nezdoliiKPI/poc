@@ -12,6 +12,7 @@ import io.smallrye.jwt.build.Jwt;
 import io.smallrye.mutiny.Uni;
 
 import jakarta.persistence.PersistenceException;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -42,7 +43,7 @@ public class AuthResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Bulkhead(value = 100, waitingTaskQueue = 1000)
-    public Uni<RestResponse<LoginResponse>> login(LoginRequest request) {
+    public Uni<RestResponse<LoginResponse>> login(@Valid LoginRequest request) {
         return Device
                 .findByHardwareId(request.hardwareId())
                 .chain(device -> {
@@ -83,7 +84,7 @@ public class AuthResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Bulkhead(value = 100, waitingTaskQueue = 1000)
-    public Uni<RestResponse<Void>> register(RegisterRequest request) {
+    public Uni<RestResponse<Void>> register(@Valid RegisterRequest request) {
         return Uni.createFrom()
                 .item(() -> BcryptUtil.bcryptHash(request.password(), BCRYPT_COST))
                 .chain(hashedPassword -> Panache.<Device>withTransaction(() -> {

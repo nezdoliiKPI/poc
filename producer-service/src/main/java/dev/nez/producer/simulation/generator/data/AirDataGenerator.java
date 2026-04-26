@@ -1,4 +1,4 @@
-package dev.nez.producer.simulation.generator;
+package dev.nez.producer.simulation.generator.data;
 
 import dev.nez.producer.dto.mqtt.AirQuality;
 import dev.nez.producer.dto.mqtt.Battery;
@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class AirDataGenerator extends DeviceDataGenerator{
+public class AirDataGenerator extends DeviceDataGenerator {
 
     public AirDataGenerator(
         String hardwareId,

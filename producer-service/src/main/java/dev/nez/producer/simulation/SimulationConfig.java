@@ -1,4 +1,4 @@
-package dev.nez.producer.simulation.config;
+package dev.nez.producer.simulation;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
@@ -8,7 +8,7 @@ public interface SimulationConfig {
     DeviceConfig air();
     DeviceConfig power();
     DeviceConfig smoke();
-    DeviceConfig battery(); // Використовуємо спільний DeviceConfig
+    DeviceConfig battery();
 
     interface DeviceConfig {
         ProtocolConfig proto();

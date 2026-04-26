@@ -1,6 +1,6 @@
 package dev.nez.consumer.consumer;
 
-import dev.nez.consumer.metrics.recorder.MetricsRecorder;
+import dev.nez.consumer.metrics.MetricsRecorder;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
@@ -30,12 +30,9 @@ public abstract class BaseBatchConsumer<T> {
         var tuples = new ArrayList<Tuple>(batch.size());
         for (var data : batch) tuples.add(mapper.apply(data));
 
-        return sqlClient.withTransaction(
-            conn -> conn.preparedQuery(sql).executeBatch(tuples)).replaceWithVoid()
-            .eventually(() -> recorder.recordMessagesProcessed(channel, batch.size()))
-            .onFailure().invoke(throwable -> {
-                recorder.recordMessageProcessingError(channel, throwable.getClass().getSimpleName());
-                Log.error("Consume messages error from topic " + channel, throwable);
-            });
+        return sqlClient.withTransaction(conn -> conn.preparedQuery(sql).executeBatch(tuples))
+                .replaceWithVoid()
+                .onFailure().invoke(throwable -> Log.error("Consume messages error from topic " + channel, throwable))
+                .eventually(() -> recorder.recordMessagesProcessed(channel, batch.size()));
     }
 }

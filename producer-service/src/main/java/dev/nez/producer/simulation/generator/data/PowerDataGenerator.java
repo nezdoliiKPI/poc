@@ -1,4 +1,4 @@
-package dev.nez.producer.simulation.generator;
+package dev.nez.producer.simulation.generator.data;
 
 import dev.nez.producer.dto.mqtt.PowerConsumption;
 import dev.nez.producer.simulation.model.Device;
@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class PowerDataGenerator extends DeviceDataGenerator{
+public class PowerDataGenerator extends DeviceDataGenerator {
     private static final float BASE_VOLTAGE = 230.0f;
     private static final float VOLTAGE_NOISE_MARGIN = 10.0f;
 

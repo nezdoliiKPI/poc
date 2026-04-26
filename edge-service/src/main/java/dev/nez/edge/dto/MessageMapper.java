@@ -134,7 +134,7 @@ public class MessageMapper {
         }
     }
 
-    public SmokeDetectorData fromJsonSmokeDetector(byte[] payload) throws MessageParseException {
+    public SmokeDetectorData fromJsonSmoke(byte[] payload) throws MessageParseException {
         final SmokeDetector dto = jsonSmokeDetectorReader.fromJson(payload);
 
         return SmokeDetectorData.newBuilder()

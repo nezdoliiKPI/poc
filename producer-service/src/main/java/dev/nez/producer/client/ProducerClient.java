@@ -4,8 +4,8 @@ import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 
-import dev.nez.producer.simulation.generator.DeviceDataGenerator;
-import dev.nez.producer.simulation.generator.DeviceDataGenerator.MessageType;
+import dev.nez.producer.simulation.generator.data.DeviceDataGenerator;
+import dev.nez.producer.simulation.generator.data.DeviceDataGenerator.MessageType;
 
 import dev.nez.producer.dto.rest.LoginRequest;
 import dev.nez.producer.dto.rest.RegisterRequest;

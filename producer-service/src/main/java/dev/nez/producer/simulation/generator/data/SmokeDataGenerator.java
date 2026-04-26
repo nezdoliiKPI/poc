@@ -1,4 +1,4 @@
-package dev.nez.producer.simulation.generator;
+package dev.nez.producer.simulation.generator.data;
 
 import dev.nez.producer.dto.mqtt.Battery;
 import dev.nez.producer.dto.mqtt.SmokeDetector;

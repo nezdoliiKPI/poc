@@ -1,4 +1,4 @@
-package dev.nez.producer.simulation.generator;
+package dev.nez.producer.simulation.generator.data;
 
 import dev.nez.producer.simulation.model.Device;
 import dev.nez.producer.simulation.model.MessageTiming;

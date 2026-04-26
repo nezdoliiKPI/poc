@@ -16,16 +16,17 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import java.time.temporal.ChronoUnit;
 
 @RegisterRestClient(configKey = "auth-api")
+@Path("/api/device/auth")
 public interface AuthRestClient {
 
     @POST
-    @Path("/api/device/auth/register")
+    @Path("/register")
     @Retry(maxRetries = 15, delay = 1, delayUnit = ChronoUnit.SECONDS, jitter = 500, jitterDelayUnit = ChronoUnit.MILLIS)
     @Consumes(MediaType.APPLICATION_JSON)
     Uni<Response> register(RegisterRequest request);
 
     @POST
-    @Path("/api/device/auth/login")
+    @Path("/login")
     @Retry(maxRetries = 15, delay = 1, delayUnit = ChronoUnit.SECONDS, jitter = 500, jitterDelayUnit = ChronoUnit.MILLIS)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
