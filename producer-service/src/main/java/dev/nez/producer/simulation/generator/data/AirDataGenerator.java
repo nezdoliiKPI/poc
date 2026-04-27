@@ -39,9 +39,9 @@ public class AirDataGenerator extends DeviceDataGenerator {
         return new AirQuality(
             this.deviceId,
             co2 + rnd.nextInt(-6, 7),
-            pm25 + rnd.nextFloat(-1.1f, 1.1f),
-            pm10 + rnd.nextFloat(-1.1f, 1.1f),
-            tvoc  + rnd.nextFloat(-0.2f, 0.2f),
+            pm25 + rnd.nextFloat(-1.1f, 1f),
+            pm10 + rnd.nextFloat(-1.1f, 1f),
+            tvoc  + rnd.nextFloat(-0.11f, 0.1f),
             t + rnd.nextFloat(-0.5f, 0.5f),
             h + rnd.nextFloat(-0.5f, 0.5f)
         );

@@ -32,7 +32,7 @@ public class PowerDataGenerator extends DeviceDataGenerator {
 
         return new PowerConsumption(
             this.deviceId,
-            cv + rnd.nextFloat(-10.0f, 10.0f),
+            cv + rnd.nextFloat(-1.0f, 1.0f),
             cf  + rnd.nextFloat(-0.95f, 1.0f),
             cv * cf * pf
         );
