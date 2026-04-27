@@ -25,19 +25,19 @@ public class BatteryConsumer {
     private final ChannelFilter<BatteryData> jsonFilter;
     private final ChannelFilter<BatteryData> protoFilter;
 
-    private final BiFunction<BatteryData, BatteryData, Boolean> filter = (
-        oldData,
-        newData
-    ) -> {
-        final float BATTERY_PERCENT_DELTA = 1.0f;
-        return Math.abs(oldData.getVal() - newData.getVal()) >= BATTERY_PERCENT_DELTA;
-    };
-
     @Inject
     MessageMapper mapper;
 
     @Inject
     BatteryConsumer(MessageFilter messageFilter) {
+        BiFunction<BatteryData, BatteryData, Boolean> filter = (
+            oldData,
+            newData
+        ) -> {
+            final float BATTERY_PERCENT_DELTA = 0.5f;
+            return Math.abs(oldData.getVal() - newData.getVal()) >= BATTERY_PERCENT_DELTA;
+        };
+
         protoFilter = messageFilter.newChannelFilter(filter, CHANNEL_BATT_JSON_IN);
         jsonFilter = messageFilter.newChannelFilter(filter, CHANNEL_BATT_PROTO_IN);
     }

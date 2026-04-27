@@ -25,10 +25,14 @@ public class SmokeDataGenerator extends DeviceDataGenerator {
 
     @Override
     public Object getData() {
-        final var sr = 15 + rnd.nextInt(26);
-        final var co = rnd.nextInt(10) > 8 ? 1 + rnd.nextInt(2) : 0;
+        final var sr = 15;
+        final var co = 3;
 
-        return new SmokeDetector(this.deviceId, sr, co);
+        return new SmokeDetector(
+            this.deviceId,
+            sr + rnd.nextInt(20),
+            co + rnd.nextInt(-1, 2)
+        );
     }
 
     @Override

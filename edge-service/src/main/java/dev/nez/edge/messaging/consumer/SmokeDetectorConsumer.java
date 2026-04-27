@@ -24,24 +24,24 @@ public class SmokeDetectorConsumer {
     private final ChannelFilter<SmokeDetectorData> jsonFilter;
     private final ChannelFilter<SmokeDetectorData> protoFilter;
 
-    private final BiFunction<SmokeDetectorData, SmokeDetectorData, Boolean> filter = (
-        oldData,
-        newData
-    ) -> {
-        final int SMOKE_RAW_DELTA = 10;
-        final int CO_PPM_DELTA = 3;
-
-        if (Math.abs(oldData.getSmokeRaw() - newData.getSmokeRaw()) >= SMOKE_RAW_DELTA) return true;
-        if (Math.abs(oldData.getCoLevel() - newData.getCoLevel()) >= CO_PPM_DELTA) return true;
-
-        return false;
-    };
-
     @Inject
     MessageMapper mapper;
 
     @Inject
     SmokeDetectorConsumer(MessageFilter messageFilter) {
+        BiFunction<SmokeDetectorData, SmokeDetectorData, Boolean> filter = (
+            oldData,
+            newData
+        ) -> {
+            final int SMOKE_RAW_DELTA = 10;
+            final int CO_PPM_DELTA = 1;
+
+            if (Math.abs(oldData.getSmokeRaw() - newData.getSmokeRaw()) >= SMOKE_RAW_DELTA) return true;
+            if (Math.abs(oldData.getCoLevel() - newData.getCoLevel()) >= CO_PPM_DELTA) return true;
+
+            return false;
+        };
+
         protoFilter = messageFilter.newChannelFilter(filter, CHANNEL_SMOKE_PROTO_IN);
         jsonFilter = messageFilter.newChannelFilter(filter, CHANNEL_SMOKE_JSON_IN);
     }

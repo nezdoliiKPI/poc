@@ -25,26 +25,26 @@ public class PowerConsumptionConsumer {
     private final ChannelFilter<PowerConsumptionData> jsonFilter;
     private final ChannelFilter<PowerConsumptionData> protoFilter;
 
-    private final BiFunction<PowerConsumptionData, PowerConsumptionData, Boolean> filter = (
-        oldData,
-        newData
-    ) -> {
-        final float VOLTAGE_DELTA = 1.0f;
-        final float CURRENT_DELTA = 0.05f;
-        final float POWER_DELTA = 5.0f;
-
-        if (Math.abs(oldData.getVoltage() - newData.getVoltage()) >= VOLTAGE_DELTA) return true;
-        if (Math.abs(oldData.getCurrent() - newData.getCurrent()) >= CURRENT_DELTA) return true;
-        if (Math.abs(oldData.getPower() - newData.getPower()) >= POWER_DELTA) return true;
-
-        return false;
-    };
-
     @Inject
     MessageMapper mapper;
 
     @Inject
     PowerConsumptionConsumer(MessageFilter messageFilter) {
+        BiFunction<PowerConsumptionData, PowerConsumptionData, Boolean> filter = (
+            oldData,
+            newData
+        ) -> {
+            final float VOLTAGE_DELTA = 1.0f;
+            final float CURRENT_DELTA = 0.05f;
+            final float POWER_DELTA = 5.0f;
+
+            if (Math.abs(oldData.getVoltage() - newData.getVoltage()) >= VOLTAGE_DELTA) return true;
+            if (Math.abs(oldData.getCurrent() - newData.getCurrent()) >= CURRENT_DELTA) return true;
+            if (Math.abs(oldData.getPower() - newData.getPower()) >= POWER_DELTA) return true;
+
+            return false;
+        };
+
         protoFilter = messageFilter.newChannelFilter(filter, CHANNEL_POWER_PROTO_IN);
         jsonFilter = messageFilter.newChannelFilter(filter, CHANNEL_POWER_JSON_IN);
     }

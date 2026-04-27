@@ -29,14 +29,22 @@ public class AirDataGenerator extends DeviceDataGenerator {
 
     @Override
     public Object getData() {
-        final var co2 = 350 + rnd.nextInt(600);
-        final var pm25 = rnd.nextFloat() * 15.0f;
-        final var pm10 = rnd.nextFloat() * 30.0f;
-        final var tvoc = rnd.nextFloat() * 0.5f;
-        final var t = 25.0f + (rnd.nextFloat() * 5.0f);
-        final var h = 45.0f + (rnd.nextFloat() * 20.0f);
+        final var co2 = 450;
+        final var pm25 = 5.0f;
+        final var pm10 = 10.0f;
+        final var tvoc = 0.1f;
+        final var t = 23.0f;
+        final var h = 45.0f;
 
-        return new AirQuality(this.deviceId, co2, pm25, pm10, tvoc, t, h);
+        return new AirQuality(
+            this.deviceId,
+            co2 + rnd.nextInt(-6, 7),
+            pm25 + rnd.nextFloat(-1.1f, 1.1f),
+            pm10 + rnd.nextFloat(-1.1f, 1.1f),
+            tvoc  + rnd.nextFloat(-0.2f, 0.2f),
+            t + rnd.nextFloat(-0.5f, 0.5f),
+            h + rnd.nextFloat(-0.5f, 0.5f)
+        );
     }
 
     @Override

@@ -9,8 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class PowerDataGenerator extends DeviceDataGenerator {
-    private static final float BASE_VOLTAGE = 230.0f;
-    private static final float VOLTAGE_NOISE_MARGIN = 10.0f;
 
     public PowerDataGenerator(
         String hardwareId,
@@ -28,10 +26,15 @@ public class PowerDataGenerator extends DeviceDataGenerator {
 
     @Override
     public Object getData() {
-        final var cv = BASE_VOLTAGE + (rnd.nextFloat() * 2 * VOLTAGE_NOISE_MARGIN - VOLTAGE_NOISE_MARGIN);
-        final var cf = 0.05f + rnd.nextFloat() * 1.95f;
-        final var pow = cv * cf * (0.8f + rnd.nextFloat() * 0.2f);
+        final var cv = 230.0f;
+        final var cf = 1.0f;
+        final var pf = 0.9f;
 
-        return new PowerConsumption(deviceId, cv, cf, pow);
+        return new PowerConsumption(
+            this.deviceId,
+            cv + rnd.nextFloat(-10.0f, 10.0f),
+            cf  + rnd.nextFloat(-0.95f, 1.0f),
+            cv * cf * pf
+        );
     }
 }
