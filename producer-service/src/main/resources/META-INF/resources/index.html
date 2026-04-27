@@ -260,24 +260,6 @@
             gap: 16px;
         }
 
-        .live-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
-            animation: blink 2s ease-in-out infinite;
-        }
-
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: .4; }
@@ -739,10 +721,6 @@
             <h2>Producer Panel</h2>
         </div>
         <div class="topbar-right">
-            <div class="live-badge">
-                <div class="live-dot"></div>
-                CONNECTED
-            </div>
             <button class="btn-logout" @click="logout()">LOGOUT</button>
         </div>
     </header>

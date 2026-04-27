@@ -9,10 +9,10 @@ import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.security.runtime.QuarkusSecurityIdentity;
 import io.smallrye.mutiny.Uni;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-@ApplicationScoped
+@Singleton
 public class AdminAuthProvider implements IdentityProvider<UsernamePasswordAuthenticationRequest> {
 
     @ConfigProperty(name = "ADMIN_USERNAME")

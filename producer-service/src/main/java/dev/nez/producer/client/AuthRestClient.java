@@ -39,9 +39,9 @@ public interface AuthRestClient {
 
     @SuppressWarnings("unused")
     default String getBasicAuth() {
-        String user = ConfigProvider.getConfig().getValue("ADMIN_USERNAME", String.class);
-        String pass = ConfigProvider.getConfig().getValue("ADMIN_PASSWORD", String.class);
-        String token = user + ":" + pass;
+        final String user = ConfigProvider.getConfig().getValue("ADMIN_USERNAME", String.class);
+        final String pass = ConfigProvider.getConfig().getValue("ADMIN_PASSWORD", String.class);
+        final String token = user + ":" + pass;
         return "Basic " + Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
     }
 }

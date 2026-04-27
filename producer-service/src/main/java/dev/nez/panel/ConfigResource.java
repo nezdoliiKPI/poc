@@ -42,6 +42,7 @@ public class ConfigResource {
     EdgeConfigClient  edgeConfigClient;
 
     @GET
+    @Path("/page")
     @Produces(MediaType.TEXT_HTML)
     @RunOnVirtualThread
     @Bulkhead(value = 1)

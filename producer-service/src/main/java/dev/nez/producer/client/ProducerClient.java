@@ -23,8 +23,10 @@ import io.vertx.core.json.Json;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -130,7 +132,13 @@ public class ProducerClient {
             );
 
             return Uni.createFrom().voidItem()
-                .call(() -> authClient.register(registerRequest))
+                .chain(() -> authClient.register(registerRequest)
+                    .onFailure(ClientWebApplicationException.class)
+                    .recoverWithUni(ex ->
+                        ex.getResponse().getStatus() == 409
+                            ?   Uni.createFrom().item(Response.ok().build())
+                            :   Uni.createFrom().failure(ex)
+                ))
                 .chain(() -> authClient.login(loginRequest))
                 .invoke(loginResponse -> {
                     isRegistered.set(true);
