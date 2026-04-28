@@ -23,6 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Bulkhead;
 import org.eclipse.microprofile.faulttolerance.exceptions.BulkheadException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
@@ -102,7 +103,11 @@ public class AuthResource {
                         return device.persist();
                 }))
                 .replaceWith(RestResponse.<Void>status(RestResponse.Status.CREATED))
-                .onFailure(PersistenceException.class)
+                .onFailure(PersistenceException.class).recoverWithItem(ex -> {
+                    Log.warn("Error: ", ex);
+                    return RestResponse.status(RestResponse.Status.INTERNAL_SERVER_ERROR);
+                })
+                .onFailure(ConstraintViolationException.class)
                 .recoverWithItem(RestResponse.status(RestResponse.Status.CONFLICT));
     }
 

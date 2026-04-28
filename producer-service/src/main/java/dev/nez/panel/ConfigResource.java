@@ -8,6 +8,8 @@ import dev.nez.producer.simulation.Simulator;
 
 import io.smallrye.common.annotation.RunOnVirtualThread;
 
+import io.smallrye.faulttolerance.api.RateLimit;
+import io.smallrye.faulttolerance.api.RateLimitException;
 import io.vertx.core.eventbus.EventBus;
 
 import jakarta.annotation.security.RolesAllowed;
@@ -27,6 +29,10 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import java.io.InputStream;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 @Path("/api/panel/update")
 public class ConfigResource {
@@ -65,31 +71,26 @@ public class ConfigResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed("admin")
     @RunOnVirtualThread
-    @Bulkhead(value = 1)
+    @RateLimit(value = 1, window = 500, windowUnit = ChronoUnit.MILLIS)
     public RestResponse<Float> updateGenerate(@Valid ProducerConfigUpdate request) {
-        eventBus.send(Simulator.CONFIG_ADDRESS,
-            new Simulator.ConfigChangeEvent(config.air().json().topic(), request.airJsonCount())
-        );
-        eventBus.send(Simulator.CONFIG_ADDRESS,
-            new Simulator.ConfigChangeEvent(config.air().proto().topic(), request.airProtoCount())
-        );
-        eventBus.send(Simulator.CONFIG_ADDRESS,
-            new Simulator.ConfigChangeEvent(config.power().json().topic(), request.powerJsonCount())
-        );
-        eventBus.send(Simulator.CONFIG_ADDRESS,
-            new Simulator.ConfigChangeEvent(config.power().proto().topic(), request.powerProtoCount())
-        );
-        eventBus.send(Simulator.CONFIG_ADDRESS,
-            new Simulator.ConfigChangeEvent(config.smoke().json().topic(), request.smokeJsonCount())
-        );
-        var result = eventBus.request(Simulator.CONFIG_ADDRESS,
+        var events = List.of(
+            new Simulator.ConfigChangeEvent(config.air().json().topic(), request.airJsonCount()),
+            new Simulator.ConfigChangeEvent(config.air().proto().topic(), request.airProtoCount()),
+            new Simulator.ConfigChangeEvent(config.power().json().topic(), request.powerJsonCount()),
+            new Simulator.ConfigChangeEvent(config.power().proto().topic(), request.powerProtoCount()),
+            new Simulator.ConfigChangeEvent(config.smoke().json().topic(), request.smokeJsonCount()),
             new Simulator.ConfigChangeEvent(config.smoke().proto().topic(), request.smokeProtoCount())
-        )
-            .toCompletionStage()
-            .toCompletableFuture()
-            .join();
+        );
 
-        return RestResponse.ok((Float) result.body());
+        var futureResults = events.stream()
+            .map(event -> eventBus.request(Simulator.CONFIG_ADDRESS, event)
+                .toCompletionStage()
+                .toCompletableFuture())
+            .toList();
+
+        CompletableFuture.allOf(futureResults.toArray(CompletableFuture[]::new)).join();
+
+        return RestResponse.ok((Float) futureResults.getLast().join().body());
     }
 
     @POST
@@ -107,6 +108,14 @@ public class ConfigResource {
         return RestResponse.status(
             RestResponse.Status.TOO_MANY_REQUESTS,
             "Your request is currently being processed. Please try again later."
+        );
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<String> handleRateLimit(RateLimitException ex) {
+        return RestResponse.status(
+            RestResponse.Status.TOO_MANY_REQUESTS,
+            "Too Many Requests: Please slow down."
         );
     }
 }

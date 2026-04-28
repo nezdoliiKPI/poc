@@ -955,26 +955,26 @@
             totalMps: null,
 
             gen: {
-                powerProtoCount: 5,
-                powerJsonCount:  5,
-                smokeProtoCount: 5,
-                smokeJsonCount:  5,
-                airProtoCount:   5,
-                airJsonCount:    5,
+                powerProtoCount: 1,
+                powerJsonCount:  1,
+                smokeProtoCount: 1,
+                smokeJsonCount:  1,
+                airProtoCount:   1,
+                airJsonCount:    1,
             },
 
             filterGroups: [
                 [
-                    { topics: ['dev/power/p'], consume: true, optimize: true, threshold: 4 },
-                    { topics: ['dev/power/j'], consume: true, optimize: true, threshold: 4 },
+                    { topics: ['dev/power/p'], consume: true, optimize: true, threshold: 0 },
+                    { topics: ['dev/power/j'], consume: true, optimize: true, threshold: 0 },
                 ],
                 [
-                    { topics: ['dev/smoke/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 1 },
-                    { topics: ['dev/smoke/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 1 },
+                    { topics: ['dev/smoke/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 0 },
+                    { topics: ['dev/smoke/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 0 },
                 ],
                 [
-                    { topics: ['dev/air/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 2 },
-                    { topics: ['dev/air/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 2 },
+                    { topics: ['dev/air/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 0 },
+                    { topics: ['dev/air/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 0 },
                 ],
             ],
 
