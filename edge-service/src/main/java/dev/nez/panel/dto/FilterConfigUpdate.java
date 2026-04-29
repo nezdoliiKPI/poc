@@ -1,11 +1,11 @@
 package dev.nez.panel.dto;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
-@RegisterForReflection
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record FilterConfigUpdate(
     @NotBlank(message = "Topic name cannot be null or blank")
     String topic,

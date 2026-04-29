@@ -1,12 +1,14 @@
 package dev.nez.consumer.entity;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
 
+@RegisterForReflection
 @Entity
 @Table(name = "power_consumption")
 public class PowerConsumptionEntity extends PanacheEntity {

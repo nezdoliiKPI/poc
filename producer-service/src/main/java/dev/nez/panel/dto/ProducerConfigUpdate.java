@@ -3,9 +3,7 @@ package dev.nez.panel.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import io.quarkus.runtime.annotations.RegisterForReflection;
 
-@RegisterForReflection
 public record ProducerConfigUpdate(
     @NotNull(message = "Field 'airJsonCount' cannot be null")
     @Min(value = 0, message = "Field 'airJsonCount' cannot be negative")

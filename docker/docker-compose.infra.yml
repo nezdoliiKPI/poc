@@ -45,7 +45,7 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: '2G'
+          memory: '3G'
     container_name: iot_timescaledb
     env_file:
       - ../secrets/admin/credentials.properties
@@ -62,6 +62,12 @@ services:
       - "max_connections=300"
       - "-c"
       - "max_parallel_workers_per_gather=2"
+      - "-c"
+      - "checkpoint_timeout=15min"
+      - "-c"
+      - "max_wal_size=4GB"
+      - "-c"
+      - "min_wal_size=1GB"
 
 volumes:
   timescaledb_data:

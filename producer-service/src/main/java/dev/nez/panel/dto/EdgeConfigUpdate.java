@@ -1,11 +1,9 @@
 package dev.nez.panel.dto;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
-@RegisterForReflection
 public record EdgeConfigUpdate(
     @NotBlank(message = "Topic name cannot be null or blank")
     String topic,

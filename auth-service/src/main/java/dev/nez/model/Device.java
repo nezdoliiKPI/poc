@@ -1,11 +1,13 @@
 package dev.nez.model;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Uni;
 import jakarta.persistence.*;
 
 import java.util.Optional;
 
+@RegisterForReflection
 @Entity
 @Table(name = "devices")
 public class Device extends PanacheEntity {
