@@ -126,7 +126,7 @@ public class ProducerClient {
                 .serverHost(brokerHost)
                 .serverPort(brokerPort)
                 .sslConfig()
-                    .trustManagerFactory(provider.provide())
+                    .trustManagerFactory(provider.provide()) //or InsecureTrustManagerFactory.INSTANCE
                 .applySslConfig()
                 .simpleAuth()
                     .username(producer.deviceId.toString())

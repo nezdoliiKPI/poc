@@ -15,6 +15,30 @@ otelcol.exporter.prometheus "to_prom" {
   forward_to = [prometheus.remote_write.local_prom.receiver]
 }
 
+prometheus.scrape "redpanda" {
+  targets = [{"__address__" = "host.docker.internal:19644"}]
+  metrics_path = "/metrics"
+  scrape_interval = "10s"
+  scrape_timeout  = "9s"
+  forward_to = [prometheus.remote_write.local_prom.receiver]
+}
+
+prometheus.scrape "postgres" {
+  targets = [{"__address__" = "host.docker.internal:9187"}]
+  metrics_path = "/metrics"
+  scrape_interval = "10s"
+  scrape_timeout  = "9s"
+  forward_to = [prometheus.remote_write.local_prom.receiver]
+}
+
+prometheus.scrape "mosquitto" {
+  targets = [{"__address__" = "host.docker.internal:9234"}]
+  metrics_path = "/metrics"
+  scrape_interval = "10s"
+  scrape_timeout  = "9s"
+  forward_to = [prometheus.remote_write.local_prom.receiver]
+}
+
 // Send metrics to the Prometheus database
 prometheus.remote_write "local_prom" {
   endpoint {

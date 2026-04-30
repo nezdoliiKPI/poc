@@ -28,6 +28,18 @@ services:
     stdin_open: true
     command: mosquitto -c /etc/mosquitto/mosquitto.conf
 
+  mosquitto-exporter:
+    image: sapcc/mosquitto-exporter:latest
+    container_name: mosquitto-exporter
+    command: ["-endpoint", "tcp://iot_mosquitto:1883"]
+    ports:
+      - "9234:9234"
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    networks:
+      - iot_network
+
 #  keycloak:
 #    image: quay.io/keycloak/keycloak:26.5.0
 #    command: start-dev
@@ -68,6 +80,17 @@ services:
       - "max_wal_size=4GB"
       - "-c"
       - "min_wal_size=1GB"
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@timescaledb:5432/iot?sslmode=disable"
+    ports:
+      - "9187:9187"
+    restart: unless-stopped
+    depends_on:
+      - timescaledb
 
 volumes:
   timescaledb_data:

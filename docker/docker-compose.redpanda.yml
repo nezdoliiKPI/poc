@@ -27,6 +27,7 @@ services:
     container_name: redpanda-console
     entrypoint: /app/console
     command: --config.filepath=/console-config.yml
+    restart: unless-stopped
     ports:
       - 8099:8080
     volumes:
