@@ -3,11 +3,11 @@ import dev.nez.consumer.entity.AirQualityEntity;
 import dev.nez.consumer.entity.BatteryDataEntity;
 import dev.nez.consumer.entity.PowerConsumptionEntity;
 import dev.nez.consumer.entity.SmokeDetectorEntity;
-import dev.nez.proto.timeddata.AirQualityData;
-import dev.nez.proto.timeddata.BatteryData;
-import dev.nez.proto.timeddata.PowerConsumptionData;
+import dev.nez.dto.proto.timeddata.AirQualityData;
+import dev.nez.dto.proto.timeddata.BatteryData;
+import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 
-import dev.nez.proto.timeddata.SmokeDetectorData;
+import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import jakarta.inject.Singleton;
 
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -25,6 +25,16 @@ public class DataMapper {
             proto.getCurrent(),
             proto.getPower(),
             toInstant(proto.getTimestamp())
+        );
+    }
+
+    public Tuple toTuple(PowerConsumptionEntity entity) {
+        return Tuple.of(
+            entity.deviceId,
+            entity.voltage,
+            entity.current,
+            entity.power,
+            entity.timestamp.atOffset(ZoneOffset.UTC)
         );
     }
 
@@ -51,6 +61,19 @@ public class DataMapper {
         );
     }
 
+    public Tuple toTuple(AirQualityEntity entity) {
+        return Tuple.wrap(new Object[] {
+            entity.deviceId,
+            entity.co2,
+            entity.pm25,
+            entity.pm10,
+            entity.tvoc,
+            entity.temperature,
+            entity.humidity,
+            entity.timestamp.atOffset(ZoneOffset.UTC)
+        });
+    }
+
     public Tuple toTuple(AirQualityData proto) {
         return Tuple.wrap(new Object[] {
            proto.getDeviceId(),
@@ -69,6 +92,14 @@ public class DataMapper {
             proto.getDeviceId(),
             proto.getVal(),
             toInstant(proto.getTimestamp())
+        );
+    }
+
+    public Tuple toTuple(BatteryDataEntity entity) {
+        return Tuple.of(
+            entity.deviceId,
+            entity.val,
+            entity.timestamp.atOffset(ZoneOffset.UTC)
         );
     }
 
@@ -95,6 +126,15 @@ public class DataMapper {
             proto.getSmokeRaw(),
             proto.getCoLevel(),
             toOffsetDateTime(proto.getTimestamp())
+        );
+    }
+
+    public Tuple toTuple(SmokeDetectorEntity entity) {
+        return Tuple.of(
+            entity.deviceId,
+            entity.smokeRaw,
+            entity.coLevel,
+            entity.timestamp.atOffset(ZoneOffset.UTC)
         );
     }
 

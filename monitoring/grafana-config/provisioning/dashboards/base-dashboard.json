@@ -21,12 +21,304 @@
   "links": [],
   "panels": [
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 0
+      },
+      "id": 36,
+      "panels": [],
+      "title": "System",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "recps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "id": 37,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "rate(broker_publish_messages_received[30s])",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Received messages",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
+      "id": 39,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "(histogram_quantile(0.95, sum by(le) (rate(message_delay_milliseconds_bucket[30s]))))\r\n+ on() \r\n(sum(broker_messages_stored) / sum(rate(broker_publish_messages_sent[30s])))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total process delay",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "id": 38,
+      "interval": "5s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by (instance) (jvm_memory_used_bytes{job=\"auth-service\"})\r\n+\r\nsum by (instance) (jvm_memory_used_bytes{job=\"edge-service\"})\r\n+\r\nsum by (instance) (jvm_memory_used_bytes{job=\"main-service\"})",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total services memory usage",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
       },
       "id": 10,
       "panels": [],
@@ -99,7 +391,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 1
+        "y": 10
       },
       "id": 27,
       "interval": "10s",
@@ -195,7 +487,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 1
+        "y": 10
       },
       "id": 14,
       "interval": "10s",
@@ -288,7 +580,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 1
+        "y": 10
       },
       "id": 11,
       "interval": "5s",
@@ -324,7 +616,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 18
       },
       "id": 5,
       "panels": [],
@@ -398,7 +690,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 10
+        "y": 19
       },
       "id": 3,
       "interval": "10s",
@@ -495,7 +787,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 10
+        "y": 19
       },
       "id": 12,
       "interval": "10s",
@@ -588,7 +880,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 10
+        "y": 19
       },
       "id": 7,
       "interval": "5s",
@@ -624,7 +916,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 27
       },
       "id": 6,
       "panels": [],
@@ -698,7 +990,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 19
+        "y": 28
       },
       "id": 4,
       "interval": "10s",
@@ -795,7 +1087,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 19
+        "y": 28
       },
       "id": 13,
       "interval": "10s",
@@ -816,7 +1108,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(messages_processed_total{job=\"main-service\", channel=~\".*-in\"}[30s]))",
+          "expr": "sum(rate(message_delay_milliseconds_count{job=\"main-service\"}[30s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -892,7 +1184,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 19
+        "y": 28
       },
       "id": 8,
       "interval": "5s",
@@ -928,7 +1220,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 36
       },
       "id": 15,
       "panels": [],
@@ -990,7 +1282,7 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -998,7 +1290,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 28
+        "y": 37
       },
       "id": 20,
       "interval": "10s",
@@ -1019,7 +1311,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(vectorized_kafka_latency_produce_latency_us_bucket[30s]))) / 1000",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(vectorized_kafka_latency_produce_latency_us_bucket[30s])))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1083,7 +1375,7 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -1091,7 +1383,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 28
+        "y": 37
       },
       "id": 21,
       "interval": "10s",
@@ -1112,7 +1404,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(vectorized_kafka_latency_fetch_latency_us_bucket[30s]))) / 1000",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(vectorized_kafka_latency_fetch_latency_us_bucket[30s])))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1161,7 +1453,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 28
+        "y": 37
       },
       "id": 19,
       "interval": "10s",
@@ -1264,7 +1556,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 36
+        "y": 45
       },
       "id": 22,
       "interval": "10s",
@@ -1356,7 +1648,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 36
+        "y": 45
       },
       "id": 16,
       "interval": "10s",
@@ -1392,7 +1684,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 53
       },
       "id": 23,
       "panels": [],
@@ -1462,7 +1754,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 45
+        "y": 54
       },
       "id": 24,
       "interval": "10s",
@@ -1500,54 +1792,25 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
+          "max": 3,
           "min": 0,
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": 0
               },
               {
+                "color": "#EAB839",
+                "value": 75
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 85
               }
             ]
           },
@@ -1559,22 +1822,29 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 45
+        "y": 54
       },
       "id": 30,
       "interval": "5s",
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "showPercentChange": false,
+        "text": {
+          "valueSize": 40
+        },
+        "textMode": "value",
+        "wideLayout": true
       },
       "pluginVersion": "12.4.1",
       "targets": [
@@ -1587,7 +1857,7 @@
         }
       ],
       "title": "DB Size",
-      "type": "timeseries"
+      "type": "stat"
     },
     {
       "datasource": {
@@ -1652,7 +1922,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 53
+        "y": 62
       },
       "id": 25,
       "interval": "10s",
@@ -1745,7 +2015,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 53
+        "y": 62
       },
       "id": 26,
       "interval": "10s",
@@ -1837,7 +2107,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 61
+        "y": 70
       },
       "id": 28,
       "interval": "10s",
@@ -1929,7 +2199,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 61
+        "y": 70
       },
       "id": 29,
       "interval": "10s",
@@ -1965,7 +2235,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 78
       },
       "id": 31,
       "panels": [],
@@ -2035,7 +2305,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 70
+        "y": 79
       },
       "id": 33,
       "interval": "10s",
@@ -2128,7 +2398,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 70
+        "y": 79
       },
       "id": 34,
       "interval": "10s",
@@ -2220,7 +2490,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 78
+        "y": 87
       },
       "id": 35,
       "interval": "10s",
@@ -2312,7 +2582,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 78
+        "y": 87
       },
       "id": 32,
       "interval": "10s",
@@ -2358,6 +2628,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 7,
+  "version": 9,
   "weekStart": ""
 }

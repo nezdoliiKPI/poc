@@ -11,7 +11,7 @@ import java.time.Instant;
 @RegisterForReflection
 @Entity
 @Table(name = "power_consumption")
-public class PowerConsumptionEntity extends PanacheEntity {
+public class PowerConsumptionEntity extends PanacheEntity implements Timed {
 
     @Column(name = "device_id", nullable = false)
     public Long deviceId;
@@ -39,5 +39,10 @@ public class PowerConsumptionEntity extends PanacheEntity {
         this.current = current;
         this.power = power;
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public Instant timestamp() {
+        return timestamp;
     }
 }

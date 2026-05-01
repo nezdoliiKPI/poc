@@ -2,7 +2,8 @@ package dev.nez.consumer.consumer;
 
 import dev.nez.consumer.DataMapper;
 
-import dev.nez.proto.timeddata.AirQualityData;
+import dev.nez.consumer.entity.AirQualityEntity;
+import dev.nez.dto.proto.timeddata.AirQualityData;
 import io.smallrye.mutiny.Uni;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,7 +13,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import java.util.List;
 
 @ApplicationScoped
-public class AirQualityConsumer extends BaseBatchConsumer<AirQualityData> {
+public class AirQualityConsumer extends BaseBatchConsumer<AirQualityEntity> {
     private static final String CHANNEL_AIR_IN = "air-in";
 
     @Inject
@@ -26,6 +27,8 @@ public class AirQualityConsumer extends BaseBatchConsumer<AirQualityData> {
 
     @Incoming(CHANNEL_AIR_IN)
     public Uni<Void> consumeAir(List<AirQualityData>batch) {
-        return consumeBatch(batch, sql, CHANNEL_AIR_IN, dataMapper::toTuple);
+        return Uni.createFrom()
+            .item(batch.stream().map(dataMapper::toEntity).toList())
+            .chain(lst -> consumeBatch(lst, sql, CHANNEL_AIR_IN, dataMapper::toTuple));
     }
 }

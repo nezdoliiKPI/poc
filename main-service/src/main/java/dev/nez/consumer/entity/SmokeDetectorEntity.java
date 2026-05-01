@@ -11,7 +11,7 @@ import java.time.Instant;
 @RegisterForReflection
 @Entity
 @Table(name = "smoke_detector")
-public class SmokeDetectorEntity extends PanacheEntity {
+public class SmokeDetectorEntity extends PanacheEntity implements Timed {
 
     @Column(name = "device_id",nullable = false)
     public Long deviceId;
@@ -37,5 +37,10 @@ public class SmokeDetectorEntity extends PanacheEntity {
         this.smokeRaw = smokeRaw;
         this.coLevel = coLevel;
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public Instant timestamp() {
+        return timestamp;
     }
 }

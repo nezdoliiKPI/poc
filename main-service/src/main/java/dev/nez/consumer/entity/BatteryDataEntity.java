@@ -11,7 +11,7 @@ import java.time.Instant;
 @RegisterForReflection
 @Entity
 @Table(name = "battery_data")
-public class BatteryDataEntity extends PanacheEntity {
+public class BatteryDataEntity extends PanacheEntity implements Timed {
 
     @Column(name = "device_id", nullable = false)
     public Long deviceId;
@@ -31,5 +31,10 @@ public class BatteryDataEntity extends PanacheEntity {
         this.deviceId = deviceId;
         this.val = val;
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public Instant timestamp() {
+        return timestamp;
     }
 }

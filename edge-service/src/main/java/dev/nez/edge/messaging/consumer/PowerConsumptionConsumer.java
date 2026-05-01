@@ -2,7 +2,7 @@ package dev.nez.edge.messaging.consumer;
 
 import dev.nez.edge.messaging.filter.MessageFilter;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
-import dev.nez.proto.timeddata.PowerConsumptionData;
+import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import dev.nez.edge.dto.MessageMapper;
 import dev.nez.edge.interceptor.InterceptConsumingMessage;
 

@@ -11,7 +11,7 @@ import java.time.Instant;
 @RegisterForReflection
 @Entity
 @Table(name = "air_quality")
-public class AirQualityEntity extends PanacheEntity {
+public class AirQualityEntity extends PanacheEntity implements Timed {
 
     @Column(name = "device_id",nullable = false)
     public Long deviceId;
@@ -51,5 +51,10 @@ public class AirQualityEntity extends PanacheEntity {
         this.temperature = temperature;
         this.humidity = humidity;
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public Instant timestamp() {
+        return timestamp;
     }
 }

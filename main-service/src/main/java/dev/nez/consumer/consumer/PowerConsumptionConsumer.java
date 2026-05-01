@@ -2,7 +2,8 @@ package dev.nez.consumer.consumer;
 
 import dev.nez.consumer.DataMapper;
 
-import dev.nez.proto.timeddata.PowerConsumptionData;
+import dev.nez.consumer.entity.PowerConsumptionEntity;
+import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import io.smallrye.mutiny.Uni;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,7 +13,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import java.util.List;
 
 @ApplicationScoped
-public class PowerConsumptionConsumer extends BaseBatchConsumer<PowerConsumptionData> {
+public class PowerConsumptionConsumer extends BaseBatchConsumer<PowerConsumptionEntity> {
     private static final String CHANNEL_POWER_IN = "power-in";
 
     @Inject
@@ -26,6 +27,8 @@ public class PowerConsumptionConsumer extends BaseBatchConsumer<PowerConsumption
 
     @Incoming(CHANNEL_POWER_IN)
     public Uni<Void> consumePower(List<PowerConsumptionData> batch) {
-        return consumeBatch(batch, sql, CHANNEL_POWER_IN, dataMapper::toTuple);
+        return Uni.createFrom()
+            .item(batch.stream().map(dataMapper::toEntity).toList())
+            .chain(lst -> consumeBatch(lst, sql, CHANNEL_POWER_IN, dataMapper::toTuple));
     }
 }

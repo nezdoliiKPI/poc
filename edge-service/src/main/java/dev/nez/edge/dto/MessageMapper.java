@@ -7,10 +7,10 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import dev.nez.edge.dto.mqtt.PowerConsumption;
 import dev.nez.edge.dto.mqtt.SmokeDetector;
-import dev.nez.proto.timeddata.AirQualityData;
-import dev.nez.proto.timeddata.BatteryData;
-import dev.nez.proto.timeddata.PowerConsumptionData;
-import dev.nez.proto.timeddata.SmokeDetectorData;
+import dev.nez.dto.proto.timeddata.AirQualityData;
+import dev.nez.dto.proto.timeddata.BatteryData;
+import dev.nez.dto.proto.timeddata.PowerConsumptionData;
+import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 
 import dev.nez.edge.dto.mqtt.AirQuality;
 import dev.nez.edge.dto.mqtt.Battery;

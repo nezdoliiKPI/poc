@@ -1,7 +1,7 @@
 package dev.nez.producer.dto.mqtt;
 
 import dev.nez.producer.dto.ProtocolBuffer;
-import dev.nez.proto.mqtt.BatteryMessage;
+import dev.nez.dto.proto.mqtt.BatteryMessage;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
