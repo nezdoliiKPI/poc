@@ -1,3 +1,7 @@
+// ==========================================
+// 1. OTLP RECEIVER (Metrics, Logs, Traces)
+// ==========================================
+
 otelcol.receiver.otlp "default" {
   grpc {
     endpoint = "0.0.0.0:4317"
@@ -6,10 +10,16 @@ otelcol.receiver.otlp "default" {
     endpoint = "0.0.0.0:4318"
   }
 
-  output {
+output {
     metrics = [otelcol.exporter.prometheus.to_prom.input]
+    logs    = [otelcol.exporter.loki.to_loki.input]
+    traces  = [otelcol.exporter.otlp.to_tempo.input]
   }
 }
+
+// ==========================================
+// 2. METRICS (Prometheus)
+// ==========================================
 
 otelcol.exporter.prometheus "to_prom" {
   forward_to = [prometheus.remote_write.local_prom.receiver]
@@ -39,10 +49,70 @@ prometheus.scrape "mosquitto" {
   forward_to = [prometheus.remote_write.local_prom.receiver]
 }
 
-// Send metrics to the Prometheus database
 prometheus.remote_write "local_prom" {
   endpoint {
-    // Access the Prometheus container via the Docker internal network
     url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+// ==========================================
+// 3. TRACES (Tempo)
+// ==========================================
+
+otelcol.exporter.otlp "to_tempo" {
+  client {
+    endpoint = "http://tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+// ==========================================
+// 4. LOGS (Docker Socket) - PROD APPROACH
+// ==========================================
+
+discovery.docker "local_containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "docker_labels" {
+  targets = discovery.docker.local_containers.targets
+
+  rule {
+    action        = "replace"
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/?(.*)"
+    target_label  = "service_name"
+  }
+}
+
+loki.source.docker "docker_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.docker_labels.output
+  forward_to = [loki.process.docker_job.receiver]
+}
+
+loki.process "docker_job" {
+  forward_to = [loki.write.local_loki.receiver]
+
+  stage.static_labels {
+    values = {
+      job = "infrastructure",
+    }
+  }
+}
+
+// ==========================================
+// 5. LOKI (Logs Aggregator)
+// ==========================================
+
+otelcol.exporter.loki "to_loki" {
+  forward_to = [loki.write.local_loki.receiver]
+}
+
+loki.write "local_loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
   }
 }
