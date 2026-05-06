@@ -1,6 +1,5 @@
 package dev.nez.edge.messaging.consumer;
 
-import dev.nez.edge.interceptor.InterceptConsumingMessage;
 import dev.nez.edge.messaging.filter.MessageFilter;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.AirQualityData;
@@ -8,16 +7,17 @@ import dev.nez.edge.dto.MessageMapper;
 
 import io.smallrye.mutiny.Multi;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 import java.util.function.BiFunction;
 
-@ApplicationScoped
-public class AirQualityConsumer {
+@Singleton
+public class AirQualityConsumer extends MqttConsumer<AirQualityData> {
     private static final String CHANNEL_AIR_JSON_IN = "air-j-in";
     private static final String CHANNEL_AIR_PROTO_IN = "air-p-in";
     private static final String CHANNEL_AIR_OUT = "air-out";
@@ -30,6 +30,8 @@ public class AirQualityConsumer {
 
     @Inject
     AirQualityConsumer(MessageFilter messageFilter) {
+        super(AirQualityData::getDeviceId);
+
         BiFunction<AirQualityData, AirQualityData, Boolean> filter = (
             oldData,
             newData
@@ -57,21 +59,13 @@ public class AirQualityConsumer {
 
     @Incoming(CHANNEL_AIR_PROTO_IN)
     @Outgoing(CHANNEL_AIR_OUT)
-    @InterceptConsumingMessage(CHANNEL_AIR_PROTO_IN)
-    public Multi<AirQualityData> consumeAirProto(Multi<byte[]> stream) {
-        return stream
-            .filter(_ -> protoFilter.shouldConsume())
-            .map(mapper::fromProtoAirQuality)
-            .filter(data -> protoFilter.apply(data.getDeviceId(), data));
+    public Multi<Message<AirQualityData>> consumeAirProto(Multi<Message<byte[]>> stream) {
+        return consume(stream, mapper::fromProtoAirQuality, protoFilter, CHANNEL_AIR_PROTO_IN);
     }
 
     @Incoming(CHANNEL_AIR_JSON_IN)
     @Outgoing(CHANNEL_AIR_OUT)
-    @InterceptConsumingMessage(CHANNEL_AIR_JSON_IN)
-    public Multi<AirQualityData> consumeAirQJson(Multi<byte[]> stream) {
-        return stream
-            .filter(_ -> jsonFilter.shouldConsume())
-            .map(mapper::fromJsonAirQuality)
-            .filter(data -> jsonFilter.apply(data.getDeviceId(), data));
+    public Multi<Message<AirQualityData>> consumeAirQJson(Multi<Message<byte[]>> stream) {
+        return consume(stream, mapper::fromJsonAirQuality, jsonFilter, CHANNEL_AIR_JSON_IN);
     }
 }

@@ -2,22 +2,23 @@ package dev.nez.edge.messaging.consumer;
 
 import dev.nez.edge.messaging.filter.MessageFilter;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
+
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import dev.nez.edge.dto.MessageMapper;
-import dev.nez.edge.interceptor.InterceptConsumingMessage;
 
 import io.smallrye.mutiny.Multi;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 import java.util.function.BiFunction;
 
-@ApplicationScoped
-public class PowerConsumptionConsumer {
+@Singleton
+public class PowerConsumptionConsumer extends MqttConsumer<PowerConsumptionData> {
     private static final String CHANNEL_POWER_JSON_IN = "power-j-in";
     private static final String CHANNEL_POWER_PROTO_IN = "power-p-in";
     private static final String CHANNEL_POWER_OUT = "power-out";
@@ -30,6 +31,8 @@ public class PowerConsumptionConsumer {
 
     @Inject
     PowerConsumptionConsumer(MessageFilter messageFilter) {
+        super(PowerConsumptionData::getDeviceId);
+
         BiFunction<PowerConsumptionData, PowerConsumptionData, Boolean> filter = (
             oldData,
             newData
@@ -51,21 +54,13 @@ public class PowerConsumptionConsumer {
 
     @Incoming(CHANNEL_POWER_PROTO_IN)
     @Outgoing(CHANNEL_POWER_OUT)
-    @InterceptConsumingMessage(CHANNEL_POWER_PROTO_IN)
-    public Multi<PowerConsumptionData> consumePowerProto(Multi<byte[]> stream) {
-        return stream
-            .filter(_ -> protoFilter.shouldConsume())
-            .map(mapper::fromProtoPowerConsumption)
-            .filter(data -> protoFilter.apply(data.getDeviceId(), data));
+    public Multi<Message<PowerConsumptionData>> consumePowerProto(Multi<Message<byte[]>> stream) {
+        return consume(stream, mapper::fromProtoPowerConsumption, protoFilter, CHANNEL_POWER_PROTO_IN);
     }
 
     @Incoming(CHANNEL_POWER_JSON_IN)
     @Outgoing(CHANNEL_POWER_OUT)
-    @InterceptConsumingMessage(CHANNEL_POWER_JSON_IN)
-    public Multi<PowerConsumptionData> consumePowerJson(Multi<byte[]> stream) {
-        return stream
-            .filter(_ -> jsonFilter.shouldConsume())
-            .map(mapper::fromJsonPowerConsumption)
-            .filter(data -> jsonFilter.apply(data.getDeviceId(), data));
+    public Multi<Message<PowerConsumptionData>> consumePowerJson(Multi<Message<byte[]>> stream) {
+        return consume(stream, mapper::fromJsonPowerConsumption, jsonFilter, CHANNEL_POWER_JSON_IN);
     }
 }

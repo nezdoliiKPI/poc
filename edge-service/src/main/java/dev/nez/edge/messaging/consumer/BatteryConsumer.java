@@ -1,23 +1,24 @@
 package dev.nez.edge.messaging.consumer;
 
-import dev.nez.edge.interceptor.InterceptConsumingMessage;
 import dev.nez.edge.messaging.filter.MessageFilter;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
+
 import dev.nez.dto.proto.timeddata.BatteryData;
 import dev.nez.edge.dto.MessageMapper;
 
 import io.smallrye.mutiny.Multi;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 import java.util.function.BiFunction;
 
-@ApplicationScoped
-public class BatteryConsumer {
+@Singleton
+public class BatteryConsumer extends MqttConsumer<BatteryData> {
     private static final String CHANNEL_BATT_JSON_IN = "batt-j-in";
     private static final String CHANNEL_BATT_PROTO_IN = "batt-p-in";
     private static final String CHANNEL_BATT_OUT = "batt-out";
@@ -30,6 +31,8 @@ public class BatteryConsumer {
 
     @Inject
     BatteryConsumer(MessageFilter messageFilter) {
+        super(BatteryData::getDeviceId);
+
         BiFunction<BatteryData, BatteryData, Boolean> filter = (
             oldData,
             newData
@@ -44,21 +47,13 @@ public class BatteryConsumer {
 
     @Incoming(CHANNEL_BATT_PROTO_IN)
     @Outgoing(CHANNEL_BATT_OUT)
-    @InterceptConsumingMessage(CHANNEL_BATT_PROTO_IN)
-    public Multi<BatteryData> consumeBatteryProto(Multi<byte[]> stream) {
-        return stream
-            .filter(_ -> protoFilter.shouldConsume())
-            .map(mapper::fromProtoBattery)
-            .filter(data -> protoFilter.apply(data.getDeviceId(), data));
+    public Multi<Message<BatteryData>> consumeBatteryProto(Multi<Message<byte[]>> stream) {
+        return consume(stream, mapper::fromProtoBattery, protoFilter, CHANNEL_BATT_PROTO_IN);
     }
 
     @Incoming(CHANNEL_BATT_JSON_IN)
     @Outgoing(CHANNEL_BATT_OUT)
-    @InterceptConsumingMessage(CHANNEL_BATT_JSON_IN)
-    public Multi<BatteryData> consumeBatteryJson(Multi<byte[]> stream) {
-        return stream
-            .filter(_ -> jsonFilter.shouldConsume())
-            .map(mapper::fromJsonBattery)
-            .filter(data -> jsonFilter.apply(data.getDeviceId(), data));
+    public Multi<Message<BatteryData>> consumeBatteryJson(Multi<Message<byte[]>> stream) {
+        return consume(stream, mapper::fromJsonBattery, jsonFilter, CHANNEL_BATT_JSON_IN);
     }
 }

@@ -224,7 +224,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "sum(count_over_time({exporter=\"OTLP\", service_name=~\"$service\"}[$__interval]))",
+          "expr": "sum(count_over_time({exporter=\"OTLP\", service_name=~\"$service\"}[1h]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -362,8 +362,8 @@
     "list": [
       {
         "current": {
-          "text": "edge-service",
-          "value": "edge-service"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "loki",
@@ -414,13 +414,13 @@
     ]
   },
   "time": {
-    "from": "now-1h",
-    "to": "now"
+    "from": "2026-05-05T13:59:38.037Z",
+    "to": "2026-05-05T15:59:38.037Z"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "LogsDashboard",
   "uid": "log-dashboard-main",
-  "version": 29,
+  "version": 30,
   "weekStart": ""
 }
