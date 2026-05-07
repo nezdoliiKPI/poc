@@ -5,6 +5,7 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 import dev.nez.edge.dto.MessageMapper;
 
+import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 
 import jakarta.inject.Inject;
@@ -17,7 +18,7 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import java.util.function.BiFunction;
 
 @Singleton
-public class AirQualityConsumer extends MqttConsumer<AirQualityData> {
+public class AirQualityConsumer extends BaseMqttConsumer<AirQualityData> {
     private static final String CHANNEL_AIR_JSON_IN = "air-j-in";
     private static final String CHANNEL_AIR_PROTO_IN = "air-p-in";
     private static final String CHANNEL_AIR_OUT = "air-out";
@@ -29,8 +30,8 @@ public class AirQualityConsumer extends MqttConsumer<AirQualityData> {
     MessageMapper mapper;
 
     @Inject
-    AirQualityConsumer(MessageFilter messageFilter) {
-        super(AirQualityData::getDeviceId);
+    AirQualityConsumer(MessageFilter messageFilter, Tracer tracer) {
+        super(tracer, AirQualityData::getDeviceId);
 
         BiFunction<AirQualityData, AirQualityData, Boolean> filter = (
             oldData,

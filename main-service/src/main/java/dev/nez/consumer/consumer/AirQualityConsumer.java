@@ -3,16 +3,20 @@ package dev.nez.consumer.consumer;
 import dev.nez.consumer.DataMapper;
 
 import dev.nez.consumer.entity.AirQualityEntity;
+import dev.nez.consumer.metrics.MetricsRecorder;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 import io.smallrye.mutiny.Uni;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import io.vertx.mutiny.sqlclient.Pool;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Message;
 
 import java.util.List;
 
-@ApplicationScoped
+@Singleton
 public class AirQualityConsumer extends BaseBatchConsumer<AirQualityEntity> {
     private static final String CHANNEL_AIR_IN = "air-in";
 
@@ -25,10 +29,18 @@ public class AirQualityConsumer extends BaseBatchConsumer<AirQualityEntity> {
         ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
+    @Inject
+    protected AirQualityConsumer(MetricsRecorder recorder, Pool sqlClient) {
+        super(recorder, sqlClient, CHANNEL_AIR_IN);
+    }
+
     @Incoming(CHANNEL_AIR_IN)
-    public Uni<Void> consumeAir(List<AirQualityData>batch) {
-        return Uni.createFrom()
-            .item(batch.stream().map(dataMapper::toEntity).toList())
-            .chain(lst -> consumeBatch(lst, sql, CHANNEL_AIR_IN, dataMapper::toTuple));
+    public Uni<Void> consumeAir(Message<List<AirQualityData>> batchMessage) {
+        final var payload = batchMessage.getPayload().stream()
+            .map(dataMapper::toEntity)
+            .toList();
+
+        return Uni.createFrom().item(batchMessage.withPayload(payload))
+            .chain(lst -> consumeBatch(lst, sql, dataMapper::toTuple));
     }
 }

@@ -6,6 +6,7 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.BatteryData;
 import dev.nez.edge.dto.MessageMapper;
 
+import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 
 import jakarta.inject.Inject;
@@ -18,7 +19,7 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import java.util.function.BiFunction;
 
 @Singleton
-public class BatteryConsumer extends MqttConsumer<BatteryData> {
+public class BatteryConsumer extends BaseMqttConsumer<BatteryData> {
     private static final String CHANNEL_BATT_JSON_IN = "batt-j-in";
     private static final String CHANNEL_BATT_PROTO_IN = "batt-p-in";
     private static final String CHANNEL_BATT_OUT = "batt-out";
@@ -30,8 +31,8 @@ public class BatteryConsumer extends MqttConsumer<BatteryData> {
     MessageMapper mapper;
 
     @Inject
-    BatteryConsumer(MessageFilter messageFilter) {
-        super(BatteryData::getDeviceId);
+    BatteryConsumer(MessageFilter messageFilter, Tracer tracer) {
+        super(tracer, BatteryData::getDeviceId);
 
         BiFunction<BatteryData, BatteryData, Boolean> filter = (
             oldData,

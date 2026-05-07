@@ -39,8 +39,8 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "bars",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 70,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -49,7 +49,7 @@
             "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
+            "pointSize": 6,
             "scaleDistribution": {
               "type": "linear"
             },
@@ -80,7 +80,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "{level=\"ERROR\"}"
+              "options": "ERROR"
             },
             "properties": [
               {
@@ -95,7 +95,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "{level=\"INFO\"}"
+              "options": "INFO"
             },
             "properties": [
               {
@@ -110,7 +110,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "{level=\"WARN\"}"
+              "options": "WARN"
             },
             "properties": [
               {
@@ -299,7 +299,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "sum(count_over_time({exporter=\"OTLP\", service_name=~\"$service\", level=\"ERROR\"}[$__interval]))",
+          "expr": "sum(count_over_time({exporter=\"OTLP\", service_name=~\"$service\", level=\"ERROR\"}[$__range]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -322,7 +322,7 @@
         "x": 0,
         "y": 7
       },
-      "id": 2,
+      "id": 5,
       "options": {
         "dedupStrategy": "none",
         "detailsMode": "inline",
@@ -345,7 +345,7 @@
           },
           "direction": "forward",
           "editorMode": "code",
-          "expr": "{service_name=~\"${service:regex}\"} \r\n  | json \r\n  | severity=~\"(?i)${level:regex}\"\r\n  | line_format \"[{{.attributes_bridge_name}}] ({{.attributes_thread_name}}) {{.body}}\"\r\n",
+          "expr": "{service_name=~\"${service:regex}\"}\r\n  | json\r\n  | severity=~\"(?i)${level:regex}\"\r\n  | line_format \"[{{.attributes_bridge_name}}] [traceId={{.traceid}}] {{.body}} {{if .attributes_exception_message}}{{.attributes_exception_message}}{{end}}\"\r\n",
           "queryType": "range",
           "refId": "A"
         }
@@ -386,7 +386,9 @@
       },
       {
         "current": {
-          "text": "All",
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]
@@ -414,13 +416,13 @@
     ]
   },
   "time": {
-    "from": "2026-05-05T13:59:38.037Z",
-    "to": "2026-05-05T15:59:38.037Z"
+    "from": "now-3m",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "LogsDashboard",
   "uid": "log-dashboard-main",
-  "version": 30,
+  "version": 34,
   "weekStart": ""
 }

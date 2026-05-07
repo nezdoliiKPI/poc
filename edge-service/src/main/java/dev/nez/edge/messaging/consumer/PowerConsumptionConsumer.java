@@ -6,6 +6,7 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import dev.nez.edge.dto.MessageMapper;
 
+import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 
 import jakarta.inject.Inject;
@@ -18,7 +19,7 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import java.util.function.BiFunction;
 
 @Singleton
-public class PowerConsumptionConsumer extends MqttConsumer<PowerConsumptionData> {
+public class PowerConsumptionConsumer extends BaseMqttConsumer<PowerConsumptionData> {
     private static final String CHANNEL_POWER_JSON_IN = "power-j-in";
     private static final String CHANNEL_POWER_PROTO_IN = "power-p-in";
     private static final String CHANNEL_POWER_OUT = "power-out";
@@ -30,8 +31,8 @@ public class PowerConsumptionConsumer extends MqttConsumer<PowerConsumptionData>
     MessageMapper mapper;
 
     @Inject
-    PowerConsumptionConsumer(MessageFilter messageFilter) {
-        super(PowerConsumptionData::getDeviceId);
+    PowerConsumptionConsumer(MessageFilter messageFilter, Tracer tracer) {
+        super(tracer, PowerConsumptionData::getDeviceId);
 
         BiFunction<PowerConsumptionData, PowerConsumptionData, Boolean> filter = (
             oldData,

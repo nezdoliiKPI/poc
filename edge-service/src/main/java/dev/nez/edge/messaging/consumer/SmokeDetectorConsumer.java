@@ -5,6 +5,7 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import dev.nez.edge.dto.MessageMapper;
 
+import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
 
@@ -16,7 +17,7 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import java.util.function.BiFunction;
 
 @Singleton
-public class SmokeDetectorConsumer extends MqttConsumer<SmokeDetectorData> {
+public class SmokeDetectorConsumer extends BaseMqttConsumer<SmokeDetectorData> {
     private static final String CHANNEL_SMOKE_JSON_IN = "smoke-j-in";
     private static final String CHANNEL_SMOKE_PROTO_IN = "smoke-p-in";
     private static final String CHANNEL_SMOKE_OUT = "smoke-out";
@@ -28,8 +29,8 @@ public class SmokeDetectorConsumer extends MqttConsumer<SmokeDetectorData> {
     MessageMapper mapper;
 
     @Inject
-    SmokeDetectorConsumer(MessageFilter messageFilter) {
-        super(SmokeDetectorData::getDeviceId);
+    SmokeDetectorConsumer(MessageFilter messageFilter, Tracer tracer) {
+        super(tracer, SmokeDetectorData::getDeviceId);
 
         BiFunction<SmokeDetectorData, SmokeDetectorData, Boolean> filter = (
             oldData,
