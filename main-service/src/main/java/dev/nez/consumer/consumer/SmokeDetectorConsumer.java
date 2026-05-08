@@ -3,12 +3,9 @@ package dev.nez.consumer.consumer;
 import dev.nez.consumer.DataMapper;
 
 import dev.nez.consumer.entity.SmokeDetectorEntity;
-import dev.nez.consumer.metrics.MetricsRecorder;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import io.smallrye.mutiny.Uni;
 
-import io.vertx.mutiny.sqlclient.Pool;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
@@ -29,9 +26,8 @@ public class SmokeDetectorConsumer extends BaseBatchConsumer<SmokeDetectorEntity
         ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
-    @Inject
-    protected SmokeDetectorConsumer(MetricsRecorder recorder, Pool sqlClient) {
-        super(recorder, sqlClient, CHANNEL_SMOKE_IN );
+    SmokeDetectorConsumer() {
+        super(CHANNEL_SMOKE_IN);
     }
 
     @Incoming(CHANNEL_SMOKE_IN)

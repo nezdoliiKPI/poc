@@ -5,7 +5,6 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 import dev.nez.edge.dto.MessageMapper;
 
-import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 
 import jakarta.inject.Inject;
@@ -30,8 +29,8 @@ public class AirQualityConsumer extends BaseMqttConsumer<AirQualityData> {
     MessageMapper mapper;
 
     @Inject
-    AirQualityConsumer(MessageFilter messageFilter, Tracer tracer) {
-        super(tracer, AirQualityData::getDeviceId);
+    AirQualityConsumer(MessageFilter messageFilter) {
+        super(AirQualityData::getDeviceId);
 
         BiFunction<AirQualityData, AirQualityData, Boolean> filter = (
             oldData,

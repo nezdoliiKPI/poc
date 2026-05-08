@@ -5,7 +5,6 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import dev.nez.edge.dto.MessageMapper;
 
-import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
 
@@ -29,8 +28,8 @@ public class SmokeDetectorConsumer extends BaseMqttConsumer<SmokeDetectorData> {
     MessageMapper mapper;
 
     @Inject
-    SmokeDetectorConsumer(MessageFilter messageFilter, Tracer tracer) {
-        super(tracer, SmokeDetectorData::getDeviceId);
+    SmokeDetectorConsumer(MessageFilter messageFilter) {
+        super(SmokeDetectorData::getDeviceId);
 
         BiFunction<SmokeDetectorData, SmokeDetectorData, Boolean> filter = (
             oldData,

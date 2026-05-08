@@ -6,7 +6,6 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.BatteryData;
 import dev.nez.edge.dto.MessageMapper;
 
-import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 
 import jakarta.inject.Inject;
@@ -31,8 +30,8 @@ public class BatteryConsumer extends BaseMqttConsumer<BatteryData> {
     MessageMapper mapper;
 
     @Inject
-    BatteryConsumer(MessageFilter messageFilter, Tracer tracer) {
-        super(tracer, BatteryData::getDeviceId);
+    BatteryConsumer(MessageFilter messageFilter) {
+        super(BatteryData::getDeviceId);
 
         BiFunction<BatteryData, BatteryData, Boolean> filter = (
             oldData,

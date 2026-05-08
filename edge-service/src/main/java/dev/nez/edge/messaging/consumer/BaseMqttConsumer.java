@@ -13,17 +13,19 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import io.smallrye.reactive.messaging.TracingMetadata;
 
 import java.util.function.Function;
 
 public abstract class BaseMqttConsumer<T> {
-    private final Tracer tracer;
     private final Function<T, Long> getDeviceId;
 
-    public BaseMqttConsumer(Tracer tracer, Function<T, Long> getDeviceId) {
-        this.tracer = tracer;
+    @Inject
+    Tracer tracer;
+
+    public BaseMqttConsumer(Function<T, Long> getDeviceId) {
         this.getDeviceId = getDeviceId;
     }
 

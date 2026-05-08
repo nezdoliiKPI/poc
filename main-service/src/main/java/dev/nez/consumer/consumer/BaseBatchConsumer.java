@@ -2,9 +2,11 @@ package dev.nez.consumer.consumer;
 
 import dev.nez.consumer.entity.Timed;
 import dev.nez.consumer.metrics.MetricsRecorder;
+
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
 import io.vertx.mutiny.sqlclient.Pool;
@@ -20,13 +22,14 @@ import java.util.function.Function;
 public abstract class BaseBatchConsumer<T extends Timed> {
     private final String channel;
 
-    protected final MetricsRecorder recorder;
-    protected final Pool sqlClient;
+    @Inject
+    Pool sqlClient;
 
-    protected BaseBatchConsumer(MetricsRecorder recorder, Pool sqlClient, String channel) {
+    @Inject
+    MetricsRecorder recorder;
+
+    BaseBatchConsumer(String channel) {
         this.channel = channel;
-        this.recorder = recorder;
-        this.sqlClient = sqlClient;
     }
 
     protected Uni<Void> consumeBatch(

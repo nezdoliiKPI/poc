@@ -6,7 +6,6 @@ import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import dev.nez.edge.dto.MessageMapper;
 
-import io.opentelemetry.api.trace.Tracer;
 import io.smallrye.mutiny.Multi;
 
 import jakarta.inject.Inject;
@@ -31,8 +30,8 @@ public class PowerConsumptionConsumer extends BaseMqttConsumer<PowerConsumptionD
     MessageMapper mapper;
 
     @Inject
-    PowerConsumptionConsumer(MessageFilter messageFilter, Tracer tracer) {
-        super(tracer, PowerConsumptionData::getDeviceId);
+    PowerConsumptionConsumer(MessageFilter messageFilter) {
+        super(PowerConsumptionData::getDeviceId);
 
         BiFunction<PowerConsumptionData, PowerConsumptionData, Boolean> filter = (
             oldData,

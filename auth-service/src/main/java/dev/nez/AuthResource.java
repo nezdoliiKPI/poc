@@ -46,8 +46,7 @@ public class AuthResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Bulkhead(value = 100, waitingTaskQueue = 1000)
     public Uni<RestResponse<LoginResponse>> login(@Valid LoginRequest request) {
-        return Device
-                .findByHardwareId(request.hardwareId())
+        return Device.findByHardwareId(request.hardwareId())
                 .chain(device -> {
                     if (device == null || device.status != Device.Status.ACTIVE) {
                         return Uni.createFrom().item(

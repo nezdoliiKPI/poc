@@ -3,12 +3,10 @@ package dev.nez.consumer.consumer;
 import dev.nez.consumer.DataMapper;
 
 import dev.nez.consumer.entity.BatteryDataEntity;
-import dev.nez.consumer.metrics.MetricsRecorder;
 
 import dev.nez.dto.proto.timeddata.BatteryData;
 import io.smallrye.mutiny.Uni;
 
-import io.vertx.mutiny.sqlclient.Pool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
@@ -29,9 +27,8 @@ public class BatteryDataConsumer extends BaseBatchConsumer<BatteryDataEntity> {
         ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
-    @Inject
-    protected BatteryDataConsumer(MetricsRecorder recorder, Pool sqlClient) {
-        super(recorder, sqlClient, CHANNEL_BATTERY_IN);
+    BatteryDataConsumer() {
+        super(CHANNEL_BATTERY_IN);
     }
 
     @Incoming(CHANNEL_BATTERY_IN)

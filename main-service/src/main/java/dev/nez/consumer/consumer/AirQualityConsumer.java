@@ -3,11 +3,9 @@ package dev.nez.consumer.consumer;
 import dev.nez.consumer.DataMapper;
 
 import dev.nez.consumer.entity.AirQualityEntity;
-import dev.nez.consumer.metrics.MetricsRecorder;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 import io.smallrye.mutiny.Uni;
 
-import io.vertx.mutiny.sqlclient.Pool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -29,9 +27,8 @@ public class AirQualityConsumer extends BaseBatchConsumer<AirQualityEntity> {
         ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
-    @Inject
-    protected AirQualityConsumer(MetricsRecorder recorder, Pool sqlClient) {
-        super(recorder, sqlClient, CHANNEL_AIR_IN);
+    AirQualityConsumer() {
+        super(CHANNEL_AIR_IN);
     }
 
     @Incoming(CHANNEL_AIR_IN)
