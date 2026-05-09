@@ -1,0 +1,70 @@
+version: '3.8'
+name: services
+
+services:
+  auth-service:
+    image: quarkus/auth-service-native:latest
+    container_name: auth-service-app
+    ports:
+      - "8081:8081"
+    volumes:
+      - ../secrets/admin/credentials.properties:/secrets/admin/credentials.properties:ro
+      - ../secrets/jwt:/secrets/jwt:ro
+    environment:
+      - QUARKUS_PROFILE=prod
+      - SECRETS_DIR=/secrets
+    depends_on:
+      - main-service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  edge-service:
+    image: quarkus/edge-service-native:latest
+    container_name: edge-service-app
+    ports:
+      - "8082:8082"
+    volumes:
+      - ../secrets/admin/credentials.properties:/secrets/admin/credentials.properties:ro
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:19092
+      - MP_MESSAGING_CONNECTOR_SMALLRYE_MQTT_HIVEMQ_HOST=host.docker.internal
+      - QUARKUS_PROFILE=prod
+      - SECRETS_DIR=/secrets
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  main-service:
+    image: quarkus/main-service-native:latest
+    container_name: main-service-app
+    ports:
+      - "8083:8083"
+    volumes:
+      - ../secrets/admin/credentials.properties:/secrets/admin/credentials.properties:ro
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:19092
+      - QUARKUS_PROFILE=prod
+      - SECRETS_DIR=/secrets
+      - MP_MESSAGING_INCOMING_POWER_IN_CONCURRENCY=8
+      - RETENTION_BYTES=268435456
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  producer-service:
+    image: quarkus/producer-service-native:latest
+    container_name: producer-service-app
+    ports:
+      - "8084:8084"
+    volumes:
+      - ../secrets/admin/credentials.properties:/secrets/admin/credentials.properties:ro
+      - ../secrets/tls/ca.crt:/secrets/tls/ca.crt:ro
+    environment:
+      - QUARKUS_PROFILE=prod
+      - SECRETS_DIR=/secrets
+    depends_on:
+      - auth-service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

@@ -10,13 +10,6 @@
 
     <artifactId>edge-service</artifactId>
 
-    <repositories>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -65,14 +58,6 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-validator</artifactId>
-        </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/io.confluent/kafka-protobuf-serializer -->
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-protobuf-serializer</artifactId>
-            <version>8.2.0</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

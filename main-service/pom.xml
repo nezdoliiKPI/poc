@@ -11,13 +11,6 @@
 
     <artifactId>main-service</artifactId>
 
-    <repositories>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -27,14 +20,6 @@
             <groupId>dev.nez</groupId>
             <artifactId>protobufs</artifactId>
             <version>1.0.0</version>
-        </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/io.confluent/kafka-protobuf-serializer -->
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-protobuf-serializer</artifactId>
-            <version>8.2.0</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- METRICS-LOGS-TRACES -->
@@ -69,6 +54,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
         </dependency>
     </dependencies>
 </project>

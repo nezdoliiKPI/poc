@@ -87,19 +87,24 @@ public class AuthResource {
     @RolesAllowed("admin")
     @Bulkhead(value = 100, waitingTaskQueue = 1000)
     public Uni<RestResponse<Void>> register(@Valid RegisterRequest request) {
-        return Uni.createFrom()
+        return Device.findByHardwareId(request.hardwareId()).chain(result -> {
+            if (result != null) {
+                return Uni.createFrom().item(RestResponse.status(RestResponse.Status.CONFLICT));
+            }
+
+            return Uni.createFrom()
                 .item(() -> BcryptUtil.bcryptHash(request.password(), BCRYPT_COST))
                 .chain(hashedPassword -> Panache.<Device>withTransaction(() -> {
-                        final var device = new Device(
-                            request.hardwareId(),
-                            hashedPassword,
-                            Device.Status.ACTIVE,
-                            request.messageType(),
-                            request.topic(),
-                            request.batteryTopic()
-                        );
+                    final var device = new Device(
+                        request.hardwareId(),
+                        hashedPassword,
+                        Device.Status.ACTIVE,
+                        request.messageType(),
+                        request.topic(),
+                        request.batteryTopic()
+                    );
 
-                        return device.persist();
+                    return device.persist();
                 }))
                 .replaceWith(RestResponse.<Void>status(RestResponse.Status.CREATED))
                 .onFailure(PersistenceException.class).recoverWithItem(ex -> {
@@ -108,6 +113,7 @@ public class AuthResource {
                 })
                 .onFailure(ConstraintViolationException.class)
                 .recoverWithItem(RestResponse.status(RestResponse.Status.CONFLICT));
+        });
     }
 
     @ServerExceptionMapper

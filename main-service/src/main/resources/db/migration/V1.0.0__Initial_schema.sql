@@ -20,7 +20,7 @@ CREATE TABLE power_consumption (
 SELECT create_hypertable(
    'power_consumption',
    'time_date',
-    chunk_time_interval => INTERVAL '1 day'
+    chunk_time_interval => INTERVAL '10 minutes'
 );
 
 ALTER TABLE power_consumption
@@ -56,7 +56,7 @@ CREATE TABLE air_quality (
 SELECT create_hypertable(
    'air_quality',
    'time_date',
-   chunk_time_interval => INTERVAL '1 day'
+   chunk_time_interval => INTERVAL '10 minutes'
 );
 
 ALTER TABLE air_quality
@@ -87,7 +87,7 @@ CREATE TABLE battery_data (
 SELECT create_hypertable(
    'battery_data',
    'time_date',
-   chunk_time_interval => INTERVAL '1 day'
+   chunk_time_interval => INTERVAL '10 minutes'
 );
 
 ALTER TABLE battery_data
@@ -119,7 +119,7 @@ CREATE TABLE smoke_detector (
 SELECT create_hypertable(
    'smoke_detector',
    'time_date',
-   chunk_time_interval => INTERVAL '1 day'
+   chunk_time_interval => INTERVAL '6 hours'
 );
 
 ALTER TABLE smoke_detector

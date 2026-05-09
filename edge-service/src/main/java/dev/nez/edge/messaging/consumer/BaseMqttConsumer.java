@@ -13,10 +13,12 @@ import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
+import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import io.smallrye.reactive.messaging.TracingMetadata;
 
+import java.util.Collections;
 import java.util.function.Function;
 
 public abstract class BaseMqttConsumer<T> {
@@ -51,13 +53,20 @@ public abstract class BaseMqttConsumer<T> {
                 return drop(msg);
             }
 
-            if (!filter.apply(getDeviceId.apply(data), data)) {
+            final Long deviceId = getDeviceId.apply(data);
+            if (!filter.apply(deviceId, data)) {
                 controller.end("dropped_by_topic_filter_optimizer");
                 return drop(msg);
             }
 
             final Message<T> outgoingMessage = msg.withPayload(data)
-                .withMetadata(msg.getMetadata().with(controller.getTracingMetadata()))
+                .withMetadata(
+                    msg.getMetadata()
+                        .with(controller.getTracingMetadata())
+                        .with(OutgoingKafkaRecordMetadata.<Long>builder()
+                                  .withKey(deviceId)
+                                  .build())
+                )
                 .withAck(() -> {
                     controller.end();
                     return msg.ack();
