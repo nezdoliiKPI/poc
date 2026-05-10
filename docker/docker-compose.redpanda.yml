@@ -35,36 +35,25 @@ services:
     container_name: redpanda-init
     depends_on:
       - redpanda
-    entrypoint: [ "/bin/sh", "-c" ]
-    command: >
-      "
-      echo 'Waiting...' &&
-      until rpk cluster info --brokers redpanda-0:9092; do sleep 1; done &&
-      
-      echo 'Creating topics...' &&
-      
-      rpk --brokers redpanda-0:9092 topic create power-consumption-events -p 8 \
-        --topic-config cleanup.policy=delete \
-        --topic-config retention.bytes=268435456 \
-        --topic-config segment.bytes=67108864 &&
-
-      rpk --brokers redpanda-0:9092 topic create smoke-consumption-events -p 1 \
-        --topic-config cleanup.policy=delete \
-        --topic-config retention.bytes=67108864 \
-        --topic-config segment.bytes=16777216 &&
-
-      rpk --brokers redpanda-0:9092 topic create air-consumption-events -p 1 \
-        --topic-config cleanup.policy=delete \
-        --topic-config retention.bytes=67108864 \
-        --topic-config segment.bytes=16777216 &&
-
-      rpk --brokers redpanda-0:9092 topic create batt-consumption-events -p 1 \
-        --topic-config cleanup.policy=delete \
-        --topic-config retention.bytes=67108864 \
-        --topic-config segment.bytes=16777216 &&
-      
-      echo 'Infrastructure ready.'
-      "
+    entrypoint: [ "" ]
+    command:
+      - sh
+      - -c
+      - |
+        echo "Waiting for Redpanda to be ready..."
+        until rpk cluster info --brokers redpanda-0:9092; do sleep 1; done
+        
+        echo "Creating topics..."
+        
+        rpk --brokers redpanda-0:9092 topic create power-consumption-events -p 8 --topic-config cleanup.policy=delete --topic-config retention.bytes=268435456 --topic-config segment.bytes=67108864 || true
+        
+        rpk --brokers redpanda-0:9092 topic create smoke-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
+        
+        rpk --brokers redpanda-0:9092 topic create air-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
+        
+        rpk --brokers redpanda-0:9092 topic create batt-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
+        
+        echo "Infrastructure ready."
 
   console:
     image: docker.redpanda.com/redpandadata/console:latest

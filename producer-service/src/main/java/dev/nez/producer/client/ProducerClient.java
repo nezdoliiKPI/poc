@@ -28,19 +28,18 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 @ApplicationScoped
 public class ProducerClient {
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final List<DeviceSession> activeSessions = new CopyOnWriteArrayList<>();
 
     @ConfigProperty(name = "mqtt.broker.host", defaultValue = "localhost")
     String brokerHost;
+
     @ConfigProperty(name = "mqtt.broker.port", defaultValue = "1883")
     int brokerPort;
 
@@ -61,22 +60,12 @@ public class ProducerClient {
 
     void onStop(@Observes ShutdownEvent ev) {
         Log.info("Shutting down ProducerClient. Stopping all sessions...");
-
-        final var events = new ArrayList<CompletableFuture<?>>();
-
-        for (DeviceSession session : activeSessions) {
-            session.stop();
-            session.tasks.forEach(task -> task.cancel(true));
-            events.add(session.mqttClient.disconnect().subscribe().asCompletionStage());
-        }
-
-        CompletableFuture.allOf(events.toArray(CompletableFuture[]::new)).join();
-        scheduler.shutdownNow();
+        activeSessions.forEach(DeviceSession::shutdown);
     }
 
     public class DeviceSession {
         private final AtomicBoolean isRunning = new AtomicBoolean(false);
-        private final List<ScheduledFuture<?>> tasks = new CopyOnWriteArrayList<>();
+        private final List<Long> timers = new CopyOnWriteArrayList<>();
         private final DeviceDataGenerator producer;
 
         private MqttClient mqttClient;
@@ -101,10 +90,8 @@ public class ProducerClient {
                 .subscribe().with(
                     _ -> Log.debug("Device session has been initialized for device: " + producer.deviceId),
                     ex -> {
-                        Log.error("Failed init device" + producer.deviceId + " simulation: " + ex);
-
-                        tasks.forEach(task -> task.cancel(true));
-                        tasks.clear();
+                        Log.error("Failed init device " + producer.deviceId + " simulation", ex);
+                        cancelTimers();
                     }
                 );
 
@@ -126,7 +113,8 @@ public class ProducerClient {
                                     ex.getResponse().getStatus() == 409
                                         ? Uni.createFrom().item(Response.ok().build())
                                         : Uni.createFrom().failure(ex)
-                ).replaceWithVoid();
+                )
+                .replaceWithVoid();
         }
 
         private Uni<Void> login() {
@@ -135,10 +123,12 @@ public class ProducerClient {
                 producer.device.password()
             );
 
-            return authClient.login(loginRequest).invoke(loginResponse -> {
-                producer.deviceId = loginResponse.deviceId();
-                producer.token = loginResponse.token();
-            }).replaceWithVoid();
+            return authClient.login(loginRequest)
+                .invoke(loginResponse -> {
+                    producer.deviceId = loginResponse.deviceId();
+                    producer.token = loginResponse.token();
+                })
+                .replaceWithVoid();
         }
 
         private Uni<Void> connectAndSchedule() {
@@ -155,21 +145,23 @@ public class ProducerClient {
 
             return mqttClient.connect(brokerPort, brokerHost)
                 .invoke(_ -> {
-                    tasks.add(scheduleTask(
+                    timers.add(scheduleTask(
                         producer.messageType,
                         producer::getData,
                         producer.device.topic(),
                         producer.mainTiming
                     ));
 
-                    if (producer.batteryIsPresent()) {
-                        tasks.add(scheduleTask(
-                            producer.messageType,
-                            producer::getBatteryData,
-                            producer.device.batteryTopic(),
-                            producer.batteryTiming
-                        ));
+                    if (!producer.batteryIsPresent()) {
+                        return;
                     }
+
+                    timers.add(scheduleTask(
+                        producer.messageType,
+                        producer::getBatteryData,
+                        producer.device.batteryTopic(),
+                        producer.batteryTiming
+                    ));
                 })
                 .replaceWithVoid();
         }
@@ -178,6 +170,7 @@ public class ProducerClient {
             if (!isRunning.compareAndSet(false, true)) {
                 return;
             }
+
             Log.debug("Starting simulation for " + producer.device.hardwareId());
         }
 
@@ -185,28 +178,59 @@ public class ProducerClient {
             if (!isRunning.compareAndSet(true, false)) {
                 return;
             }
+
             Log.debug("Stopping sending messages for " + producer.device.hardwareId());
         }
 
-        private ScheduledFuture<?> scheduleTask(
+        private void shutdown() {
+            stop();
+            cancelTimers();
+
+            if (mqttClient != null) {
+                mqttClient.disconnect().subscribe().with(
+                    _ -> Log.debug("Disconnected MQTT client for " + producer.device.hardwareId()),
+                    ex -> Log.warn("Disconnect error", ex)
+                );
+            }
+        }
+
+        private void cancelTimers() {
+            timers.forEach(vertx::cancelTimer);
+            timers.clear();
+        }
+
+        private long scheduleTask(
             MessageType messageType,
             Supplier<Object> dataProvider,
             String topic,
             MessageTiming timing
         ) {
-            return scheduler.scheduleAtFixedRate(() -> {
+            final long initialDelayMs = timing.unit().toMillis(timing.initialDelay());
+            final long periodMs = timing.unit().toMillis(timing.period());
+
+            final boolean isDebug = Log.isDebugEnabled();
+
+            return vertx.setPeriodic(initialDelayMs, periodMs, _ -> {
                 if (!isRunning()) {
                     return;
                 }
 
                 final var data = dataProvider.get();
+                final var buffer = Buffer.buffer(serialize(data, messageType));
 
-                mqttClient.publish(topic, Buffer.buffer(serialize(data, messageType)), MqttQoS.AT_LEAST_ONCE, false, false)
-                    .subscribe().with(
+                final var uni = mqttClient.publish(topic, buffer, MqttQoS.AT_LEAST_ONCE, false, false);
+                if (isDebug) {
+                    uni.subscribe().with(
                         _ -> Log.debug("Published data " + data + " in topic " + topic),
                         throwable -> Log.warn("Send error in topic " + topic, throwable)
                     );
-            }, timing.initialDelay(), timing.period(), timing.unit());
+                } else {
+                    uni.subscribe().with(
+                        _ -> {},
+                        throwable -> Log.warn("Send error in topic " + topic, throwable)
+                    );
+                }
+            });
         }
     }
 

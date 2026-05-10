@@ -46,7 +46,6 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:19092
       - QUARKUS_PROFILE=prod
       - SECRETS_DIR=/secrets
-      - MP_MESSAGING_INCOMING_POWER_IN_CONCURRENCY=8
       - RETENTION_BYTES=268435456
     extra_hosts:
       - "host.docker.internal:host-gateway"
