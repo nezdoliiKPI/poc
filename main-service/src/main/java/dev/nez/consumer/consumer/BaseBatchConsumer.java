@@ -1,6 +1,6 @@
 package dev.nez.consumer.consumer;
 
-import dev.nez.consumer.entity.Timed;
+import com.google.protobuf.Timestamp;
 import dev.nez.consumer.metrics.MetricsRecorder;
 
 import io.quarkus.logging.Log;
@@ -19,8 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public abstract class BaseBatchConsumer<T extends Timed> {
+public abstract class BaseBatchConsumer<T> {
     private final String channel;
+    private final Function<T, Tuple> mapper;
+    private final Function<T, Timestamp> getTimestamp;
+    private final String sql;
 
     @Inject
     Pool sqlClient;
@@ -28,15 +31,19 @@ public abstract class BaseBatchConsumer<T extends Timed> {
     @Inject
     MetricsRecorder recorder;
 
-    BaseBatchConsumer(String channel) {
+    BaseBatchConsumer(
+        String channel,
+        Function<T, Tuple> mapper,
+        Function<T, Timestamp> getTimestamp,
+        @Language("SQL") String sql
+    ) {
         this.channel = channel;
+        this.mapper = mapper;
+        this.getTimestamp = getTimestamp;
+        this.sql = sql;
     }
 
-    protected Uni<Void> consumeBatch(
-        Message<List<T>> batchMessage,
-        @Language("SQL") String sql,
-        Function<T, Tuple> mapper
-    ) {
+    protected Uni<Void> consumeBatch(Message<List<T>> batchMessage) {
         final var batch = batchMessage.getPayload();
         final var tuples = new ArrayList<Tuple>(batch.size());
         for (var data : batch) tuples.add(mapper.apply(data));
@@ -49,7 +56,12 @@ public abstract class BaseBatchConsumer<T extends Timed> {
             })
             .eventually(() -> {
                 final var now = Instant.now();
-                for (var data : batch) recorder.recordMessageDelay(channel, data.timestamp().until(now));
+
+                for (var data : batch) {
+                    final var timestamp = getTimestamp.apply(data);
+                    final var time = Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
+                    recorder.recordMessageDelay(channel, time.until(now));
+                }
             })
             .replaceWithVoid();
     }

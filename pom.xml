@@ -13,11 +13,12 @@
     <module>edge-service</module>
     <module>auth-service</module>
     <module>main-service</module>
+    <module>analytics-service</module>
   </modules>
 
   <properties>
     <maven.compiler.release>25</maven.compiler.release>
-    <compiler-plugin.version>3.14.1</compiler-plugin.version>
+    <compiler-plugin.version>3.15.0</compiler-plugin.version>
     <jandex-plugin.version>3.5.3</jandex-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

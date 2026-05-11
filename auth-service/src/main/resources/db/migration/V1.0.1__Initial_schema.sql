@@ -17,6 +17,16 @@ CREATE TABLE power_consumption (
    PRIMARY KEY (device_id, time_date)
 );
 
+CREATE TABLE power_thresholds (
+  device_id BIGINT PRIMARY KEY,
+
+  min_voltage REAL,
+  max_voltage REAL,
+
+  max_current REAL,
+  max_power REAL
+);
+
 SELECT create_hypertable(
    'power_consumption',
    'time_date',
@@ -131,4 +141,19 @@ SET (
 
 SELECT add_compression_policy('smoke_detector', INTERVAL '7 days');
 SELECT add_retention_policy('smoke_detector', INTERVAL '30 days');
+
+-- ==========================================
+-- Devices
+-- ==========================================
+CREATE SEQUENCE devices_seq INCREMENT BY 50;
+
+CREATE TABLE devices (
+     id BIGINT DEFAULT nextval('devices_SEQ') PRIMARY KEY,
+     hardwareId VARCHAR(127) NOT NULL UNIQUE,
+     passwordHash VARCHAR(127),
+     status VARCHAR(31) CHECK (status IN ('ACTIVE','MAINTENANCE','BANNED','DECOMMISSIONED')),
+     messageType VARCHAR(15) CHECK (messageType IN ('JSON','PROTO')),
+     topic VARCHAR(127),
+     batteryTopic VARCHAR(127)
+);
 

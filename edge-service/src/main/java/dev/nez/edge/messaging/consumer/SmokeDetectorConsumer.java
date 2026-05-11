@@ -3,7 +3,7 @@ package dev.nez.edge.messaging.consumer;
 import dev.nez.edge.messaging.filter.MessageFilter;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
-import dev.nez.edge.dto.MessageMapper;
+import dev.nez.edge.dto.MessageDeserializer;
 
 import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
@@ -25,7 +25,7 @@ public class SmokeDetectorConsumer extends BaseMqttConsumer<SmokeDetectorData> {
     private final ChannelFilter<SmokeDetectorData> protoFilter;
 
     @Inject
-    MessageMapper mapper;
+    MessageDeserializer mapper;
 
     @Inject
     SmokeDetectorConsumer(MessageFilter messageFilter) {

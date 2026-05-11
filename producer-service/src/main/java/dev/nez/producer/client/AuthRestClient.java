@@ -2,6 +2,7 @@ package dev.nez.producer.client;
 
 import dev.nez.producer.dto.rest.LoginRequest;
 import dev.nez.producer.dto.rest.LoginResponse;
+import dev.nez.producer.dto.rest.PowerThresholdsRequest;
 import dev.nez.producer.dto.rest.RegisterRequest;
 import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.Consumes;
@@ -20,7 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 
 @RegisterRestClient(configKey = "auth-api")
-@Path("/api/device/auth")
+@Path("/api/device")
 public interface AuthRestClient {
 
     @POST
@@ -31,7 +32,14 @@ public interface AuthRestClient {
     Uni<Response> register(RegisterRequest request);
 
     @POST
-    @Path("/login")
+    @Path("/register/thresholds/power")
+    @Retry(maxRetries = 15, delay = 1, delayUnit = ChronoUnit.SECONDS, jitter = 500, jitterDelayUnit = ChronoUnit.MILLIS)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ClientHeaderParam(name = "Authorization", value = "{getBasicAuth}")
+    Uni<Response> setThresholds(PowerThresholdsRequest request);
+
+    @POST
+    @Path("/auth/login")
     @Retry(maxRetries = 15, delay = 1, delayUnit = ChronoUnit.SECONDS, jitter = 500, jitterDelayUnit = ChronoUnit.MILLIS)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

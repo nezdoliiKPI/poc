@@ -20,13 +20,14 @@ import io.vertx.core.json.DecodeException;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.ws.rs.ext.MessageBodyReader;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Singleton
-public class MessageMapper {
+public class MessageDeserializer {
     private final ObjectMapper objectMapper;
 
     private final JsonMessageReader<SmokeDetector> jsonSmokeDetectorReader;
@@ -40,7 +41,7 @@ public class MessageMapper {
     private final AtomicInteger nanoCounterAir = new AtomicInteger(0);
 
     @Inject
-    public MessageMapper(ObjectMapper objectMapper) {
+    public MessageDeserializer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
 
         this.jsonSmokeDetectorReader = new JsonMessageReader<>(SmokeDetector.class);

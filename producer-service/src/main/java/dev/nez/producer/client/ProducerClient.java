@@ -2,10 +2,14 @@ package dev.nez.producer.client;
 
 import dev.nez.producer.dto.ProtocolBuffer;
 import dev.nez.producer.dto.rest.LoginRequest;
+import dev.nez.producer.dto.rest.PowerThresholdsRequest;
 import dev.nez.producer.dto.rest.RegisterRequest;
 
+import dev.nez.producer.simulation.generator.data.AirDataGenerator;
 import dev.nez.producer.simulation.generator.data.DeviceDataGenerator;
 import dev.nez.producer.simulation.generator.data.DeviceDataGenerator.MessageType;
+import dev.nez.producer.simulation.generator.data.PowerDataGenerator;
+import dev.nez.producer.simulation.generator.data.SmokeDataGenerator;
 import dev.nez.producer.simulation.model.MessageTiming;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
@@ -84,9 +88,10 @@ public class ProducerClient {
 
         private DeviceSession init() {
             Uni.createFrom().voidItem()
-                .chain(_ -> register())
-                .chain(_ -> login())
-                .chain(_ -> connectAndSchedule())
+                .chain(this::register)
+                .chain(this::login)
+                .chain(this::setTreshold)
+                .chain(this::connectAndSchedule)
                 .subscribe().with(
                     _ -> Log.debug("Device session has been initialized for device: " + producer.deviceId),
                     ex -> {
@@ -129,6 +134,23 @@ public class ProducerClient {
                     producer.token = loginResponse.token();
                 })
                 .replaceWithVoid();
+        }
+
+        private Uni<Void> setTreshold() {
+            return switch (producer) {
+                case PowerDataGenerator g -> {
+                    final var defaultThresholds = new PowerThresholdsRequest(
+                        producer.deviceId,
+                        207.0f,
+                        253.0f,
+                        16.0f,
+                        3680.0f
+                    );
+
+                    yield authClient.setThresholds(defaultThresholds).replaceWithVoid();
+                }
+                default -> Uni.createFrom().voidItem();
+            };
         }
 
         private Uni<Void> connectAndSchedule() {

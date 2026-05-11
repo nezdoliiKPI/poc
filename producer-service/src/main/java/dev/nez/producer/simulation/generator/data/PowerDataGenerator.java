@@ -9,7 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class PowerDataGenerator extends DeviceDataGenerator {
-
     public PowerDataGenerator(
         String hardwareId,
         String password,

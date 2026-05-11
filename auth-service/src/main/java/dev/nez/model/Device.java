@@ -11,17 +11,24 @@ import java.util.Optional;
 @Entity
 @Table(name = "devices")
 public class Device extends PanacheEntity {
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 127)
     public String hardwareId;
+
+    @Column(length = 127)
     public String passwordHash;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 31)
     public Status status;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 15)
     public MessageType messageType;
 
+    @Column(length = 127)
     public String topic;
+
+    @Column(length = 127)
     public String batteryTopic;
 
     public Device() {}

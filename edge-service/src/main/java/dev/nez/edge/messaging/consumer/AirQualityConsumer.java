@@ -3,7 +3,7 @@ package dev.nez.edge.messaging.consumer;
 import dev.nez.edge.messaging.filter.MessageFilter;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 import dev.nez.dto.proto.timeddata.AirQualityData;
-import dev.nez.edge.dto.MessageMapper;
+import dev.nez.edge.dto.MessageDeserializer;
 
 import io.smallrye.mutiny.Multi;
 
@@ -26,7 +26,7 @@ public class AirQualityConsumer extends BaseMqttConsumer<AirQualityData> {
     private final ChannelFilter<AirQualityData> protoFilter;
 
     @Inject
-    MessageMapper mapper;
+    MessageDeserializer mapper;
 
     @Inject
     AirQualityConsumer(MessageFilter messageFilter) {

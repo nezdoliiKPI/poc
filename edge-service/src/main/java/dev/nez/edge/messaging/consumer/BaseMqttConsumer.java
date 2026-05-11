@@ -18,7 +18,6 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import io.smallrye.reactive.messaging.TracingMetadata;
 
-import java.util.Collections;
 import java.util.function.Function;
 
 public abstract class BaseMqttConsumer<T> {

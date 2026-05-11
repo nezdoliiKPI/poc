@@ -2,7 +2,6 @@ package dev.nez.consumer.consumer;
 
 import dev.nez.consumer.DataMapper;
 
-import dev.nez.consumer.entity.SmokeDetectorEntity;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import io.smallrye.mutiny.Uni;
 
@@ -14,11 +13,8 @@ import org.eclipse.microprofile.reactive.messaging.Message;
 import java.util.List;
 
 @Singleton
-public class SmokeDetectorConsumer extends BaseBatchConsumer<SmokeDetectorEntity> {
+public class SmokeDetectorConsumer extends BaseBatchConsumer<SmokeDetectorData> {
     private static final String CHANNEL_SMOKE_IN = "smoke-in";
-
-    @Inject
-    DataMapper dataMapper;
 
     private static final String sql = """
         INSERT INTO smoke_detector (device_id, smoke_raw, co_level, time_date)
@@ -26,17 +22,13 @@ public class SmokeDetectorConsumer extends BaseBatchConsumer<SmokeDetectorEntity
         ON CONFLICT (device_id, time_date) DO NOTHING
     """;
 
-    SmokeDetectorConsumer() {
-        super(CHANNEL_SMOKE_IN);
+    @Inject
+    SmokeDetectorConsumer(DataMapper dataMapper) {
+        super(CHANNEL_SMOKE_IN, dataMapper::toTuple, SmokeDetectorData::getTimestamp, sql);
     }
 
     @Incoming(CHANNEL_SMOKE_IN)
     public Uni<Void> consumeSmoke(Message<List<SmokeDetectorData>> batchMessage) {
-        final var payload = batchMessage.getPayload().stream()
-            .map(dataMapper::toEntity)
-            .toList();
-
-        return Uni.createFrom().item(batchMessage.withPayload(payload))
-            .chain(lst -> consumeBatch(lst, sql, dataMapper::toTuple));
+        return consumeBatch(batchMessage);
     }
 }

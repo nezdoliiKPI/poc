@@ -53,6 +53,8 @@ services:
         
         rpk --brokers redpanda-0:9092 topic create batt-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
         
+        rpk --brokers redpanda-0:9092 topic create power-thresholds-topic -p 8 --topic-config cleanup.policy=compact || true
+        
         echo "Infrastructure ready."
 
   console:

@@ -4,7 +4,7 @@ import dev.nez.edge.messaging.filter.MessageFilter;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;
 
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
-import dev.nez.edge.dto.MessageMapper;
+import dev.nez.edge.dto.MessageDeserializer;
 
 import io.smallrye.mutiny.Multi;
 
@@ -27,7 +27,7 @@ public class PowerConsumptionConsumer extends BaseMqttConsumer<PowerConsumptionD
     private final ChannelFilter<PowerConsumptionData> protoFilter;
 
     @Inject
-    MessageMapper mapper;
+    MessageDeserializer mapper;
 
     @Inject
     PowerConsumptionConsumer(MessageFilter messageFilter) {
