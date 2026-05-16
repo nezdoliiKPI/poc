@@ -94,6 +94,18 @@ services:
     depends_on:
       - timescaledb
 
+  nginx:
+    image: nginx:latest
+    container_name: reverse_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../secrets/tls:/etc/nginx/certs:ro
+    restart: unless-stopped
+
 volumes:
   timescaledb_data:
 

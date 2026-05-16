@@ -9,6 +9,7 @@ public interface SimulationConfig {
     DeviceConfig power();
     DeviceConfig smoke();
     DeviceConfig battery();
+    DeviceConfig temp();
 
     interface DeviceConfig {
         ProtocolConfig proto();

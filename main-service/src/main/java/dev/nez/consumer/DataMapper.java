@@ -1,9 +1,6 @@
 package dev.nez.consumer;
-import dev.nez.dto.proto.timeddata.AirQualityData;
-import dev.nez.dto.proto.timeddata.BatteryData;
-import dev.nez.dto.proto.timeddata.PowerConsumptionData;
+import dev.nez.dto.proto.timeddata.*;
 
-import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import jakarta.inject.Singleton;
 
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -22,6 +19,15 @@ public class DataMapper {
             proto.getPower(),
             toOffsetDateTime(proto.getTimestamp())
         );
+    }
+
+    public Tuple toTuple(TemperatureData proto) {
+        return Tuple.wrap(new Object[] {
+            proto.getDeviceId(),
+            proto.getTemperature(),
+            proto.getHumidity(),
+            toOffsetDateTime(proto.getTimestamp())
+        });
     }
 
     public Tuple toTuple(AirQualityData proto) {

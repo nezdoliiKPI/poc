@@ -1,9 +1,11 @@
 package dev.nez.notification.telegram;
 
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
@@ -22,13 +24,22 @@ public class TelegramNotification {
     @ConfigProperty(name = "telegram.channel.id")
     String channelId;
 
+    @ConfigProperty(name = "telegram.client.use")
+    Boolean useTelegram;
+
     @Inject
     @RestClient
     TelegramRestClient telegramRestClient;
 
+    void onStart(@Observes StartupEvent ev) {
+        if (!useTelegram) {
+            Log.info("TelegramNotification bean is disabled via config. Alert sending from this bean is suspended.");
+        }
+    }
+
     @Incoming("telegram-in")
     Uni<Void> handle(List<String> batch) {
-        if (batch.isEmpty()) {
+        if (!useTelegram ||batch.isEmpty()) {
             return Uni.createFrom().voidItem();
         }
 

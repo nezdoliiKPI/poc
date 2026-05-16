@@ -23,5 +23,4 @@ EXPOSE 8080
 USER 1001
 
 ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0"]
-# .\mvnw.cmd package "-Dnative" "-Dquarkus.native.container-build=true" "-Dquarkus.native.native-image-xmx=4g"
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/auth-service-native .
+# .\mvnw.cmd package "-Dnative" "-Dquarkus.native.container-build=true" "-Dquarkus.native.native-image-xmx=4g"; if ($?) { docker build -f src/main/docker/Dockerfile.native -t quarkus/auth-service-native . }

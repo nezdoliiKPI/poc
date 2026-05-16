@@ -61,3 +61,15 @@ message BatteryMessage {
   int64 device_id = 1;
   float val = 2;
 }
+
+// Represents a single reading of temperature (and optional humidity) telemetry from a device.
+//
+// Attributes:
+//   - device_id:   The unique identifier of the sensor or device.
+//   - temperature: The ambient temperature in degrees Celsius (°C).
+//   - humidity:    The relative humidity percentage (%).
+message TemperatureMessage {
+  int64 device_id = 1;
+  float temperature = 2;
+  float humidity = 3;
+}

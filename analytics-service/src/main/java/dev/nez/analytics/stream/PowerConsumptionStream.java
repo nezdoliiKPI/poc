@@ -66,6 +66,7 @@ public class PowerConsumptionStream {
                     if (latestThreshold == null) {
                         return null;
                     }
+
                     return analyzer.checkThreshold(consumptionEvent, latestThreshold);
                 },
                 Joined.with(longSerde, consumptionSerde, thresholdsSerde)

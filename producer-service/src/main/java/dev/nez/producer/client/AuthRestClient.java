@@ -26,21 +26,36 @@ public interface AuthRestClient {
 
     @POST
     @Path("/register")
-    @Retry(maxRetries = 15, delay = 1, delayUnit = ChronoUnit.SECONDS, jitter = 500, jitterDelayUnit = ChronoUnit.MILLIS)
+    @Retry(
+        maxRetries = 60,
+        delay = 2,
+        delayUnit = ChronoUnit.SECONDS,
+        jitter = 1000,
+        jitterDelayUnit = ChronoUnit.MILLIS,
+        retryOn = {
+            io.vertx.core.impl.NoStackTraceTimeoutException.class,
+            java.util.concurrent.TimeoutException.class,
+            java.net.ConnectException.class
+        }
+    )
     @Consumes(MediaType.APPLICATION_JSON)
     @ClientHeaderParam(name = "Authorization", value = "{getBasicAuth}")
     Uni<Response> register(RegisterRequest request);
 
     @POST
-    @Path("/register/thresholds/power")
-    @Retry(maxRetries = 15, delay = 1, delayUnit = ChronoUnit.SECONDS, jitter = 500, jitterDelayUnit = ChronoUnit.MILLIS)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @ClientHeaderParam(name = "Authorization", value = "{getBasicAuth}")
-    Uni<Response> setThresholds(PowerThresholdsRequest request);
-
-    @POST
     @Path("/auth/login")
-    @Retry(maxRetries = 15, delay = 1, delayUnit = ChronoUnit.SECONDS, jitter = 500, jitterDelayUnit = ChronoUnit.MILLIS)
+    @Retry(
+        maxRetries = 60,
+        delay = 2,
+        delayUnit = ChronoUnit.SECONDS,
+        jitter = 1000,
+        jitterDelayUnit = ChronoUnit.MILLIS,
+        retryOn = {
+            io.vertx.core.impl.NoStackTraceTimeoutException.class,
+            java.util.concurrent.TimeoutException.class,
+            java.net.ConnectException.class
+        }
+    )
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     Uni<LoginResponse> login(LoginRequest request);

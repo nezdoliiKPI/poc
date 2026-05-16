@@ -67,3 +67,19 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+
+  analytics-service:
+    image: quarkus/analytics-service-native:latest
+    container_name: analytics-service-app
+    ports:
+      - "8085:8085"
+    volumes:
+      - ../secrets/telegram/telegram.properties:/secrets/telegram/telegram.properties:ro
+    environment:
+      - QUARKUS_PROFILE=prod
+      - SECRETS_DIR=/secrets
+#    depends_on:
+#      - auth-service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

@@ -56,6 +56,13 @@ public class Simulator {
         addGenerators(config.smoke().proto().topic(), config.smoke().proto().count());
         addGenerators(config.smoke().json().topic(), config.smoke().json().count());
 
+        // Temperature
+        simulations.put(config.temp().proto().topic(), new ArrayList<>());
+        simulations.put(config.temp().json().topic(), new ArrayList<>());
+
+        addGenerators(config.temp().proto().topic(), config.temp().proto().count());
+        addGenerators(config.temp().json().topic(), config.temp().json().count());
+
         simulations.values().stream()
             .flatMap(ArrayList::stream)
             .forEach(DeviceSession::run);

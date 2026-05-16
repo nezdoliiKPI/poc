@@ -10,14 +10,14 @@ import java.util.concurrent.TimeUnit;
 public class SmokeDataGenerator extends DeviceDataGenerator {
 
     public SmokeDataGenerator(
-            String hardwareId,
-            String password,
-            String topic,
-            String batteryTopic,
-            MessageType messageType
+        String hardwareId,
+        String password,
+        String topic,
+        String batteryTopic,
+        MessageType messageType
     ) {
         final var device = new Device(hardwareId, password, topic, batteryTopic);
-        final var mainTiming = new MessageTiming(TimeUnit.MINUTES, 0, 30, TimeUnit.MINUTES.toSeconds(30));
+        final var mainTiming = new MessageTiming(TimeUnit.MINUTES, 0, 10, TimeUnit.MINUTES.toSeconds(10));
         final var batteryTiming = new MessageTiming(TimeUnit.HOURS, 0, 12, TimeUnit.HOURS.toSeconds(12));
 
         super(device, messageType, mainTiming, batteryTiming);
@@ -37,6 +37,6 @@ public class SmokeDataGenerator extends DeviceDataGenerator {
 
     @Override
     public Object getBatteryData() {
-        return new Battery(this.deviceId, 99.0f);
+        return new Battery(this.deviceId, 75.0f);
     }
 }

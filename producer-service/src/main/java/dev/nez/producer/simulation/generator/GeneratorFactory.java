@@ -1,10 +1,7 @@
 package dev.nez.producer.simulation.generator;
 
 import dev.nez.producer.simulation.SimulationConfig;
-import dev.nez.producer.simulation.generator.data.AirDataGenerator;
-import dev.nez.producer.simulation.generator.data.DeviceDataGenerator;
-import dev.nez.producer.simulation.generator.data.PowerDataGenerator;
-import dev.nez.producer.simulation.generator.data.SmokeDataGenerator;
+import dev.nez.producer.simulation.generator.data.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -76,6 +73,23 @@ public class GeneratorFactory {
             "hardware" + deviceId.incrementAndGet(),
             "pass",
             config.smoke().json().topic(),
+            batteryTopicJson,
+            DeviceDataGenerator.MessageType.JSON
+        ));
+
+        // TEMPERATURE
+        suppliers.put(config.temp().proto().topic(), () -> new TemperatureDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.temp().proto().topic(),
+            batteryTopicProto,
+            DeviceDataGenerator.MessageType.PROTO
+        ));
+
+        suppliers.put(config.temp().json().topic(), () -> new TemperatureDataGenerator(
+            "hardware" + deviceId.incrementAndGet(),
+            "pass",
+            config.temp().json().topic(),
             batteryTopicJson,
             DeviceDataGenerator.MessageType.JSON
         ));

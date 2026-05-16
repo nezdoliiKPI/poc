@@ -18,7 +18,7 @@ public class PowerDataGenerator extends DeviceDataGenerator {
         final Random rnd = ThreadLocalRandom.current();
 
         final var device = new Device(hardwareId, password, topic);
-        final var mainTiming = new MessageTiming(TimeUnit.SECONDS, rnd.nextInt(2), 1, 1);
+        final var mainTiming = new MessageTiming(TimeUnit.MILLISECONDS, rnd.nextInt(1000), 500, 1);
 
         super(device, messageType, mainTiming);
     }
@@ -27,12 +27,15 @@ public class PowerDataGenerator extends DeviceDataGenerator {
     public Object getData() {
         final var cv = 230.0f;
         final var cf = 1.0f;
-        final var pf = 0.9f;
+        final var pf = 0.8f; //Power Factor
+
+        final float VOLTAGE_DELTA = 1.0f;
+        final float CURRENT_DELTA = 0.05f;
 
         return new PowerConsumption(
             this.deviceId,
-            cv + rnd.nextFloat(-1.0f, 1.0f),
-            cf  + rnd.nextFloat(-0.95f, 1.0f),
+            cv + rnd.nextFloat(VOLTAGE_DELTA),
+            cf  + rnd.nextFloat(CURRENT_DELTA),
             cv * cf * pf
         );
     }

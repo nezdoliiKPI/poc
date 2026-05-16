@@ -71,3 +71,17 @@ message BatteryData {
   int64 device_id = 1;
   float val = 2;
 }
+
+// Represents a single reading of temperature (and optional humidity) telemetry from a device.
+//
+// Attributes:
+//   - timestamp: The exact time the service received and processed this message (UTC).
+//   - device_id:   The unique identifier of the sensor or device.
+//   - temperature: The ambient temperature in degrees Celsius (°C).
+//   - humidity:    The relative humidity percentage (%).
+message TemperatureData {
+  google.protobuf.Timestamp timestamp = 4;
+  int64 device_id = 1;
+  float temperature = 2;
+  float humidity = 3;
+}

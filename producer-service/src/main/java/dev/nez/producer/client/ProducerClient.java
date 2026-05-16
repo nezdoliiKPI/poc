@@ -5,11 +5,9 @@ import dev.nez.producer.dto.rest.LoginRequest;
 import dev.nez.producer.dto.rest.PowerThresholdsRequest;
 import dev.nez.producer.dto.rest.RegisterRequest;
 
-import dev.nez.producer.simulation.generator.data.AirDataGenerator;
 import dev.nez.producer.simulation.generator.data.DeviceDataGenerator;
 import dev.nez.producer.simulation.generator.data.DeviceDataGenerator.MessageType;
 import dev.nez.producer.simulation.generator.data.PowerDataGenerator;
-import dev.nez.producer.simulation.generator.data.SmokeDataGenerator;
 import dev.nez.producer.simulation.model.MessageTiming;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
@@ -95,7 +93,7 @@ public class ProducerClient {
                 .subscribe().with(
                     _ -> Log.debug("Device session has been initialized for device: " + producer.deviceId),
                     ex -> {
-                        Log.error("Failed init device " + producer.deviceId + " simulation", ex);
+                        Log.error("Failed init device " + producer.device.hardwareId() + " simulation", ex);
                         cancelTimers();
                     }
                 );
@@ -136,19 +134,20 @@ public class ProducerClient {
                 .replaceWithVoid();
         }
 
+        //TODO
         private Uni<Void> setTreshold() {
             return switch (producer) {
-                case PowerDataGenerator g -> {
-                    final var defaultThresholds = new PowerThresholdsRequest(
-                        producer.deviceId,
-                        207.0f,
-                        253.0f,
-                        16.0f,
-                        3680.0f
-                    );
-
-                    yield authClient.setThresholds(defaultThresholds).replaceWithVoid();
-                }
+//                case PowerDataGenerator g -> {
+//                    final var defaultThresholds = new PowerThresholdsRequest(
+//                        producer.deviceId,
+//                        207.0f,
+//                        253.0f,
+//                        16.0f,
+//                        3680.0f
+//                    );
+//
+//                    yield authClient.setThresholds(defaultThresholds).replaceWithVoid();
+//                }
                 default -> Uni.createFrom().voidItem();
             };
         }

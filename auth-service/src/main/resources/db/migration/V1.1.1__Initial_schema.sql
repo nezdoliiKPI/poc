@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 -- ==========================================
 -- PowerConsumption
 -- ==========================================
-CREATE SEQUENCE power_consumption_seq INCREMENT BY 50;
+CREATE SEQUENCE power_consumption_seq INCREMENT BY 1;
 
 CREATE TABLE power_consumption (
    id BIGINT DEFAULT nextval('power_consumption_seq'),
@@ -15,16 +15,6 @@ CREATE TABLE power_consumption (
    time_date TIMESTAMPTZ NOT NULL,
 
    PRIMARY KEY (device_id, time_date)
-);
-
-CREATE TABLE power_thresholds (
-  device_id BIGINT PRIMARY KEY,
-
-  min_voltage REAL,
-  max_voltage REAL,
-
-  max_current REAL,
-  max_power REAL
 );
 
 SELECT create_hypertable(
@@ -44,9 +34,41 @@ SELECT add_compression_policy('power_consumption', INTERVAL '7 days');
 SELECT add_retention_policy('power_consumption', INTERVAL '30 days');
 
 -- ==========================================
+-- TemperatureData
+-- ==========================================
+CREATE SEQUENCE temperature_data_seq INCREMENT BY 1;
+
+CREATE TABLE temperature_data (
+  id BIGINT DEFAULT nextval('temperature_data_seq'),
+
+  device_id BIGINT NOT NULL,
+  temperature REAL,
+  humidity REAL,
+  time_date TIMESTAMPTZ NOT NULL,
+
+  PRIMARY KEY (device_id, time_date)
+);
+
+SELECT create_hypertable(
+   'temperature_data',
+   'time_date',
+   chunk_time_interval => INTERVAL '10 minutes'
+);
+
+ALTER TABLE temperature_data
+SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'device_id',
+    timescaledb.compress_orderby = 'time_date DESC'
+);
+
+SELECT add_compression_policy('temperature_data', INTERVAL '7 days');
+SELECT add_retention_policy('temperature_data', INTERVAL '30 days');
+
+-- ==========================================
 -- AirQuality
 -- ==========================================
-CREATE SEQUENCE air_quality_seq INCREMENT BY 50;
+CREATE SEQUENCE air_quality_seq INCREMENT BY 1;
 
 CREATE TABLE air_quality (
      id BIGINT DEFAULT nextval('air_quality_seq'),
@@ -82,7 +104,7 @@ SELECT add_retention_policy('air_quality', INTERVAL '30 days');
 -- ==========================================
 -- BatteryData
 -- ==========================================
-CREATE SEQUENCE battery_data_seq INCREMENT BY 50;
+CREATE SEQUENCE battery_data_seq INCREMENT BY 1;
 
 CREATE TABLE battery_data (
       id BIGINT DEFAULT nextval('battery_data_seq'),
@@ -113,7 +135,7 @@ SELECT add_retention_policy('battery_data', INTERVAL '30 days');
 -- ==========================================
 -- SmokeDetector
 -- ==========================================
-CREATE SEQUENCE smoke_detector_seq INCREMENT BY 50;
+CREATE SEQUENCE smoke_detector_seq INCREMENT BY 1;
 
 CREATE TABLE smoke_detector (
     id BIGINT DEFAULT nextval('smoke_detector_seq'),
@@ -145,7 +167,7 @@ SELECT add_retention_policy('smoke_detector', INTERVAL '30 days');
 -- ==========================================
 -- Devices
 -- ==========================================
-CREATE SEQUENCE devices_seq INCREMENT BY 50;
+CREATE SEQUENCE devices_seq INCREMENT BY 1;
 
 CREATE TABLE devices (
      id BIGINT DEFAULT nextval('devices_SEQ') PRIMARY KEY,

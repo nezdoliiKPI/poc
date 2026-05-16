@@ -5,15 +5,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import dev.nez.edge.dto.mqtt.PowerConsumption;
-import dev.nez.edge.dto.mqtt.SmokeDetector;
-import dev.nez.dto.proto.timeddata.AirQualityData;
-import dev.nez.dto.proto.timeddata.BatteryData;
-import dev.nez.dto.proto.timeddata.PowerConsumptionData;
-import dev.nez.dto.proto.timeddata.SmokeDetectorData;
-
-import dev.nez.edge.dto.mqtt.AirQuality;
-import dev.nez.edge.dto.mqtt.Battery;
+import dev.nez.dto.proto.timeddata.*;
+import dev.nez.edge.dto.mqtt.*;
 
 import dev.nez.edge.exception.MessageParseException;
 import io.vertx.core.json.DecodeException;
@@ -34,11 +27,13 @@ public class MessageDeserializer {
     private final JsonMessageReader<PowerConsumption> jsonPowerConsumptionReader;
     private final JsonMessageReader<AirQuality> jsonAirQualityReader;
     private final JsonMessageReader<Battery> jsonBatteryReader;
+    private final JsonMessageReader<Temperature> jsonTemperatureReader;
 
     private final AtomicInteger nanoCounterSmoke = new AtomicInteger(0);
     private final AtomicInteger nanoCounterPower = new AtomicInteger(0);
     private final AtomicInteger nanoCounterBattery = new AtomicInteger(0);
     private final AtomicInteger nanoCounterAir = new AtomicInteger(0);
+    private final AtomicInteger nanoCounterTemperature = new AtomicInteger(0);
 
     @Inject
     public MessageDeserializer(ObjectMapper objectMapper) {
@@ -48,6 +43,7 @@ public class MessageDeserializer {
         this.jsonPowerConsumptionReader = new JsonMessageReader<>(PowerConsumption.class);
         this.jsonAirQualityReader = new JsonMessageReader<>(AirQuality.class);
         this.jsonBatteryReader = new JsonMessageReader<>(Battery.class);
+        this.jsonTemperatureReader = new JsonMessageReader<>(Temperature.class);
     }
 
     public PowerConsumptionData fromProtoPowerConsumption(byte[] payload) throws MessageParseException {
@@ -121,6 +117,29 @@ public class MessageDeserializer {
         } catch (final InvalidProtocolBufferException e) {
             throw new MessageParseException(e.getMessage(), e);
         }
+    }
+
+    public TemperatureData fromProtoTemperature(byte[] payload) throws MessageParseException {
+        try {
+            return TemperatureData.parseFrom(payload)
+                .toBuilder()
+                .setTimestamp(getCurrentTimestamp(nanoCounterTemperature))
+                .build();
+
+        } catch (final InvalidProtocolBufferException e) {
+            throw new MessageParseException(e.getMessage(), e);
+        }
+    }
+
+    public TemperatureData fromJsonTemperature(byte[] payload) throws MessageParseException {
+        final Temperature dto = jsonTemperatureReader.fromJson(payload);
+
+        return TemperatureData.newBuilder()
+            .setTimestamp(getCurrentTimestamp(nanoCounterTemperature))
+            .setDeviceId(dto.id())
+            .setTemperature(dto.t())
+            .setHumidity(dto.h())
+            .build();
     }
 
     public SmokeDetectorData fromProtoSmoke(byte[] payload) throws MessageParseException {
