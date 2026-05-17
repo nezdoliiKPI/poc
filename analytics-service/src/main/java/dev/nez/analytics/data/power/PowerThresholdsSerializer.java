@@ -1,6 +1,5 @@
-package dev.nez.analytics.data.serializer;
+package dev.nez.analytics.data.power;
 
-import dev.nez.analytics.data.event.PowerThresholds;
 import io.vertx.core.json.Json;
 import org.apache.kafka.common.serialization.Serializer;
 

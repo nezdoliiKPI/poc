@@ -74,10 +74,7 @@ public class Simulator {
     Float onConfigChange(ConfigChangeEvent event) {
         Log.info("Configuration set, topic: " + event.topic() + ", count: " + event.newCount());
 
-        final var sessions = Objects.requireNonNull(
-            simulations.get(event.topic()), "Not found topic: " + event.topic()
-        );
-
+        final var sessions = Objects.requireNonNull(simulations.get(event.topic()), "Not found topic: " + event.topic());
         final int newCount = event.newCount();
 
         if (sessions.size() < newCount) {
@@ -86,7 +83,12 @@ public class Simulator {
 
         for (int i = 0; i < sessions.size(); i++) {
             var session = sessions.get(i);
-            if (i < newCount) session.run(); else session.stop();
+
+            if (i < newCount) {
+                session.run();
+            } else {
+                session.stop();
+            }
         }
 
         final float intensity = getIntensity();

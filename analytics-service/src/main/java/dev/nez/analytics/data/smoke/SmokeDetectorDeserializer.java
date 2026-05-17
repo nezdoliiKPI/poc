@@ -1,4 +1,4 @@
-package dev.nez.analytics.data.deserializer;
+package dev.nez.analytics.data.smoke;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;

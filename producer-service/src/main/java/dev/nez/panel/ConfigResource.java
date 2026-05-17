@@ -78,7 +78,9 @@ public class ConfigResource {
             new Simulator.ConfigChangeEvent(config.power().json().topic(), request.powerJsonCount()),
             new Simulator.ConfigChangeEvent(config.power().proto().topic(), request.powerProtoCount()),
             new Simulator.ConfigChangeEvent(config.smoke().json().topic(), request.smokeJsonCount()),
-            new Simulator.ConfigChangeEvent(config.smoke().proto().topic(), request.smokeProtoCount())
+            new Simulator.ConfigChangeEvent(config.smoke().proto().topic(), request.smokeProtoCount()),
+            new Simulator.ConfigChangeEvent(config.temp().json().topic(), request.tempJsonCount()),
+            new Simulator.ConfigChangeEvent(config.temp().proto().topic(), request.tempProtoCount())
         );
 
         var futureResults = events.stream()

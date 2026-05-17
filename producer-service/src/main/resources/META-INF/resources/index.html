@@ -123,7 +123,7 @@
         .brand h1 {
             font-size: 22px;
             font-weight: 700;
-            letter-spacing: -0.5px; /* Більш читабельно */
+            letter-spacing: -0.5px;
             color: var(--text-primary);
         }
 
@@ -830,6 +830,36 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="group">
+                    <div class="row gen-cols">
+                        <div class="dev-name">Temperature <span class="badge proto">PROTO</span></div>
+                        <div class="topic"><span>dev/temp/p</span><span class="sep">&</span><span>dev/batt/p</span></div>
+                        <div class="spin-wrap">
+                            <div class="spin-box">
+                                <input type="number" x-model.number="gen.tempProtoCount" min="0" max="5000">
+                                <div class="spin-btns">
+                                    <button @click="gen.tempProtoCount=Math.min(5000,gen.tempProtoCount+1)">▲</button>
+                                    <button @click="gen.tempProtoCount=Math.max(0,gen.tempProtoCount-1)">▼</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row gen-cols">
+                        <div class="dev-name">Temperature <span class="badge json">JSON</span></div>
+                        <div class="topic"><span>dev/temp/j</span><span class="sep">&</span><span>dev/batt/j</span></div>
+                        <div class="spin-wrap">
+                            <div class="spin-box">
+                                <input type="number" x-model.number="gen.tempJsonCount" min="0" max="5000">
+                                <div class="spin-btns">
+                                    <button @click="gen.tempJsonCount=Math.min(5000,gen.tempJsonCount+1)">▲</button>
+                                    <button @click="gen.tempJsonCount=Math.max(0,gen.tempJsonCount-1)">▼</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="tab-panel" x-show="tab==='filter'">
@@ -961,6 +991,8 @@
                 smokeJsonCount:  1,
                 airProtoCount:   1,
                 airJsonCount:    1,
+                tempProtoCount:  1,
+                tempJsonCount:   1,
             },
 
             filterGroups: [
@@ -975,6 +1007,11 @@
                 [
                     { topics: ['dev/air/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 0 },
                     { topics: ['dev/air/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 0 },
+                ],
+                // NEW: Added Temperature block
+                [
+                    { topics: ['dev/temp/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 0 },
+                    { topics: ['dev/temp/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 0 },
                 ],
             ],
 

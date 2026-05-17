@@ -210,7 +210,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(histogram_quantile(0.95, sum by(le) (rate(message_delay_milliseconds_bucket[30s]))))\r\n+ on() \r\n(sum(broker_messages_stored) / sum(rate(broker_publish_messages_sent[30s])))",
+          "expr": "(histogram_quantile(0.95, sum by(le) (rate(message_delay_milliseconds_bucket[30s]))))\r\n+ on() \r\n(sum(broker_messages_stored - 53) / sum(rate(broker_publish_messages_sent[30s])))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -711,7 +711,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(quarkus_messaging_message_count_total{job=\"edge-service\", channel=~\".*-in\"}[30s]))",
+          "expr": "sum by (instance) (rate(quarkus_messaging_message_count_total{job=\"edge-service\", channel=~\"${edge_channel_in}\"}[30s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -808,7 +808,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(kafka_producer_record_send_total{job=\"edge-service\"}[30s]))\r\n# sum(rate(vectorized_cluster_partition_records_produced[30s]))",
+          "expr": "sum by (instance) (rate(quarkus_messaging_message_count_total{job=\"edge-service\",channel=~\"${edge_channel_out}\"}[30s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1011,7 +1011,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(kafka_consumer_fetch_manager_records_consumed_total{job=\"main-service\"}[30s]))",
+          "expr": "sum by (instance) (rate(quarkus_messaging_message_count_total{job=\"main-service\", channel=~\"${main_channel_in}.*\"}[30s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1215,12 +1215,122 @@
       "type": "timeseries"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 36
+      },
+      "id": 41,
+      "panels": [],
+      "title": "Analitycs-service",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 37
+      },
+      "id": 42,
+      "interval": "5s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by (instance) (jvm_memory_used_bytes{job=\"analytics-service\"})",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory usage",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 45
       },
       "id": 15,
       "panels": [],
@@ -1290,7 +1400,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 46
       },
       "id": 20,
       "interval": "10s",
@@ -1383,7 +1493,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 37
+        "y": 46
       },
       "id": 21,
       "interval": "10s",
@@ -1453,7 +1563,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 37
+        "y": 46
       },
       "id": 19,
       "interval": "10s",
@@ -1556,7 +1666,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 45
+        "y": 54
       },
       "id": 22,
       "interval": "10s",
@@ -1648,7 +1758,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 45
+        "y": 54
       },
       "id": 16,
       "interval": "10s",
@@ -1684,7 +1794,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 62
       },
       "id": 23,
       "panels": [],
@@ -1754,7 +1864,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 54
+        "y": 63
       },
       "id": 24,
       "interval": "10s",
@@ -1846,7 +1956,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 54
+        "y": 63
       },
       "id": 40,
       "interval": "10s",
@@ -1914,7 +2024,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 54
+        "y": 63
       },
       "id": 30,
       "interval": "5s",
@@ -2014,7 +2124,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 62
+        "y": 71
       },
       "id": 25,
       "interval": "10s",
@@ -2107,7 +2217,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 62
+        "y": 71
       },
       "id": 26,
       "interval": "10s",
@@ -2199,7 +2309,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 70
+        "y": 79
       },
       "id": 28,
       "interval": "10s",
@@ -2291,7 +2401,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 70
+        "y": 79
       },
       "id": 29,
       "interval": "10s",
@@ -2322,12 +2432,12 @@
       "type": "timeseries"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 87
       },
       "id": 31,
       "panels": [],
@@ -2397,7 +2507,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 79
+        "y": 88
       },
       "id": 33,
       "interval": "10s",
@@ -2490,7 +2600,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 79
+        "y": 88
       },
       "id": 34,
       "interval": "10s",
@@ -2582,7 +2692,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 87
+        "y": 96
       },
       "id": 35,
       "interval": "10s",
@@ -2674,7 +2784,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 87
+        "y": 96
       },
       "id": 32,
       "interval": "10s",
@@ -2710,16 +2820,102 @@
   "schemaVersion": 42,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(quarkus_messaging_message_count_total{job=\"edge-service\"},channel)",
+        "includeAll": true,
+        "multi": true,
+        "name": "edge_channel_in",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(quarkus_messaging_message_count_total{job=\"edge-service\"},channel)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/.*-in$/",
+        "regexApplyTo": "value",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(quarkus_messaging_message_count_total{job=\"edge-service\"},channel)",
+        "includeAll": true,
+        "multi": true,
+        "name": "edge_channel_out",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(quarkus_messaging_message_count_total{job=\"edge-service\"},channel)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/.*-out$/",
+        "regexApplyTo": "value",
+        "type": "query"
+      },
+      {
+        "allValue": "",
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(quarkus_messaging_message_count_total{job=\"main-service\"},channel)",
+        "includeAll": true,
+        "multi": true,
+        "name": "main_channel_in",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(quarkus_messaging_message_count_total{job=\"main-service\"},channel)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/(.*-in)/",
+        "regexApplyTo": "value",
+        "type": "query"
+      }
+    ]
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2026-05-16T18:02:21.119Z",
+    "to": "2026-05-16T18:04:07.482Z"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 9,
+  "version": 11,
   "weekStart": ""
 }

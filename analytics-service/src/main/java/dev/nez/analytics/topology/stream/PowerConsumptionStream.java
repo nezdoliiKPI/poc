@@ -1,27 +1,29 @@
-package dev.nez.analytics.stream;
+package dev.nez.analytics.topology.stream;
 
+import dev.nez.alert.AlertDeserializer;
+import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.PowerConsumptionAnalyzer;
-import dev.nez.analytics.data.deserializer.PowerConsumptionDeserializer;
-import dev.nez.analytics.data.deserializer.PowerThresholdsDeserializer;
-import dev.nez.analytics.data.event.PowerThresholds;
-import dev.nez.analytics.data.serializer.PowerConsumptionSerializer;
-import dev.nez.analytics.data.serializer.PowerThresholdsSerializer;
+import dev.nez.analytics.data.power.PowerConsumptionDeserializer;
+import dev.nez.analytics.data.power.PowerThresholdsDeserializer;
+import dev.nez.analytics.data.power.PowerThresholds;
+import dev.nez.analytics.data.power.PowerConsumptionSerializer;
+import dev.nez.analytics.data.power.PowerThresholdsSerializer;
 
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 
-import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
+import jakarta.inject.Singleton;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+@Singleton
 public class PowerConsumptionStream {
 
-    @ConfigProperty(name = "kafka.topic.consumption.events")
+    @ConfigProperty(name = "kafka.topic.power.events")
     String consumptionTopic;
 
     @ConfigProperty(name = "kafka.topic.power.thresholds")
@@ -33,12 +35,13 @@ public class PowerConsumptionStream {
     @Inject
     PowerConsumptionAnalyzer analyzer;
 
-    @Produces
-    public Topology buildTopology() {
-        StreamsBuilder builder = new StreamsBuilder();
-
+    public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
-        final var stringSerde = Serdes.String();
+
+        final var alertSerde = Serdes.serdeFrom(
+            new AlertSerializer(),
+            new AlertDeserializer()
+        );
 
         final var consumptionSerde = Serdes.serdeFrom(
             new PowerConsumptionSerializer(),
@@ -72,9 +75,7 @@ public class PowerConsumptionStream {
                 Joined.with(longSerde, consumptionSerde, thresholdsSerde)
             )
             .filter((_, alertMessage) -> alertMessage != null)
-            .to(notificationsTopic, Produced.with(longSerde, stringSerde));
-
-        return builder.build();
+            .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }
 

@@ -1,4 +1,4 @@
-package dev.nez.analytics.data.serializer;
+package dev.nez.analytics.data.power;
 
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import org.apache.kafka.common.serialization.Serializer;

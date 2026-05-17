@@ -1,4 +1,4 @@
-package dev.nez.analytics.data.serializer;
+package dev.nez.analytics.data.battery;
 
 import dev.nez.dto.proto.timeddata.BatteryData;
 import org.apache.kafka.common.serialization.Serializer;

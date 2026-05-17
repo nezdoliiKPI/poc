@@ -1,4 +1,4 @@
-package dev.nez.analytics.data.serializer;
+package dev.nez.analytics.data.air;
 
 import dev.nez.dto.proto.timeddata.AirQualityData;
 import org.apache.kafka.common.serialization.Serializer;

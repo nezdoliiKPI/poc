@@ -1,0 +1,75 @@
+package dev.nez.analytics.topology.stream;
+
+import dev.nez.alert.AlertDeserializer;
+import dev.nez.alert.AlertSerializer;
+import dev.nez.analytics.analyzer.BatteryAnalyzer;
+import dev.nez.analytics.data.battery.BatteryDataDeserializer;
+import dev.nez.analytics.data.battery.BatteryDataSerializer;
+import dev.nez.analytics.data.battery.BatteryThresholdsDeserializer;
+import dev.nez.analytics.data.battery.BatteryThresholdsSerializer;
+import dev.nez.analytics.data.battery.BatteryThresholds;
+
+import dev.nez.dto.proto.timeddata.BatteryData;
+
+import jakarta.inject.Inject;
+
+import jakarta.inject.Singleton;
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.*;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+@Singleton
+public class BatteryStream {
+
+    @ConfigProperty(name = "kafka.topic.battery.events")
+    String batteryTopic;
+
+    @ConfigProperty(name = "kafka.topic.battery.thresholds")
+    String thresholdsTopic;
+
+    @ConfigProperty(name = "kafka.notifications.topic")
+    String notificationsTopic;
+
+    @Inject
+    BatteryAnalyzer analyzer;
+
+    public void addTopology(StreamsBuilder builder) {
+        final var longSerde = Serdes.Long();
+        final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
+
+        final var batterySerde = Serdes.serdeFrom(
+            new BatteryDataSerializer(),
+            new BatteryDataDeserializer()
+        );
+        final var thresholdsSerde = Serdes.serdeFrom(
+            new BatteryThresholdsSerializer(),
+            new BatteryThresholdsDeserializer()
+        );
+
+        final KTable<Long, BatteryThresholds> thresholdsTable = builder.table(
+            thresholdsTopic,
+            Consumed.with(longSerde, thresholdsSerde)
+        );
+
+        final KStream<Long, BatteryData> batteryStream = builder.stream(
+            batteryTopic,
+            Consumed.with(longSerde, batterySerde)
+        );
+
+        batteryStream
+            .leftJoin(
+                thresholdsTable,
+                (event, latestThreshold) -> {
+                    if (latestThreshold == null) {
+                        return null;
+                    }
+                    return analyzer.checkThreshold(event, latestThreshold);
+                },
+                Joined.with(longSerde, batterySerde, thresholdsSerde)
+            )
+            .filter((_, alertMessage) -> alertMessage != null)
+            .to(notificationsTopic, Produced.with(longSerde, alertSerde));
+    }
+}

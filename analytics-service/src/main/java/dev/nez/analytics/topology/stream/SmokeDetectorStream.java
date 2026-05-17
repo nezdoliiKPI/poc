@@ -1,0 +1,71 @@
+package dev.nez.analytics.topology.stream;
+
+import dev.nez.alert.AlertDeserializer;
+import dev.nez.alert.AlertSerializer;
+import dev.nez.analytics.analyzer.SmokeDetectorAnalyzer;
+import dev.nez.analytics.data.smoke.*;
+
+import dev.nez.dto.proto.timeddata.SmokeDetectorData;
+
+import jakarta.inject.Inject;
+
+import jakarta.inject.Singleton;
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.*;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+@Singleton
+public class SmokeDetectorStream {
+
+    @ConfigProperty(name = "kafka.topic.smoke.events")
+    String smokeTopic;
+
+    @ConfigProperty(name = "kafka.topic.smoke.thresholds")
+    String thresholdsTopic;
+
+    @ConfigProperty(name = "kafka.notifications.topic")
+    String notificationsTopic;
+
+    @Inject
+    SmokeDetectorAnalyzer analyzer;
+
+    public void addTopology(StreamsBuilder builder) {
+        final var longSerde = Serdes.Long();
+        final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
+
+        final var smokeSerde = Serdes.serdeFrom(
+            new SmokeDetectorSerializer(),
+            new SmokeDetectorDeserializer()
+        );
+        final var thresholdsSerde = Serdes.serdeFrom(
+            new SmokeDetectorThresholdsSerializer(),
+            new SmokeDetectorThresholdsDeserializer()
+        );
+
+        final KTable<Long, SmokeDetectorThresholds> thresholdsTable = builder.table(
+            thresholdsTopic,
+            Consumed.with(longSerde, thresholdsSerde)
+        );
+
+        final KStream<Long, SmokeDetectorData> smokeStream = builder.stream(
+            smokeTopic,
+            Consumed.with(longSerde, smokeSerde)
+        );
+
+        smokeStream
+            .leftJoin(
+                thresholdsTable,
+                (event, latestThreshold) -> {
+                    if (latestThreshold == null) {
+                        return null;
+                    }
+                    return analyzer.checkThreshold(event, latestThreshold);
+                },
+                Joined.with(longSerde, smokeSerde, thresholdsSerde)
+            )
+            .filter((_, alertMessage) -> alertMessage != null)
+            .to(notificationsTopic, Produced.with(longSerde, alertSerde));
+    }
+}

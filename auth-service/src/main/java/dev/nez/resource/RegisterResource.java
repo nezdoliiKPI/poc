@@ -39,12 +39,12 @@ public class RegisterResource {
                 return Uni.createFrom().item(RestResponse.status(RestResponse.Status.CONFLICT));
             }
 
-            return Uni.createFrom()
-                .item(() -> BcryptUtil.bcryptHash(request.password(), BCRYPT_COST))
-                .chain(hashedPassword -> Panache.<Device>withTransaction(() -> {
+            return Panache.withTransaction(() -> {
+                    final var hashedPass = BcryptUtil.bcryptHash(request.password(), BCRYPT_COST);
+
                     final var device = new Device(
                         request.hardwareId(),
-                        hashedPassword,
+                        hashedPass,
                         Device.Status.ACTIVE,
                         request.messageType(),
                         request.topic(),
@@ -52,7 +52,7 @@ public class RegisterResource {
                     );
 
                     return device.persist();
-                }))
+                })
                 .replaceWith(RestResponse.<Void>status(RestResponse.Status.CREATED))
                 .onFailure(PersistenceException.class).recoverWithItem(ex -> {
                     Log.warn("Error: ", ex);

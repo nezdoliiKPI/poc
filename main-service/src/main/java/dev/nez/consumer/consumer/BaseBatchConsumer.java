@@ -14,6 +14,7 @@ import io.vertx.mutiny.sqlclient.Tuple;
 
 import org.intellij.lang.annotations.Language;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,9 @@ public abstract class BaseBatchConsumer<T> {
                 for (var data : batch) {
                     final var timestamp = getTimestamp.apply(data);
                     final var time = Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
-                    recorder.recordMessageDelay(channel, time.until(now));
+                    final var delay = Duration.between(time, now);
+
+                    recorder.recordMessageDelay(channel, delay.isPositive() ? delay : Duration.ZERO);
                 }
             })
             .replaceWithVoid();

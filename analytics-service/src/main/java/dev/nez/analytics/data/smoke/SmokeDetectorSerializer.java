@@ -1,4 +1,4 @@
-package dev.nez.analytics.data.serializer;
+package dev.nez.analytics.data.smoke;
 
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import org.apache.kafka.common.serialization.Serializer;
