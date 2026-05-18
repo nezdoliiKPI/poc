@@ -1,9 +1,10 @@
 package dev.nez.analytics.analyzer;
 
-import dev.nez.alert.Alert;
+import dev.nez.notification.Alert;
 import dev.nez.analytics.data.power.PowerThresholds;
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 
+import io.quarkus.logging.Log;
 import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
 
@@ -24,8 +25,9 @@ public class PowerConsumptionAnalyzer {
 
         final ArrayList<String> messages = new ArrayList<>();
 
-        if (power < 0 || current < 0 || voltage < 0 || power > (thresholds.maxPower() * 10)) {
-            messages.add(String.format("<b>ERROR | SENSOR FAULT</b>\nDev: <code>%d</code>", deviceId));
+        if (power < 0 || current < 0 || voltage < 0) {
+            messages.add("ERROR | SENSOR FAULT");
+            Log.warnf(event.toString());
         } else {
             if (voltage > thresholds.maxVoltage()) {
                 messages.add(String.format("V: %.1f (> %.1f)", voltage, thresholds.maxVoltage()));

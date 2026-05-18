@@ -1,7 +1,5 @@
 package dev.nez.analytics.topology.stream;
 
-import dev.nez.alert.AlertDeserializer;
-import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.TemperatureAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
@@ -11,6 +9,7 @@ import dev.nez.analytics.data.temperature.*;
 import dev.nez.analytics.data.temperature.TemperatureDeserializer;
 import dev.nez.dto.proto.timeddata.TemperatureData;
 
+import dev.nez.notification.Alert;
 import jakarta.inject.Inject;
 
 import jakarta.inject.Singleton;
@@ -37,8 +36,11 @@ public class TemperatureStream {
 
     public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
-        final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
 
+        final var alertSerde = Serdes.serdeFrom(
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(Alert.class)
+        );
         final var tempSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),
             new TemperatureDeserializer()
@@ -59,12 +61,9 @@ public class TemperatureStream {
         );
 
         tempStream
-            .leftJoin(
+            .join(
                 thresholdsTable,
                 (event, latestThreshold) -> {
-                    if (latestThreshold == null) {
-                        return null;
-                    }
                     return analyzer.checkThreshold(event, latestThreshold);
                 },
                 Joined.with(longSerde, tempSerde, thresholdsSerde)

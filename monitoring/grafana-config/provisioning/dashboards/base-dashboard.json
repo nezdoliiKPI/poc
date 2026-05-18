@@ -303,7 +303,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (jvm_memory_used_bytes{job=\"auth-service\"})\r\n+\r\nsum by (instance) (jvm_memory_used_bytes{job=\"edge-service\"})\r\n+\r\nsum by (instance) (jvm_memory_used_bytes{job=\"main-service\"})",
+          "expr": "sum by (instance) (jvm_memory_used_bytes)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1286,6 +1286,200 @@
               }
             ]
           },
+          "unit": "recps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 37
+      },
+      "id": 45,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum(rate(kafka_stream_thread_process_total{thread_id=~\"^analytics-service.*\"}[30s]))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Service Throughput",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "recps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 37
+      },
+      "id": 47,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum(rate(kafka_producer_record_send_total{client_id=~\"^analytics-service.*\"}[30s]))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Analytics Throughput (by threshold)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "decbytes"
         },
         "overrides": []
@@ -1325,12 +1519,109 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 45
+      },
+      "id": 46,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "avg(kafka_stream_processor_node_record_e2e_latency_avg{thread_id=~\"^analytics-service.*\"})",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Analityc delay",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 53
       },
       "id": 15,
       "panels": [],
@@ -1400,7 +1691,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 46
+        "y": 54
       },
       "id": 20,
       "interval": "10s",
@@ -1493,7 +1784,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 46
+        "y": 54
       },
       "id": 21,
       "interval": "10s",
@@ -1563,7 +1854,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 46
+        "y": 54
       },
       "id": 19,
       "interval": "10s",
@@ -1666,7 +1957,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 54
+        "y": 62
       },
       "id": 22,
       "interval": "10s",
@@ -1758,7 +2049,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 54
+        "y": 62
       },
       "id": 16,
       "interval": "10s",
@@ -1794,7 +2085,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 70
       },
       "id": 23,
       "panels": [],
@@ -1864,7 +2155,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 63
+        "y": 71
       },
       "id": 24,
       "interval": "10s",
@@ -1956,7 +2247,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 63
+        "y": 71
       },
       "id": 40,
       "interval": "10s",
@@ -2024,7 +2315,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 63
+        "y": 71
       },
       "id": 30,
       "interval": "5s",
@@ -2124,7 +2415,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 71
+        "y": 79
       },
       "id": 25,
       "interval": "10s",
@@ -2217,7 +2508,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 71
+        "y": 79
       },
       "id": 26,
       "interval": "10s",
@@ -2309,7 +2600,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 79
+        "y": 87
       },
       "id": 28,
       "interval": "10s",
@@ -2401,7 +2692,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 79
+        "y": 87
       },
       "id": 29,
       "interval": "10s",
@@ -2437,7 +2728,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 87
+        "y": 95
       },
       "id": 31,
       "panels": [],
@@ -2507,7 +2798,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 88
+        "y": 96
       },
       "id": 33,
       "interval": "10s",
@@ -2600,7 +2891,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 88
+        "y": 96
       },
       "id": 34,
       "interval": "10s",
@@ -2692,7 +2983,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 96
+        "y": 104
       },
       "id": 35,
       "interval": "10s",
@@ -2713,7 +3004,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "broker_messages_stored",
+          "expr": "broker_messages_stored - 53",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -2784,7 +3075,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 96
+        "y": 104
       },
       "id": 32,
       "interval": "10s",
@@ -2823,9 +3114,7 @@
     "list": [
       {
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
@@ -2851,9 +3140,7 @@
       },
       {
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
@@ -2878,11 +3165,8 @@
         "type": "query"
       },
       {
-        "allValue": "",
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
@@ -2909,13 +3193,13 @@
     ]
   },
   "time": {
-    "from": "2026-05-16T18:02:21.119Z",
-    "to": "2026-05-16T18:04:07.482Z"
+    "from": "now-5m",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 11,
+  "version": 19,
   "weekStart": ""
 }

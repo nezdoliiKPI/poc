@@ -1,6 +1,6 @@
 package dev.nez.analytics.analyzer;
 
-import dev.nez.alert.Alert;
+import dev.nez.notification.Alert;
 import dev.nez.analytics.data.smoke.SmokeDetectorThresholds;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import io.smallrye.common.constraint.Nullable;
@@ -22,7 +22,7 @@ public class SmokeDetectorAnalyzer {
         final ArrayList<String> messages = new ArrayList<>();
 
         if (smokeRaw < 0 || coLevel < 0) {
-            messages.add(String.format("<b>ERROR | SENSOR FAULT</b>\nDev: <code>%d</code>", deviceId));
+            messages.add("ERROR | SENSOR FAULT");
         } else {
             if (smokeRaw > thresholds.maxSmokeRaw()) {
                 messages.add(String.format("SMOKE: %d (> %d)", smokeRaw, thresholds.maxSmokeRaw()));

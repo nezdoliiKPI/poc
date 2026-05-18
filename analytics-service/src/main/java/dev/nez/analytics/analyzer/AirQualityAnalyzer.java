@@ -1,6 +1,6 @@
 package dev.nez.analytics.analyzer;
 
-import dev.nez.alert.Alert;
+import dev.nez.notification.Alert;
 import dev.nez.analytics.data.air.AirQualityThresholds;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 import io.smallrye.common.constraint.Nullable;
@@ -26,7 +26,7 @@ public class AirQualityAnalyzer {
         final ArrayList<String> messages = new ArrayList<>();
 
         if (co2 < 0 || pm25 < 0 || pm10 < 0 || tvoc < 0 || hum < 0 || hum > 100 || temp < -100 || temp > 150) {
-            messages.add(String.format("<b>ERROR | SENSOR FAULT</b>\nDev: <code>%d</code>", deviceId));
+            messages.add("ERROR | SENSOR FAULT");
         } else {
             if (co2 > thresholds.maxCo2()) {
                 messages.add(String.format("CO2: %d (> %d)", co2, thresholds.maxCo2()));

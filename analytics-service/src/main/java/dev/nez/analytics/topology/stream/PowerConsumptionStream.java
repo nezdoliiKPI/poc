@@ -1,7 +1,5 @@
 package dev.nez.analytics.topology.stream;
 
-import dev.nez.alert.AlertDeserializer;
-import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.PowerConsumptionAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
@@ -11,6 +9,7 @@ import dev.nez.analytics.data.power.PowerThresholds;
 
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 
+import dev.nez.notification.Alert;
 import jakarta.inject.Inject;
 
 import jakarta.inject.Singleton;
@@ -39,10 +38,9 @@ public class PowerConsumptionStream {
         final var longSerde = Serdes.Long();
 
         final var alertSerde = Serdes.serdeFrom(
-            new AlertSerializer(),
-            new AlertDeserializer()
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(Alert.class)
         );
-
         final var consumptionSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),
             new PowerConsumptionDeserializer()
@@ -63,13 +61,9 @@ public class PowerConsumptionStream {
         );
 
         consumptionStream
-            .leftJoin(
+            .join(
                 thresholdsTable,
                 (consumptionEvent, latestThreshold) -> {
-                    if (latestThreshold == null) {
-                        return null;
-                    }
-
                     return analyzer.checkThreshold(consumptionEvent, latestThreshold);
                 },
                 Joined.with(longSerde, consumptionSerde, thresholdsSerde)

@@ -1,7 +1,5 @@
 package dev.nez.analytics.topology.stream;
 
-import dev.nez.alert.AlertDeserializer;
-import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.SmokeDetectorAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
@@ -10,6 +8,7 @@ import dev.nez.analytics.data.smoke.*;
 
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 
+import dev.nez.notification.Alert;
 import jakarta.inject.Inject;
 
 import jakarta.inject.Singleton;
@@ -36,8 +35,11 @@ public class SmokeDetectorStream {
 
     public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
-        final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
 
+        final var alertSerde = Serdes.serdeFrom(
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(Alert.class)
+        );
         final var smokeSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),
             new SmokeDetectorDeserializer()
@@ -58,12 +60,9 @@ public class SmokeDetectorStream {
         );
 
         smokeStream
-            .leftJoin(
+            .join(
                 thresholdsTable,
                 (event, latestThreshold) -> {
-                    if (latestThreshold == null) {
-                        return null;
-                    }
                     return analyzer.checkThreshold(event, latestThreshold);
                 },
                 Joined.with(longSerde, smokeSerde, thresholdsSerde)
