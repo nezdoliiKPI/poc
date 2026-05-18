@@ -13,7 +13,6 @@ import io.vertx.core.json.DecodeException;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import jakarta.ws.rs.ext.MessageBodyReader;
 
 import java.io.IOException;
 import java.time.Instant;
