@@ -5,10 +5,9 @@ import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.PowerConsumptionAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
-import dev.nez.analytics.data.battery.BatteryThresholds;
+import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.power.PowerConsumptionDeserializer;
 import dev.nez.analytics.data.power.PowerThresholds;
-import dev.nez.analytics.data.power.PowerConsumptionSerializer;
 
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 
@@ -45,7 +44,7 @@ public class PowerConsumptionStream {
         );
 
         final var consumptionSerde = Serdes.serdeFrom(
-            new PowerConsumptionSerializer(),
+            new ProtobufSerializer<>(),
             new PowerConsumptionDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(

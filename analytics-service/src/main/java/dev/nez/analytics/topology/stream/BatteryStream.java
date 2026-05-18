@@ -5,8 +5,8 @@ import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.BatteryAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
+import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.battery.BatteryDataDeserializer;
-import dev.nez.analytics.data.battery.BatteryDataSerializer;
 import dev.nez.analytics.data.battery.BatteryThresholds;
 
 import dev.nez.dto.proto.timeddata.BatteryData;
@@ -40,7 +40,7 @@ public class BatteryStream {
         final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
 
         final var batterySerde = Serdes.serdeFrom(
-            new BatteryDataSerializer(),
+            new ProtobufSerializer<>(),
             new BatteryDataDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(

@@ -5,10 +5,10 @@ import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.TemperatureAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
+import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.temperature.*;
 
 import dev.nez.analytics.data.temperature.TemperatureDeserializer;
-import dev.nez.analytics.data.temperature.TemperatureSerializer;
 import dev.nez.dto.proto.timeddata.TemperatureData;
 
 import jakarta.inject.Inject;
@@ -40,7 +40,7 @@ public class TemperatureStream {
         final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
 
         final var tempSerde = Serdes.serdeFrom(
-            new TemperatureSerializer(),
+            new ProtobufSerializer<>(),
             new TemperatureDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(

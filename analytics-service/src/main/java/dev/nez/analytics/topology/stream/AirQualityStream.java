@@ -4,6 +4,7 @@ import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.AirQualityAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
+import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.air.*;
 
 import dev.nez.dto.proto.timeddata.AirQualityData;
@@ -37,7 +38,7 @@ public class AirQualityStream {
         final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
 
         final var airQualitySerde = Serdes.serdeFrom(
-            new AirQualitySerializer(),
+            new ProtobufSerializer<>(),
             new AirQualityDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(

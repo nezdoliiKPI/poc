@@ -5,6 +5,7 @@ import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.SmokeDetectorAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
+import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.smoke.*;
 
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
@@ -38,7 +39,7 @@ public class SmokeDetectorStream {
         final var alertSerde = Serdes.serdeFrom(new AlertSerializer(), new AlertDeserializer());
 
         final var smokeSerde = Serdes.serdeFrom(
-            new SmokeDetectorSerializer(),
+            new ProtobufSerializer<>(),
             new SmokeDetectorDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(
