@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 
 @RegisterForReflection
 public record AirQualityThresholds(
-    @NotNull(message = "deviceId cannot be null")
     @Min(value = 0, message = "deviceId cannot be negative")
     Long deviceId,
 

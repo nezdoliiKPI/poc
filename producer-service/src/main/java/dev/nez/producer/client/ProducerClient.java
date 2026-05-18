@@ -84,6 +84,10 @@ public class ProducerClient {
             return isRunning.get();
         }
 
+        public Long getDeviceId() {
+            return producer.deviceId;
+        }
+
         private DeviceSession init() {
             Uni.createFrom().voidItem()
                 .chain(this::register)

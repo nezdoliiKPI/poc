@@ -106,20 +106,6 @@
             margin-bottom: 36px;
         }
 
-        .brand-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 14px;
-            background: linear-gradient(135deg, var(--accent), var(--cyan));
-            border-radius: var(--r-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 22px;
-            box-shadow: 0 8px 16px var(--accent-glow);
-        }
-
         .brand h1 {
             font-size: 22px;
             font-weight: 700;
@@ -236,18 +222,6 @@
             gap: 10px;
         }
 
-        .topbar-icon {
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, var(--accent), var(--cyan));
-            border-radius: var(--r-sm);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
         .topbar-brand h2 {
             font-size: 16px;
             font-weight: 600;
@@ -258,11 +232,6 @@
             display: flex;
             align-items: center;
             gap: 16px;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .4; }
         }
 
         .btn-logout {
@@ -308,7 +277,7 @@
         /* Tabs */
         .tab-bar {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             border-bottom: 1px solid var(--border);
             background: #f8fafc;
         }
@@ -326,7 +295,7 @@
             position: relative;
         }
 
-        .tab-btn:first-child { border-right: 1px solid var(--border); }
+        .tab-btn:not(:last-child) { border-right: 1px solid var(--border); }
 
         .tab-btn.active {
             color: var(--accent);
@@ -356,6 +325,7 @@
 
         .gen-cols  { grid-template-columns: 2fr 1.6fr 148px; }
         .filt-cols { grid-template-columns: 2fr 90px 90px 148px; }
+        .thresh-cols { grid-template-columns: minmax(180px, 1fr) 2fr; gap: 24px; align-items: center; max-width: 560px; margin: 0 auto; }
 
         .th {
             font-size: 11px;
@@ -463,6 +433,61 @@
 
         .spin-btns button:first-child { border-bottom: 1px solid var(--border-bright); }
         .spin-btns button:hover { background: var(--border); color: var(--text-primary); }
+
+        /* ─── THRESHOLDS UI CUSTOM COMPONENTS ───────────────── */
+        .select-box {
+            width: 100%;
+            max-width: 220px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-bright);
+            border-radius: var(--r-sm);
+            padding: 9px 14px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px top 50%;
+            background-size: 10px auto;
+            cursor: pointer;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .select-box:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .thresh-input {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-bright);
+            border-radius: var(--r-sm);
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .thresh-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        /* Прибираємо стрілочки (спінери) для полів вводу порогів */
+        .thresh-input::-webkit-inner-spin-button,
+        .thresh-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .thresh-input[type=number] {
+            -moz-appearance: textfield;
+        }
 
         /* Toggle */
         .toggle-cell { display: flex; justify-content: center; }
@@ -691,7 +716,6 @@
 <div class="login-shell" x-show="!loggedIn">
     <div class="login-card">
         <div class="brand">
-            <div class="brand-icon">⚡</div>
             <h1>Producer Panel</h1>
             <p>admin access only</p>
         </div>
@@ -717,7 +741,6 @@
 
     <header class="topbar">
         <div class="topbar-brand">
-            <div class="topbar-icon">⚡</div>
             <h2>Producer Panel</h2>
         </div>
         <div class="topbar-right">
@@ -734,6 +757,9 @@
                 </button>
                 <button class="tab-btn" :class="{ active: tab==='filter' }" @click="tab='filter'">
                     Filter Settings
+                </button>
+                <button class="tab-btn" :class="{ active: tab==='thresholds' }" @click="tab='thresholds'">
+                    Threshold Settings
                 </button>
             </div>
 
@@ -859,7 +885,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="tab-panel" x-show="tab==='filter'">
@@ -947,11 +972,141 @@
                 </template>
             </div>
 
+            <div class="tab-panel" x-show="tab==='thresholds'">
+
+                <div style="margin-bottom: 28px;">
+                    <select x-model="thresholdType" class="select-box">
+                        <option value="power">Power</option>
+                        <option value="air">Air Quality</option>
+                        <option value="battery">Battery</option>
+                        <option value="smoke">Smoke</option>
+                        <option value="temperature">Temperature</option>
+                    </select>
+                </div>
+
+                <div class="tbl-head thresh-cols">
+                    <div class="th">Field name</div>
+                    <div class="th">Value</div>
+                </div>
+
+                <div class="group" style="padding-top: 12px; padding-bottom: 12px;">
+
+                    <div class="row thresh-cols">
+                        <div class="dev-name">Device ID</div>
+                        <div>
+                            <input type="number" class="thresh-input" x-model.number="thresholds[thresholdType].deviceId" placeholder="0 for global">
+                        </div>
+                    </div>
+
+                    <template x-if="thresholdType === 'power'">
+                        <div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Min Voltage (V)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.power.minVoltage" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Voltage (V)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.power.maxVoltage" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Current (A)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.power.maxCurrent" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Power (kW)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.power.maxPower" step="any"></div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="thresholdType === 'air'">
+                        <div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max CO2 (ppm)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.maxCo2"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max PM2.5 (µg/m³)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.maxPm25" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max PM10 (µg/m³)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.maxPm10" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max TVOC (mg/m³)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.maxTvoc" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Min Temperature (°C)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.minTemperature" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Temperature (°C)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.maxTemperature" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Min Humidity (%)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.minHumidity" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Humidity (%)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.air.maxHumidity" step="any"></div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="thresholdType === 'battery'">
+                        <div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Min Battery Level (%)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.battery.minBatteryLevel" step="any"></div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="thresholdType === 'smoke'">
+                        <div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Smoke (Raw)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.smoke.maxSmokeRaw"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max CO Level (ppm)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.smoke.maxCoLevel"></div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="thresholdType === 'temperature'">
+                        <div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Min Temperature (°C)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.temperature.minTemperature" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Temperature (°C)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.temperature.maxTemperature" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Min Humidity (%)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.temperature.minHumidity" step="any"></div>
+                            </div>
+                            <div class="row thresh-cols">
+                                <div class="dev-name">Max Humidity (%)</div>
+                                <div><input type="number" class="thresh-input" x-model.number="thresholds.temperature.maxHumidity" step="any"></div>
+                            </div>
+                        </div>
+                    </template>
+
+                </div>
+            </div>
+
             <div class="panel-footer">
                 <button class="btn-apply" @click="apply()" :disabled="loading">
-                    <span x-show="!loading">APPLY</span>
+                    <span x-show="!loading" x-text="tab === 'thresholds' ? 'SET THRESHOLDS' : 'APPLY'"></span>
                     <span x-show="loading" style="display:flex;align-items:center;gap:8px">
-                        <span class="spin"></span> APPLYING...
+                        <span class="spin"></span> <span x-text="tab === 'thresholds' ? 'SAVING...' : 'APPLYING...'"></span>
                     </span>
                 </button>
                 <div class="stats-line"
@@ -984,17 +1139,15 @@
             toasts: [],
             totalMps: null,
 
+            // Generation form state
             gen: {
-                powerProtoCount: 1,
-                powerJsonCount:  1,
-                smokeProtoCount: 1,
-                smokeJsonCount:  1,
-                airProtoCount:   1,
-                airJsonCount:    1,
-                tempProtoCount:  1,
-                tempJsonCount:   1,
+                powerProtoCount: 1, powerJsonCount: 1,
+                smokeProtoCount: 1, smokeJsonCount: 1,
+                airProtoCount: 1,   airJsonCount: 1,
+                tempProtoCount: 1,  tempJsonCount: 1,
             },
 
+            // Filter form state
             filterGroups: [
                 [
                     { topics: ['dev/power/p'], consume: true, optimize: true, threshold: 0 },
@@ -1008,12 +1161,21 @@
                     { topics: ['dev/air/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 0 },
                     { topics: ['dev/air/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 0 },
                 ],
-                // NEW: Added Temperature block
                 [
                     { topics: ['dev/temp/p', 'dev/batt/p'], consume: true, optimize: true, threshold: 0 },
                     { topics: ['dev/temp/j', 'dev/batt/j'], consume: true, optimize: true, threshold: 0 },
                 ],
             ],
+
+            // Thresholds form state
+            thresholdType: 'power',
+            thresholds: {
+                power: { deviceId: 0, minVoltage: 190.0, maxVoltage: 250.0, maxCurrent: 16.0, maxPower: 3.5 },
+                air: { deviceId: 0, maxCo2: 1000, maxPm25: 25.0, maxPm10: 50.0, maxTvoc: 0.5, minTemperature: 15.0, maxTemperature: 30.0, minHumidity: 30.0, maxHumidity: 60.0 },
+                battery: { deviceId: 0, minBatteryLevel: 15.0 },
+                smoke: { deviceId: 0, maxSmokeRaw: 300, maxCoLevel: 50 },
+                temperature: { deviceId: 0, minTemperature: 5.0, maxTemperature: 35.0, minHumidity: 20.0, maxHumidity: 80.0 }
+            },
 
             /* ── Init: restore session ── */
             init() {
@@ -1074,7 +1236,8 @@
                 this.loading = true;
                 try {
                     if (this.tab === 'gen') await this.applyGen();
-                    else                     await this.applyFilter();
+                    else if (this.tab === 'filter') await this.applyFilter();
+                    else if (this.tab === 'thresholds') await this.applyThresholds();
                 } finally {
                     this.loading = false;
                 }
@@ -1140,6 +1303,31 @@
 
                 if (failed.length === 0) {
                     this.toast('Filter settings applied.', 'success');
+                }
+            },
+
+            /* ── Threshold settings ── */
+            async applyThresholds() {
+                const payload = this.thresholds[this.thresholdType];
+
+                try {
+                    const resp = await fetch(`/api/panel/thresholds/${this.thresholdType}`, {
+                        method:  'POST',
+                        headers: {
+                            'Content-Type':  'application/json',
+                            'Authorization': this.auth,
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (resp.status === 401) { this.expiredSession(); return; }
+                    if (!resp.ok) {
+                        await this.handleErrorResponse(resp);
+                        return;
+                    }
+                    this.toast(`${this.thresholdType.toUpperCase()} thresholds updated successfully.`, 'success');
+                } catch (e) {
+                    this.toast('Network error while updating thresholds.', 'error');
                 }
             },
 

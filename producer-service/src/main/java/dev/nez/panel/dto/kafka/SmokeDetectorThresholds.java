@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 @RegisterForReflection
 public record SmokeDetectorThresholds(
-    @NotNull(message = "deviceId cannot be null")
     @Min(value = 0, message = "deviceId cannot be negative")
     Long deviceId,
 

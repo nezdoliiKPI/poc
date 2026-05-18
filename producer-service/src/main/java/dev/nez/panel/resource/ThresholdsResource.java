@@ -1,6 +1,8 @@
 package dev.nez.panel.resource;
 
 import dev.nez.panel.dto.kafka.*;
+import dev.nez.producer.simulation.SimulationConfig;
+import dev.nez.producer.simulation.Simulations;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.inject.Inject;
@@ -20,6 +22,12 @@ import jakarta.annotation.security.RolesAllowed;
 @RolesAllowed("admin")
 @Consumes(MediaType.APPLICATION_JSON)
 public class ThresholdsResource {
+
+    @Inject
+    SimulationConfig config;
+
+    @Inject
+    Simulations simulations;
 
     @Inject
     @Channel("air-thresholds-out")
@@ -46,7 +54,14 @@ public class ThresholdsResource {
     @RunOnVirtualThread
     public RestResponse<Void> updateAirThresholds(@Valid AirQualityThresholds thresholds) {
         final var emitter = airEmitter;
-        sendMessage(thresholds, thresholds.deviceId(), emitter);
+
+        if (thresholds.deviceId() != null) {
+            sendMessage(thresholds, thresholds.deviceId(), emitter);
+        } else {
+            sendMessages(thresholds, config.air().proto().topic(), emitter);
+            sendMessages(thresholds, config.air().json().topic(), emitter);
+        }
+
         return RestResponse.ok();
     }
 
@@ -55,7 +70,14 @@ public class ThresholdsResource {
     @RunOnVirtualThread
     public RestResponse<Void> updateBatteryThresholds(@Valid BatteryThresholds thresholds) {
         final var emitter = batteryEmitter;
-        sendMessage(thresholds, thresholds.deviceId(), emitter);
+
+        if (thresholds.deviceId() != null) {
+            sendMessage(thresholds, thresholds.deviceId(), emitter);
+        } else {
+            sendMessages(thresholds, config.battery().proto().topic(), emitter);
+            sendMessages(thresholds, config.battery().json().topic(), emitter);
+        }
+
         return RestResponse.ok();
     }
 
@@ -64,7 +86,14 @@ public class ThresholdsResource {
     @RunOnVirtualThread
     public RestResponse<Void> updatePowerThresholds(@Valid PowerThresholds thresholds) {
         final var emitter  = powerEmitter;
-        sendMessage(thresholds, thresholds.deviceId(), emitter);
+
+        if (thresholds.deviceId() != null) {
+            sendMessage(thresholds, thresholds.deviceId(), emitter);
+        } else {
+            sendMessages(thresholds, config.power().proto().topic(), emitter);
+            sendMessages(thresholds, config.power().json().topic(), emitter);
+        }
+
         return RestResponse.ok();
     }
 
@@ -73,7 +102,14 @@ public class ThresholdsResource {
     @RunOnVirtualThread
     public RestResponse<Void> updateSmokeThresholds(@Valid SmokeDetectorThresholds thresholds) {
         final var emitter = smokeEmitter;
-        sendMessage(thresholds, thresholds.deviceId(), emitter);
+
+        if (thresholds.deviceId() != null) {
+            sendMessage(thresholds, thresholds.deviceId(), emitter);
+        } else {
+            sendMessages(thresholds, config.smoke().proto().topic(), emitter);
+            sendMessages(thresholds, config.smoke().json().topic(), emitter);
+        }
+
         return RestResponse.ok();
     }
 
@@ -82,7 +118,14 @@ public class ThresholdsResource {
     @RunOnVirtualThread
     public RestResponse<Void> updateTemperatureThresholds(@Valid TemperatureThresholds thresholds) {
         final var emitter  = tempEmitter;
-        sendMessage(thresholds, thresholds.deviceId(), emitter);
+
+        if (thresholds.deviceId() != null) {
+            sendMessage(thresholds, thresholds.deviceId(), emitter);
+        } else {
+            sendMessages(thresholds, config.temp().proto().topic(), emitter);
+            sendMessages(thresholds, config.temp().json().topic(), emitter);
+        }
+
         return RestResponse.ok();
     }
 
@@ -92,5 +135,13 @@ public class ThresholdsResource {
             .build();
 
         emitter.send(Message.of(thresholds).addMetadata(kafkaMetadata));
+    }
+
+    private <T>  void sendMessages(T thresholds, String topic, Emitter<T> emitter) {
+        final var ids = simulations.getSessionIds(topic);
+
+        for (var deviceId : ids) {
+            sendMessage(thresholds, deviceId, emitter);
+        }
     }
 }
