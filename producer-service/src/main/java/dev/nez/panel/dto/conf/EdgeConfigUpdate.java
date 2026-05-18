@@ -1,4 +1,4 @@
-package dev.nez.panel.dto;
+package dev.nez.panel.dto.conf;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

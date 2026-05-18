@@ -4,12 +4,12 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
 public record AirQualityThresholds(
-    int maxCo2,
-    float maxPm25,
-    float maxPm10,
-    float maxTvoc,
-    float minTemperature,
-    float maxTemperature,
-    float minHumidity,
-    float maxHumidity
+    Integer maxCo2,
+    Float maxPm25,
+    Float maxPm10,
+    Float maxTvoc,
+    Float minTemperature,
+    Float maxTemperature,
+    Float minHumidity,
+    Float maxHumidity
 ) {}

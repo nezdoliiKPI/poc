@@ -88,7 +88,6 @@ public class ProducerClient {
             Uni.createFrom().voidItem()
                 .chain(this::register)
                 .chain(this::login)
-                .chain(this::setTreshold)
                 .chain(this::connectAndSchedule)
                 .subscribe().with(
                     _ -> Log.debug("Device session has been initialized for device: " + producer.deviceId),
@@ -132,24 +131,6 @@ public class ProducerClient {
                     producer.token = loginResponse.token();
                 })
                 .replaceWithVoid();
-        }
-
-        //TODO
-        private Uni<Void> setTreshold() {
-            return switch (producer) {
-//                case PowerDataGenerator g -> {
-//                    final var defaultThresholds = new PowerThresholdsRequest(
-//                        producer.deviceId,
-//                        207.0f,
-//                        253.0f,
-//                        16.0f,
-//                        3680.0f
-//                    );
-//
-//                    yield authClient.setThresholds(defaultThresholds).replaceWithVoid();
-//                }
-                default -> Uni.createFrom().voidItem();
-            };
         }
 
         private Uni<Void> connectAndSchedule() {

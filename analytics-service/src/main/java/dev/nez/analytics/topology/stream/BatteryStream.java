@@ -3,10 +3,10 @@ package dev.nez.analytics.topology.stream;
 import dev.nez.alert.AlertDeserializer;
 import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.BatteryAnalyzer;
+import dev.nez.analytics.data.JsonDeserializer;
+import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.battery.BatteryDataDeserializer;
 import dev.nez.analytics.data.battery.BatteryDataSerializer;
-import dev.nez.analytics.data.battery.BatteryThresholdsDeserializer;
-import dev.nez.analytics.data.battery.BatteryThresholdsSerializer;
 import dev.nez.analytics.data.battery.BatteryThresholds;
 
 import dev.nez.dto.proto.timeddata.BatteryData;
@@ -44,8 +44,8 @@ public class BatteryStream {
             new BatteryDataDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(
-            new BatteryThresholdsSerializer(),
-            new BatteryThresholdsDeserializer()
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(BatteryThresholds.class)
         );
 
         final KTable<Long, BatteryThresholds> thresholdsTable = builder.table(

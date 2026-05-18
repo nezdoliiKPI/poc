@@ -3,6 +3,8 @@ package dev.nez.analytics.topology.stream;
 import dev.nez.alert.AlertDeserializer;
 import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.SmokeDetectorAnalyzer;
+import dev.nez.analytics.data.JsonDeserializer;
+import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.smoke.*;
 
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
@@ -40,8 +42,8 @@ public class SmokeDetectorStream {
             new SmokeDetectorDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(
-            new SmokeDetectorThresholdsSerializer(),
-            new SmokeDetectorThresholdsDeserializer()
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(SmokeDetectorThresholds.class)
         );
 
         final KTable<Long, SmokeDetectorThresholds> thresholdsTable = builder.table(

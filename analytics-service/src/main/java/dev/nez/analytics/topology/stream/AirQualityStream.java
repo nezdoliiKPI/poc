@@ -2,6 +2,8 @@ package dev.nez.analytics.topology.stream;
 import dev.nez.alert.AlertDeserializer;
 import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.AirQualityAnalyzer;
+import dev.nez.analytics.data.JsonDeserializer;
+import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.air.*;
 
 import dev.nez.dto.proto.timeddata.AirQualityData;
@@ -39,8 +41,8 @@ public class AirQualityStream {
             new AirQualityDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(
-            new AirQualityThresholdsSerializer(),
-            new AirQualityThresholdsDeserializer()
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(AirQualityThresholds.class)
         );
 
         final KTable<Long, AirQualityThresholds> thresholdsTable = builder.table(

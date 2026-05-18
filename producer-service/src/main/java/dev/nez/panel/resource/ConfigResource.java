@@ -1,7 +1,8 @@
-package dev.nez.panel;
+package dev.nez.panel.resource;
 
-import dev.nez.panel.dto.EdgeConfigUpdate;
-import dev.nez.panel.dto.ProducerConfigUpdate;
+import dev.nez.panel.EdgeConfigClient;
+import dev.nez.panel.dto.conf.EdgeConfigUpdate;
+import dev.nez.panel.dto.conf.ProducerConfigUpdate;
 
 import dev.nez.producer.simulation.SimulationConfig;
 import dev.nez.producer.simulation.Simulator;
@@ -9,7 +10,6 @@ import dev.nez.producer.simulation.Simulator;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 
 import io.smallrye.faulttolerance.api.RateLimit;
-import io.smallrye.faulttolerance.api.RateLimitException;
 import io.vertx.core.eventbus.EventBus;
 
 import jakarta.annotation.security.RolesAllowed;
@@ -22,18 +22,17 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.faulttolerance.Bulkhead;
-import org.eclipse.microprofile.faulttolerance.exceptions.BulkheadException;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.RestResponse;
-import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
-import java.io.InputStream;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Path("/api/panel/update")
+@RolesAllowed("admin")
+@Consumes(MediaType.APPLICATION_JSON)
 public class ConfigResource {
 
     @Inject
@@ -44,21 +43,10 @@ public class ConfigResource {
 
     @Inject
     @RestClient
-    EdgeConfigClient  edgeConfigClient;
-
-    @GET
-    @Path("/page")
-    @Produces(MediaType.TEXT_HTML)
-    @RunOnVirtualThread
-    @Bulkhead(value = 1)
-    public InputStream getPanelPage() {
-        return getClass().getResourceAsStream("/META-INF/resources/index.html");
-    }
+    EdgeConfigClient edgeConfigClient;
 
     @GET
     @Path("/verify")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed("admin")
     @RunOnVirtualThread
     @Bulkhead(value = 1)
     public RestResponse<Void> verifyAuth() {
@@ -67,8 +55,6 @@ public class ConfigResource {
 
     @POST
     @Path("/gen")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed("admin")
     @RunOnVirtualThread
     @RateLimit(value = 1, window = 500, windowUnit = ChronoUnit.MILLIS)
     public RestResponse<Float> updateGenerate(@Valid ProducerConfigUpdate request) {
@@ -96,27 +82,9 @@ public class ConfigResource {
 
     @POST
     @Path("/edge")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed("admin")
     @RunOnVirtualThread
     @Bulkhead(value = 1)
     public RestResponse<Void> updateEdge(EdgeConfigUpdate request) {
         return edgeConfigClient.updateConfig(request);
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<String> mapBulkheadException(BulkheadException ex) {
-        return RestResponse.status(
-            RestResponse.Status.TOO_MANY_REQUESTS,
-            "Your request is currently being processed. Please try again later."
-        );
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<String> handleRateLimit(RateLimitException ex) {
-        return RestResponse.status(
-            RestResponse.Status.TOO_MANY_REQUESTS,
-            "Too Many Requests: Please slow down."
-        );
     }
 }

@@ -3,6 +3,8 @@ package dev.nez.analytics.topology.stream;
 import dev.nez.alert.AlertDeserializer;
 import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.TemperatureAnalyzer;
+import dev.nez.analytics.data.JsonDeserializer;
+import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.temperature.*;
 
 import dev.nez.analytics.data.temperature.TemperatureDeserializer;
@@ -42,8 +44,8 @@ public class TemperatureStream {
             new TemperatureDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(
-            new TemperatureThresholdsSerializer(),
-            new TemperatureThresholdsDeserializer()
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(TemperatureThresholds.class)
         );
 
         final KTable<Long, TemperatureThresholds> thresholdsTable = builder.table(

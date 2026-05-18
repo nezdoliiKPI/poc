@@ -4,8 +4,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
 public record TemperatureThresholds(
-    float minTemperature,
-    float maxTemperature,
-    float minHumidity,
-    float maxHumidity
+    Float minTemperature,
+    Float maxTemperature,
+    Float minHumidity,
+    Float maxHumidity
 ) {}

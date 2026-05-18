@@ -3,11 +3,12 @@ package dev.nez.analytics.topology.stream;
 import dev.nez.alert.AlertDeserializer;
 import dev.nez.alert.AlertSerializer;
 import dev.nez.analytics.analyzer.PowerConsumptionAnalyzer;
+import dev.nez.analytics.data.JsonDeserializer;
+import dev.nez.analytics.data.JsonSerializer;
+import dev.nez.analytics.data.battery.BatteryThresholds;
 import dev.nez.analytics.data.power.PowerConsumptionDeserializer;
-import dev.nez.analytics.data.power.PowerThresholdsDeserializer;
 import dev.nez.analytics.data.power.PowerThresholds;
 import dev.nez.analytics.data.power.PowerConsumptionSerializer;
-import dev.nez.analytics.data.power.PowerThresholdsSerializer;
 
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 
@@ -48,8 +49,8 @@ public class PowerConsumptionStream {
             new PowerConsumptionDeserializer()
         );
         final var thresholdsSerde = Serdes.serdeFrom(
-            new PowerThresholdsSerializer(),
-            new PowerThresholdsDeserializer()
+            new JsonSerializer<>(),
+            new JsonDeserializer<>(PowerThresholds.class)
         );
 
         final KTable<Long, PowerThresholds> thresholdsTable = builder.table(

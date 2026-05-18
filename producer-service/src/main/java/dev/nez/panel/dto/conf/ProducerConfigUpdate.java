@@ -1,4 +1,4 @@
-package dev.nez.panel.dto;
+package dev.nez.panel.dto.conf;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

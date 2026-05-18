@@ -1,6 +1,6 @@
 package dev.nez.panel;
 
-import dev.nez.panel.dto.EdgeConfigUpdate;
+import dev.nez.panel.dto.conf.EdgeConfigUpdate;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
