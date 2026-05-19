@@ -5,6 +5,8 @@ import dev.nez.analytics.data.battery.BatteryThresholds;
 import dev.nez.dto.proto.timeddata.BatteryData;
 import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
+
+import java.time.Instant;
 import java.util.ArrayList;
 
 @Singleton
@@ -32,6 +34,11 @@ public class BatteryAnalyzer {
             return null;
         }
 
-        return new Alert(deviceId, messages);
+        final var instant = Instant.ofEpochSecond(
+            event.getTimestamp().getSeconds(),
+            event.getTimestamp().getNanos()
+        );
+
+        return new Alert(deviceId, messages, instant);
     }
 }

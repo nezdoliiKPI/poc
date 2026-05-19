@@ -5,6 +5,8 @@ import dev.nez.analytics.data.smoke.SmokeDetectorThresholds;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
+
+import java.time.Instant;
 import java.util.ArrayList;
 
 @Singleton
@@ -36,6 +38,11 @@ public class SmokeDetectorAnalyzer {
             return null;
         }
 
-        return new Alert(deviceId, messages);
+        final var instant = Instant.ofEpochSecond(
+            event.getTimestamp().getSeconds(),
+            event.getTimestamp().getNanos()
+        );
+
+        return new Alert(deviceId, messages, instant);
     }
 }

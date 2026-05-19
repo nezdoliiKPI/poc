@@ -15,13 +15,19 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TelegramNotificationService {
-    private static final int MAX_MSG_LENGTH = 4000;
+    private final int MAX_MSG_LENGTH = 2000;
+
+    private final DateTimeFormatter TIME_FORMATTER =
+        DateTimeFormatter.ofPattern("dd.MM HH:mm:ss").withZone(ZoneId.systemDefault());
 
     @ConfigProperty(name = "telegram.bot.token")
     String botToken;
@@ -50,18 +56,25 @@ public class TelegramNotificationService {
 
         return sendToTelegram(
             buildFinalMessage(
-                groupAlertsByDevice(batch)));
+                groupAndDeduplicateAlerts(batch)));
     }
 
-    private Map<Long, List<String>> groupAlertsByDevice(List<Alert> batch) {
+    private Map<Long, Map<String, Instant>> groupAndDeduplicateAlerts(List<Alert> batch) {
         return batch.stream()
             .collect(Collectors.groupingBy(
-                Alert::deviceId,
-                Collectors.flatMapping(alert -> alert.messages().stream(), Collectors.toList())
+                Alert::id,
+                Collectors.flatMapping(
+                    alert -> alert.msg().stream().map(msg -> Map.entry(msg, alert.ts())),
+                    Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (ts1, ts2) -> ts1.isAfter(ts2) ? ts1 : ts2
+                    )
+                )
             ));
     }
 
-    private String buildFinalMessage(Map<Long, List<String>> groupedAlerts) {
+    private String buildFinalMessage(Map<Long, Map<String, Instant>> groupedAlerts) {
         String detailedMessage = buildDetailedMessage(groupedAlerts);
 
         return detailedMessage.length() <= MAX_MSG_LENGTH
@@ -69,16 +82,21 @@ public class TelegramNotificationService {
             : buildCompactMessage(groupedAlerts);
     }
 
-    private String buildDetailedMessage(Map<Long, List<String>> groupedAlerts) {
+    private String buildDetailedMessage(Map<Long, Map<String, Instant>> groupedAlerts) {
         StringBuilder sb = new StringBuilder();
         sb.append("<b>Alerts</b>\n\n");
 
-        for (Map.Entry<Long, List<String>> entry : groupedAlerts.entrySet()) {
+        for (Map.Entry<Long, Map<String, Instant>> entry : groupedAlerts.entrySet()) {
             sb.append("<b>Dev ID: ").append(entry.getKey()).append("</b>\n");
 
-            entry.getValue().stream()
-                .distinct()
-                .forEach(msg -> sb.append("  • ").append(msg).append("\n"));
+            entry.getValue().forEach(
+                (msg, ts) -> sb
+                        .append("  • [")
+                        .append(TIME_FORMATTER.format(ts))
+                        .append("] ")
+                        .append(msg)
+                        .append("\n")
+                );
 
             sb.append("\n");
         }
@@ -86,12 +104,13 @@ public class TelegramNotificationService {
         return sb.toString().trim();
     }
 
-    private String buildCompactMessage(Map<Long, List<String>> groupedAlerts) {
+    private String buildCompactMessage(Map<Long, Map<String, Instant>> groupedAlerts) {
         StringBuilder sb = new StringBuilder();
         sb.append("<b>Alerts</b>\n\n");
         sb.append("Too many alerts to display, Device IDs:\n\n");
 
         String idsList = groupedAlerts.keySet().stream()
+            .sorted()
             .map(Object::toString)
             .collect(Collectors.joining(", "));
 

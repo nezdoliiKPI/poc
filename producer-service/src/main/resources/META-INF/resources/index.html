@@ -1013,7 +1013,7 @@
                                 <div><input type="number" class="thresh-input" x-model.number="thresholds.power.maxCurrent" step="any"></div>
                             </div>
                             <div class="row thresh-cols">
-                                <div class="dev-name">Max Power (kW)</div>
+                                <div class="dev-name">Max Power (W)</div>
                                 <div><input type="number" class="thresh-input" x-model.number="thresholds.power.maxPower" step="any"></div>
                             </div>
                         </div>
@@ -1170,11 +1170,11 @@
             // Thresholds form state
             thresholdType: 'power',
             thresholds: {
-                power: { deviceId: 0, minVoltage: 190.0, maxVoltage: 250.0, maxCurrent: 16.0, maxPower: 3.5 },
-                air: { deviceId: 0, maxCo2: 1000, maxPm25: 25.0, maxPm10: 50.0, maxTvoc: 0.5, minTemperature: 15.0, maxTemperature: 30.0, minHumidity: 30.0, maxHumidity: 60.0 },
-                battery: { deviceId: 0, minBatteryLevel: 15.0 },
-                smoke: { deviceId: 0, maxSmokeRaw: 300, maxCoLevel: 50 },
-                temperature: { deviceId: 0, minTemperature: 5.0, maxTemperature: 35.0, minHumidity: 20.0, maxHumidity: 80.0 }
+                power: { deviceId: null, minVoltage: 190.0, maxVoltage: 250.0, maxCurrent: 16.0, maxPower: 3.5 },
+                air: { deviceId: null, maxCo2: 1000, maxPm25: 25.0, maxPm10: 50.0, maxTvoc: 0.5, minTemperature: 15.0, maxTemperature: 30.0, minHumidity: 30.0, maxHumidity: 60.0 },
+                battery: { deviceId: null, minBatteryLevel: 15.0 },
+                smoke: { deviceId: null, maxSmokeRaw: 300, maxCoLevel: 50 },
+                temperature: { deviceId: null, minTemperature: 5.0, maxTemperature: 35.0, minHumidity: 20.0, maxHumidity: 80.0 }
             },
 
             /* ── Init: restore session ── */

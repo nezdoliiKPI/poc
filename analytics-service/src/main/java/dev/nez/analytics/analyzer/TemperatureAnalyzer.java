@@ -5,6 +5,8 @@ import dev.nez.analytics.data.temperature.TemperatureThresholds;
 import dev.nez.dto.proto.timeddata.TemperatureData;
 import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
+
+import java.time.Instant;
 import java.util.ArrayList;
 
 @Singleton
@@ -41,6 +43,11 @@ public class TemperatureAnalyzer {
             return null;
         }
 
-        return new Alert(deviceId, messages);
+        final var instant = Instant.ofEpochSecond(
+            event.getTimestamp().getSeconds(),
+            event.getTimestamp().getNanos()
+        );
+
+        return new Alert(deviceId, messages, instant);
     }
 }

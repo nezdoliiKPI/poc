@@ -982,7 +982,7 @@
               }
             ]
           },
-          "unit": "recps"
+          "unit": "batch/sec"
         },
         "overrides": []
       },
@@ -1383,7 +1383,7 @@
               }
             ]
           },
-          "unit": "recps"
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -1393,7 +1393,7 @@
         "x": 8,
         "y": 37
       },
-      "id": 47,
+      "id": 46,
       "interval": "10s",
       "options": {
         "legend": {
@@ -1412,13 +1412,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(kafka_producer_record_send_total{client_id=~\"^analytics-service.*\"}[30s]))",
+          "expr": "avg(kafka_stream_processor_node_record_e2e_latency_avg{thread_id=~\"^analytics-service.*\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Analytics Throughput (by threshold)",
+      "title": "Analityc delay",
       "type": "timeseries"
     },
     {
@@ -1519,109 +1519,12 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 45
-      },
-      "id": 46,
-      "interval": "10s",
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.4.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "avg(kafka_stream_processor_node_record_e2e_latency_avg{thread_id=~\"^analytics-service.*\"})",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Analityc delay",
-      "type": "timeseries"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 45
       },
       "id": 15,
       "panels": [],
@@ -1691,7 +1594,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 54
+        "y": 46
       },
       "id": 20,
       "interval": "10s",
@@ -1784,7 +1687,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 54
+        "y": 46
       },
       "id": 21,
       "interval": "10s",
@@ -1854,7 +1757,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 54
+        "y": 46
       },
       "id": 19,
       "interval": "10s",
@@ -1957,7 +1860,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 62
+        "y": 54
       },
       "id": 22,
       "interval": "10s",
@@ -2049,7 +1952,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 62
+        "y": 54
       },
       "id": 16,
       "interval": "10s",
@@ -2080,12 +1983,105 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 54
+      },
+      "id": 49,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "rate(vectorized_network_bytes_received{group=\"kafka\"}[30s])",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Inbound Traffic",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 62
       },
       "id": 23,
       "panels": [],
@@ -2155,7 +2151,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 71
+        "y": 63
       },
       "id": 24,
       "interval": "10s",
@@ -2247,7 +2243,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 71
+        "y": 63
       },
       "id": 40,
       "interval": "10s",
@@ -2315,7 +2311,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 71
+        "y": 63
       },
       "id": 30,
       "interval": "5s",
@@ -2415,7 +2411,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 79
+        "y": 71
       },
       "id": 25,
       "interval": "10s",
@@ -2508,7 +2504,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 79
+        "y": 71
       },
       "id": 26,
       "interval": "10s",
@@ -2600,7 +2596,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 87
+        "y": 79
       },
       "id": 28,
       "interval": "10s",
@@ -2692,7 +2688,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 87
+        "y": 79
       },
       "id": 29,
       "interval": "10s",
@@ -2728,7 +2724,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 95
+        "y": 87
       },
       "id": 31,
       "panels": [],
@@ -2798,7 +2794,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 96
+        "y": 88
       },
       "id": 33,
       "interval": "10s",
@@ -2891,7 +2887,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 96
+        "y": 88
       },
       "id": 34,
       "interval": "10s",
@@ -2982,8 +2978,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
-        "y": 104
+        "x": 16,
+        "y": 88
       },
       "id": 35,
       "interval": "10s",
@@ -3067,7 +3063,101 @@
                 "value": 0
               }
             ]
-          }
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 96
+      },
+      "id": 47,
+      "interval": "5s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "none",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by(instance) (broker_load_bytes_received_1min)",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Inbound Traffic",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -3075,7 +3165,99 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 104
+        "y": 96
+      },
+      "id": 48,
+      "interval": "5s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "none",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "editorMode": "builder",
+          "expr": "sum by(instance) (broker_load_bytes_sent_1min)",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Outbound Traffic",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 96
       },
       "id": 32,
       "interval": "10s",
@@ -3114,9 +3296,13 @@
     "list": [
       {
         "current": {
-          "text": "All",
+          "text": [
+            "power-j-in",
+            "power-p-in"
+          ],
           "value": [
-            "$__all"
+            "power-j-in",
+            "power-p-in"
           ]
         },
         "datasource": {
@@ -3140,7 +3326,9 @@
       },
       {
         "current": {
-          "text": "All",
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]
@@ -3166,9 +3354,19 @@
       },
       {
         "current": {
-          "text": "All",
+          "text": [
+            "air-in",
+            "batt-in",
+            "power-in",
+            "smoke-in",
+            "temp-in"
+          ],
           "value": [
-            "$__all"
+            "air-in",
+            "batt-in",
+            "power-in",
+            "smoke-in",
+            "temp-in"
           ]
         },
         "datasource": {
@@ -3200,6 +3398,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 19,
+  "version": 23,
   "weekStart": ""
 }

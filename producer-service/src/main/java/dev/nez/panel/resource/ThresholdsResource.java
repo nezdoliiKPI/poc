@@ -3,7 +3,9 @@ package dev.nez.panel.resource;
 import dev.nez.panel.dto.kafka.*;
 import dev.nez.producer.simulation.SimulationConfig;
 import dev.nez.producer.simulation.Simulations;
+import io.quarkus.logging.Log;
 import io.smallrye.common.annotation.RunOnVirtualThread;
+import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -12,7 +14,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.jboss.resteasy.reactive.RestResponse;
 
@@ -31,23 +32,23 @@ public class ThresholdsResource {
 
     @Inject
     @Channel("air-thresholds-out")
-    Emitter<AirQualityThresholds> airEmitter;
+    MutinyEmitter<AirQualityThresholds> airEmitter;
 
     @Inject
     @Channel("battery-thresholds-out")
-    Emitter<BatteryThresholds> batteryEmitter;
+    MutinyEmitter<BatteryThresholds> batteryEmitter;
 
     @Inject
     @Channel("power-thresholds-out")
-    Emitter<PowerThresholds> powerEmitter;
+    MutinyEmitter<PowerThresholds> powerEmitter;
 
     @Inject
     @Channel("smoke-thresholds-out")
-    Emitter<SmokeDetectorThresholds> smokeEmitter;
+    MutinyEmitter<SmokeDetectorThresholds> smokeEmitter;
 
     @Inject
     @Channel("temperature-thresholds-out")
-    Emitter<TemperatureThresholds> tempEmitter;
+    MutinyEmitter<TemperatureThresholds> tempEmitter;
 
     @POST
     @Path("/air")
@@ -129,15 +130,15 @@ public class ThresholdsResource {
         return RestResponse.ok();
     }
 
-    private <T>  void sendMessage(T thresholds, Long deviceId, Emitter<T> emitter) {
+    private <T>  void sendMessage(T thresholds, Long deviceId, MutinyEmitter<T> emitter) {
         var kafkaMetadata = OutgoingKafkaRecordMetadata.<Long>builder()
             .withKey(deviceId)
             .build();
 
-        emitter.send(Message.of(thresholds).addMetadata(kafkaMetadata));
+        emitter.sendMessageAndAwait(Message.of(thresholds).addMetadata(kafkaMetadata));
     }
 
-    private <T>  void sendMessages(T thresholds, String topic, Emitter<T> emitter) {
+    private <T>  void sendMessages(T thresholds, String topic, MutinyEmitter<T> emitter) {
         final var ids = simulations.getSessionIds(topic);
 
         for (var deviceId : ids) {

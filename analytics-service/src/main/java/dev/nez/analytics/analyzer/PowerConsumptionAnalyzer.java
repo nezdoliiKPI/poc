@@ -8,6 +8,7 @@ import io.quarkus.logging.Log;
 import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
 
+import java.time.Instant;
 import java.util.ArrayList;
 
 @Singleton
@@ -39,7 +40,7 @@ public class PowerConsumptionAnalyzer {
                 messages.add(String.format("A: %.1f (> %.1f)", current, thresholds.maxCurrent()));
             }
             if (power > thresholds.maxPower()) {
-                messages.add(String.format("kW: %.2f (> %.2f)", power, thresholds.maxPower()));
+                messages.add(String.format("W: %.2f (> %.2f)", power, thresholds.maxPower()));
             }
         }
 
@@ -47,6 +48,11 @@ public class PowerConsumptionAnalyzer {
             return null;
         }
 
-        return new Alert(deviceId, messages);
+        final var instant = Instant.ofEpochSecond(
+            event.getTimestamp().getSeconds(),
+            event.getTimestamp().getNanos()
+        );
+
+        return new Alert(deviceId, messages, instant);
     }
 }
