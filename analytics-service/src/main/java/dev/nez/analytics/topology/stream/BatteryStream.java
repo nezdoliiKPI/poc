@@ -7,6 +7,7 @@ import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.battery.BatteryDataDeserializer;
 import dev.nez.analytics.data.battery.BatteryThresholds;
 
+import dev.nez.analytics.filter.NotificationFilter;
 import dev.nez.dto.proto.timeddata.BatteryData;
 
 import dev.nez.notification.Alert;
@@ -20,7 +21,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Singleton
-public class BatteryStream {
+public class BatteryStream extends TelemetryStreamBase {
 
     @ConfigProperty(name = "kafka.topic.battery.events")
     String batteryTopic;
@@ -33,6 +34,11 @@ public class BatteryStream {
 
     @Inject
     BatteryAnalyzer analyzer;
+
+    @Inject
+    public BatteryStream(NotificationFilter notificationFilter) {
+        super(notificationFilter);
+    }
 
     public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
@@ -63,12 +69,10 @@ public class BatteryStream {
         batteryStream
             .join(
                 thresholdsTable,
-                (event, latestThreshold) -> {
-                    return analyzer.checkThreshold(event, latestThreshold);
-                },
+                (event, latestThreshold) -> analyzer.checkThreshold(event, latestThreshold),
                 Joined.with(longSerde, batterySerde, thresholdsSerde)
             )
-            .filter((_, alertMessage) -> alertMessage != null)
+            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

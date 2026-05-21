@@ -5,6 +5,7 @@ import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.air.*;
 
+import dev.nez.analytics.filter.NotificationFilter;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 
 import dev.nez.notification.Alert;
@@ -18,7 +19,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Singleton
-public class AirQualityStream {
+public class AirQualityStream extends TelemetryStreamBase {
 
     @ConfigProperty(name = "kafka.topic.air.events")
     String airQualityTopic;
@@ -31,6 +32,11 @@ public class AirQualityStream {
 
     @Inject
     AirQualityAnalyzer analyzer;
+
+    @Inject
+    public AirQualityStream(NotificationFilter notificationFilter) {
+        super(notificationFilter);
+    }
 
     public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
@@ -61,12 +67,10 @@ public class AirQualityStream {
         airQualityStream
             .join(
                 thresholdsTable,
-                (event, latestThreshold) -> {
-                    return analyzer.checkThreshold(event, latestThreshold);
-                },
+                (event, latestThreshold) -> analyzer.checkThreshold(event, latestThreshold),
                 Joined.with(longSerde, airQualitySerde, thresholdsSerde)
             )
-            .filter((_, alertMessage) -> alertMessage != null)
+            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

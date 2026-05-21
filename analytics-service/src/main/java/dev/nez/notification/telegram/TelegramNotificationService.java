@@ -1,6 +1,7 @@
 package dev.nez.notification.telegram;
 
 import dev.nez.notification.Alert;
+import dev.nez.notification.AlertDeserializer;
 import dev.nez.notification.telegram.TelegramRestClient.TelegramMessage;
 
 import io.quarkus.logging.Log;
@@ -24,10 +25,10 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TelegramNotificationService {
-    private final int MAX_MSG_LENGTH = 2000;
-
     private final DateTimeFormatter TIME_FORMATTER =
-        DateTimeFormatter.ofPattern("dd.MM HH:mm:ss").withZone(ZoneId.systemDefault());
+        DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(ZoneId.systemDefault());
+
+    private final AlertDeserializer deserializer = new AlertDeserializer();
 
     @ConfigProperty(name = "telegram.bot.token")
     String botToken;
@@ -49,78 +50,72 @@ public class TelegramNotificationService {
     }
 
     @Incoming("telegram-in")
-    Uni<Void> handle(List<Alert> batch) {
+    Uni<Void> handle(List<byte[]> batch) {
         if (!useTelegram || batch.isEmpty()) {
             return Uni.createFrom().voidItem();
         }
 
-        return sendToTelegram(
-            buildFinalMessage(
-                groupAndDeduplicateAlerts(batch)));
+        List<Alert> data;
+
+        try {
+            data = batch.stream()
+                .map(alert -> deserializer.deserialize("telegram-in", alert))
+                .toList();
+        } catch (RuntimeException e) {
+            Log.error(e.getMessage());
+            return Uni.createFrom().voidItem();
+        }
+
+        if (data.isEmpty()) {
+            return Uni.createFrom().voidItem();
+        }
+
+        return sendToTelegram(buildFinalMessage(groupAndDeduplicateAlerts(data)));
     }
 
     private Map<Long, Map<String, Instant>> groupAndDeduplicateAlerts(List<Alert> batch) {
         return batch.stream()
             .collect(Collectors.groupingBy(
                 Alert::id,
-                Collectors.flatMapping(
-                    alert -> alert.msg().stream().map(msg -> Map.entry(msg, alert.ts())),
-                    Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (ts1, ts2) -> ts1.isAfter(ts2) ? ts1 : ts2
-                    )
+                Collectors.toMap(
+                    Alert::msg,
+                    Alert::ts,
+                    (ts1, ts2) -> ts1.isAfter(ts2) ? ts1 : ts2
                 )
             ));
     }
 
     private String buildFinalMessage(Map<Long, Map<String, Instant>> groupedAlerts) {
-        String detailedMessage = buildDetailedMessage(groupedAlerts);
-
-        return detailedMessage.length() <= MAX_MSG_LENGTH
-            ? detailedMessage
-            : buildCompactMessage(groupedAlerts);
-    }
-
-    private String buildDetailedMessage(Map<Long, Map<String, Instant>> groupedAlerts) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<b>Alerts</b>\n\n");
+        final int MAX_MSG_LENGTH = 500;
+        final var mainBuilder = new StringBuilder().append("<b>Alerts</b>\n");
 
         for (Map.Entry<Long, Map<String, Instant>> entry : groupedAlerts.entrySet()) {
-            sb.append("<b>Dev ID: ").append(entry.getKey()).append("</b>\n");
+            final var devBuilder = new StringBuilder()
+                .append("<b>Dev ID: ")
+                .append(entry.getKey())
+                .append("</b>\n");
 
-            entry.getValue().forEach(
-                (msg, ts) -> sb
-                        .append("  • [")
-                        .append(TIME_FORMATTER.format(ts))
-                        .append("] ")
-                        .append(msg)
-                        .append("\n")
-                );
+            for (Map.Entry<String, Instant> alertEntry : entry.getValue().entrySet()) {
+                devBuilder
+                    .append("  • [")
+                    .append(TIME_FORMATTER.format(alertEntry.getValue()))
+                    .append("] ")
+                    .append(alertEntry.getKey())
+                    .append("\n");
+            }
 
-            sb.append("\n");
+            if (mainBuilder.length() + devBuilder.length() <= MAX_MSG_LENGTH) {
+                mainBuilder.append("\n");
+                mainBuilder.append(devBuilder);
+            } else  {
+                mainBuilder
+                    .append("\nMessage is too large. Total devices with alerts: ")
+                    .append(groupedAlerts.size());
+                break;
+            }
         }
 
-        return sb.toString().trim();
-    }
-
-    private String buildCompactMessage(Map<Long, Map<String, Instant>> groupedAlerts) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<b>Alerts</b>\n\n");
-        sb.append("Too many alerts to display, Device IDs:\n\n");
-
-        String idsList = groupedAlerts.keySet().stream()
-            .sorted()
-            .map(Object::toString)
-            .collect(Collectors.joining(", "));
-
-        sb.append(idsList);
-
-        if (sb.length() > MAX_MSG_LENGTH) {
-            return sb.substring(0, MAX_MSG_LENGTH - 3) + "...";
-        }
-
-        return sb.toString();
+        return mainBuilder.toString().trim();
     }
 
     private Uni<Void> sendToTelegram(String text) {
@@ -128,7 +123,7 @@ public class TelegramNotificationService {
 
         return telegramRestClient.sendMessage(botToken, message)
             .onFailure().invoke(err -> Log.warnf("Telegram error: %s", err.getMessage()))
-            .onFailure().retry().withBackOff(Duration.ofSeconds(2), Duration.ofSeconds(10)).atMost(3)
+            .onFailure().recoverWithNull()
             .onItem().delayIt().by(Duration.ofSeconds(10))
             .replaceWithVoid();
     }

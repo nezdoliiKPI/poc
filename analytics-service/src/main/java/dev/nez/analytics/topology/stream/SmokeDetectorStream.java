@@ -6,6 +6,7 @@ import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.smoke.*;
 
+import dev.nez.analytics.filter.NotificationFilter;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
 
 import dev.nez.notification.Alert;
@@ -19,7 +20,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Singleton
-public class SmokeDetectorStream {
+public class SmokeDetectorStream extends TelemetryStreamBase {
 
     @ConfigProperty(name = "kafka.topic.smoke.events")
     String smokeTopic;
@@ -32,6 +33,11 @@ public class SmokeDetectorStream {
 
     @Inject
     SmokeDetectorAnalyzer analyzer;
+
+    @Inject
+    public SmokeDetectorStream(NotificationFilter notificationFilter) {
+        super(notificationFilter);
+    }
 
     public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
@@ -62,12 +68,10 @@ public class SmokeDetectorStream {
         smokeStream
             .join(
                 thresholdsTable,
-                (event, latestThreshold) -> {
-                    return analyzer.checkThreshold(event, latestThreshold);
-                },
+                (event, latestThreshold) -> analyzer.checkThreshold(event, latestThreshold),
                 Joined.with(longSerde, smokeSerde, thresholdsSerde)
             )
-            .filter((_, alertMessage) -> alertMessage != null)
+            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

@@ -32,10 +32,13 @@ public class TemperatureDataGenerator extends DeviceDataGenerator {
         final var t = 22.0f;
         final var h = 45.0f;
 
+        final float TEMP_DELTA = 0.5f;
+        final float HUMIDITY_DELTA = 0.5f;
+
         return new Temperature(
             this.deviceId,
-            t + rnd.nextFloat(-1.0f, 1.0f),
-            h + rnd.nextFloat(-2.5f, 2.5f)
+            t + rnd.nextFloat(0, TEMP_DELTA),
+            h + rnd.nextFloat(0, HUMIDITY_DELTA)
         );
     }
 

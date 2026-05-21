@@ -10,6 +10,7 @@ services:
     volumes:
       - ../secrets/admin/credentials.properties:/secrets/admin/credentials.properties:ro
       - ../secrets/jwt:/secrets/jwt:ro
+      - ../secrets/tls:/secrets/tls:ro
     environment:
       - QUARKUS_PROFILE=prod
       - SECRETS_DIR=/secrets
@@ -59,6 +60,8 @@ services:
     volumes:
       - ../secrets/admin/credentials.properties:/secrets/admin/credentials.properties:ro
       - ../secrets/tls/ca.crt:/secrets/tls/ca.crt:ro
+      - ../secrets/jwt:/secrets/jwt:ro
+      - ../secrets/tls:/secrets/tls:ro
     environment:
       - QUARKUS_PROFILE=prod
       - SECRETS_DIR=/secrets

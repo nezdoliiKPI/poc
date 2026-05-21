@@ -3,7 +3,6 @@ package dev.nez.panel.resource;
 import dev.nez.panel.dto.kafka.*;
 import dev.nez.producer.simulation.SimulationConfig;
 import dev.nez.producer.simulation.Simulations;
-import io.quarkus.logging.Log;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;

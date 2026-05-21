@@ -7,6 +7,7 @@ import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.temperature.*;
 
 import dev.nez.analytics.data.temperature.TemperatureDeserializer;
+import dev.nez.analytics.filter.NotificationFilter;
 import dev.nez.dto.proto.timeddata.TemperatureData;
 
 import dev.nez.notification.Alert;
@@ -20,7 +21,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Singleton
-public class TemperatureStream {
+public class TemperatureStream extends TelemetryStreamBase {
 
     @ConfigProperty(name = "kafka.topic.temp.events")
     String tempTopic;
@@ -33,6 +34,11 @@ public class TemperatureStream {
 
     @Inject
     TemperatureAnalyzer analyzer;
+
+    @Inject
+    public TemperatureStream(NotificationFilter notificationFilter) {
+        super(notificationFilter);
+    }
 
     public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
@@ -63,12 +69,10 @@ public class TemperatureStream {
         tempStream
             .join(
                 thresholdsTable,
-                (event, latestThreshold) -> {
-                    return analyzer.checkThreshold(event, latestThreshold);
-                },
+                (event, latestThreshold) -> analyzer.checkThreshold(event, latestThreshold),
                 Joined.with(longSerde, tempSerde, thresholdsSerde)
             )
-            .filter((_, alertMessage) -> alertMessage != null)
+            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

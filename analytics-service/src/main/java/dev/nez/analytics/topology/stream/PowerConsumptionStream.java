@@ -7,6 +7,7 @@ import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.power.PowerConsumptionDeserializer;
 import dev.nez.analytics.data.power.PowerThresholds;
 
+import dev.nez.analytics.filter.NotificationFilter;
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 
 import dev.nez.notification.Alert;
@@ -20,7 +21,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Singleton
-public class PowerConsumptionStream {
+public class PowerConsumptionStream extends TelemetryStreamBase {
 
     @ConfigProperty(name = "kafka.topic.power.events")
     String consumptionTopic;
@@ -33,6 +34,11 @@ public class PowerConsumptionStream {
 
     @Inject
     PowerConsumptionAnalyzer analyzer;
+
+    @Inject
+    public PowerConsumptionStream(NotificationFilter notificationFilter) {
+        super(notificationFilter);
+    }
 
     public void addTopology(StreamsBuilder builder) {
         final var longSerde = Serdes.Long();
@@ -63,12 +69,10 @@ public class PowerConsumptionStream {
         consumptionStream
             .join(
                 thresholdsTable,
-                (consumptionEvent, latestThreshold) -> {
-                    return analyzer.checkThreshold(consumptionEvent, latestThreshold);
-                },
+                (consumptionEvent, latestThreshold) -> analyzer.checkThreshold(consumptionEvent, latestThreshold),
                 Joined.with(longSerde, consumptionSerde, thresholdsSerde)
             )
-            .filter((_, alertMessage) -> alertMessage != null)
+            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

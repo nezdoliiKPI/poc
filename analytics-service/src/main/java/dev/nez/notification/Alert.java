@@ -3,7 +3,6 @@ package dev.nez.notification;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * A record representing an alert in the system.
@@ -15,7 +14,7 @@ import java.util.List;
 @RegisterForReflection
 public record Alert(
     Long id,
-    List<String> msg,
+    String msg,
     Instant ts
 ) {
 }
