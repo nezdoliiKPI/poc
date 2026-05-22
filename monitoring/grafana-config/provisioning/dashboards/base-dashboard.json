@@ -210,7 +210,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(histogram_quantile(0.95, sum by(le) (rate(message_delay_milliseconds_bucket[30s]))))\r\n+ on() \r\n(sum(broker_messages_stored - 53) / sum(rate(broker_publish_messages_sent[30s])))",
+          "expr": "(histogram_quantile(0.95, sum by(le) (rate(message_delay_milliseconds_bucket[30s]))))\r\n+ on() \r\n(sum(broker_messages_stored - 54) / sum(rate(broker_publish_messages_sent[30s])) * 1000)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -2076,99 +2076,6 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "decbytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 62
-      },
-      "id": 49,
-      "interval": "10s",
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.4.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "rate(vectorized_network_bytes_received{group=\"kafka\"}[30s])",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Inbound Traffic",
-      "type": "timeseries"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -3093,7 +3000,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "broker_messages_stored - 53",
+          "expr": "broker_messages_stored - 54",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -3389,9 +3296,7 @@
     "list": [
       {
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
@@ -3443,9 +3348,7 @@
       },
       {
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
@@ -3479,6 +3382,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 28,
+  "version": 31,
   "weekStart": ""
 }

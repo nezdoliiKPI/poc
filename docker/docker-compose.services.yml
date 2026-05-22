@@ -81,8 +81,6 @@ services:
     environment:
       - QUARKUS_PROFILE=prod
       - SECRETS_DIR=/secrets
-#    depends_on:
-#      - auth-service
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

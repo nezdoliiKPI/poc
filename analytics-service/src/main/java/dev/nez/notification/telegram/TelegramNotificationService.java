@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class TelegramNotificationService {
     private final DateTimeFormatter TIME_FORMATTER =
-        DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(ZoneId.systemDefault());
+        DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(ZoneId.of("Europe/Berlin"));;
 
     private final AlertDeserializer deserializer = new AlertDeserializer();
 
