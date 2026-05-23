@@ -39,13 +39,13 @@ import java.util.function.Supplier;
 public class ProducerClient {
     private final List<DeviceSession> activeSessions = new CopyOnWriteArrayList<>();
 
-    @ConfigProperty(name = "mqtt.broker.host", defaultValue = "localhost")
+    @ConfigProperty(name = "mqtt.broker.host")
     String brokerHost;
 
-    @ConfigProperty(name = "mqtt.broker.port", defaultValue = "1883")
+    @ConfigProperty(name = "mqtt.broker.port")
     int brokerPort;
 
-    @ConfigProperty(name = "mqtt.broker.ca-path", defaultValue = "../secrets/tls/ca.crt")
+    @ConfigProperty(name = "mqtt.broker.ca-path")
     String caPath;
 
     @RestClient

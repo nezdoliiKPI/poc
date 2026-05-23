@@ -9,7 +9,7 @@ services:
       - "9090:9090"
     restart: unless-stopped
     volumes:
-      - ../monitoring/prometheus-config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../config/monitoring/prometheus-config/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.enable-remote-write-receiver' # Allows to receive data from Alloy
@@ -27,7 +27,7 @@ services:
     container_name: tempo
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
-      - ../monitoring/tempo-config/tempo.yaml:/etc/tempo.yaml:ro
+      - ../config/monitoring/tempo-config/tempo.yaml:/etc/tempo.yaml:ro
     ports:
       - "3200:3200"   # HTTP
       - "9095:9095"   # Internal gRPC
@@ -44,7 +44,7 @@ services:
       - "1514:1514"
     restart: unless-stopped
     volumes:
-      - ../monitoring/alloy-config/config.alloy:/etc/alloy/config.alloy
+      - ../config/monitoring/alloy-config/config.alloy:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
       - run
@@ -59,11 +59,11 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ../secrets/admin/credentials.properties
+      - ../config/secrets/admin/credentials.properties
     restart: unless-stopped
     depends_on:
       - prometheus
       - loki
       - tempo
     volumes:
-      - ../monitoring/grafana-config/provisioning:/etc/grafana/provisioning
+      - ../config/monitoring/grafana-config/provisioning:/etc/grafana/provisioning

@@ -171,11 +171,11 @@ CREATE SEQUENCE devices_seq INCREMENT BY 1;
 
 CREATE TABLE devices (
      id BIGINT DEFAULT nextval('devices_SEQ') PRIMARY KEY,
-     hardwareId VARCHAR(127) NOT NULL UNIQUE,
-     passwordHash VARCHAR(127),
+     hardware_id VARCHAR(127) NOT NULL UNIQUE,
+     password_hash VARCHAR(127),
      status VARCHAR(31) CHECK (status IN ('ACTIVE','MAINTENANCE','BANNED','DECOMMISSIONED')),
-     messageType VARCHAR(15) CHECK (messageType IN ('JSON','PROTO')),
+     message_type VARCHAR(15) CHECK (message_type IN ('JSON','PROTO')),
      topic VARCHAR(127),
-     batteryTopic VARCHAR(127)
+     battery_topic VARCHAR(127)
 );
 

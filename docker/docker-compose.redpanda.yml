@@ -3,7 +3,7 @@ name: redpanda-local
 services:
 
   redpanda:
-    build: ../redpanda
+    build: ../config/redpanda
     image: configured-redpanda:local
     container_name: redpanda-0
     restart: unless-stopped
@@ -14,12 +14,6 @@ services:
       - 19644:9644  # Admin API
     volumes:
       - redpanda-data:/var/lib/redpanda/data
-#    volumes:
-#      - type: tmpfs
-#        target: /var/lib/redpanda/data
-#        tmpfs:
-#          size: 2073741824
-#          mode: 0777
     command:
       - redpanda
       - start
@@ -46,7 +40,7 @@ services:
         echo "Creating EVENTS topics (policy: delete)..."
         
         # Високе навантаження (8 партицій)
-        rpk --brokers redpanda-0:9092 topic create power-consumption-events -p 8 --topic-config cleanup.policy=delete --topic-config retention.bytes=268435456 --topic-config segment.bytes=67108864 || true
+        rpk --brokers redpanda-0:9092 topic create power-consumption-events -p 4 --topic-config cleanup.policy=delete --topic-config retention.bytes=268435456 --topic-config segment.bytes=67108864 || true
         
         # Низьке навантаження (1 партиція)
         rpk --brokers redpanda-0:9092 topic create smoke-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
@@ -74,7 +68,7 @@ services:
     ports:
       - 8099:8080
     volumes:
-      - ../redpanda/console-config.yml:/console-config.yml
+      - ../config/redpanda/console-config.yml:/console-config.yml
     depends_on:
       - redpanda
 

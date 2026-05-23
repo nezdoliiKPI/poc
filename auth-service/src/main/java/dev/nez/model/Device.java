@@ -21,24 +21,24 @@ public class Device extends PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "devicesSequence")
     public Long id;
 
-    @Column(length = 127, nullable = false, unique = true)
+    @Column(name = "hardware_id", length = 127, nullable = false, unique = true)
     public String hardwareId;
 
-    @Column(length = 127)
+    @Column(name = "password_hash", length = 127)
     public String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 31)
+    @Column(name = "status", length = 31)
     public Status status;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 15)
+    @Column(name = "message_type", length = 15)
     public MessageType messageType;
 
-    @Column(length = 127)
+    @Column(name = "topic", length = 127)
     public String topic;
 
-    @Column(length = 127)
+    @Column(name = "battery_topic", length = 127)
     public String batteryTopic;
 
     public enum Status {

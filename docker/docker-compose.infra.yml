@@ -4,7 +4,7 @@ services:
 
   mosquitto:
     build:
-      context: ../mosquitto
+      context: ../config/mosquitto
       dockerfile: .dockerfile
     container_name: iot_mosquitto
     ports:
@@ -16,12 +16,12 @@ services:
         soft: 65535
         hard: 65535
     volumes:
-      - ../mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf:ro
-      - ../secrets/jwt/jwks.json:/etc/mosquitto/certs/jwks.json:ro
+      - ../config/mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf:ro
+      - ../config/secrets/jwt/jwks.json:/etc/mosquitto/certs/jwks.json:ro
       # --- TLS ---
-      - ../secrets/tls/ca.crt:/etc/mosquitto/certs/tls/ca.crt:ro
-      - ../secrets/tls/server.crt:/etc/mosquitto/certs/tls/server.crt:ro
-      - ../secrets/tls/server.key:/etc/mosquitto/certs/tls/server.key:ro
+      - ../config/secrets/tls/ca.crt:/etc/mosquitto/certs/tls/ca.crt:ro
+      - ../config/secrets/tls/server.crt:/etc/mosquitto/certs/tls/server.crt:ro
+      - ../config/secrets/tls/server.key:/etc/mosquitto/certs/tls/server.key:ro
     networks:
       - iot_network
     tty: false # true -- for instantly output
@@ -40,17 +40,6 @@ services:
     networks:
       - iot_network
 
-#  keycloak:
-#    image: quay.io/keycloak/keycloak:26.5.0
-#    command: start-dev
-#    environment:
-#      KC_DB: dev-file
-#      KEYCLOAK_ADMIN: admin
-#      KEYCLOAK_ADMIN_PASSWORD: admin
-#    ports:
-#      - "1884:1884"
-#    restart: unless-stopped
-
   timescaledb:
     image: timescale/timescaledb:latest-pg18
     deploy:
@@ -60,7 +49,7 @@ services:
           memory: '3G'
     container_name: iot_timescaledb
     env_file:
-      - ../secrets/admin/credentials.properties
+      - ../config/secrets/admin/credentials.properties
     environment:
       POSTGRES_DB: iot
     ports:
@@ -102,8 +91,8 @@ services:
       - "443:443"
       - "8443:8443"
     volumes:
-      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../secrets/tls:/etc/nginx/certs:ro
+      - ../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../config/secrets/tls:/etc/nginx/certs:ro
     restart: unless-stopped
 
 volumes:

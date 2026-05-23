@@ -1,13 +1,12 @@
 package dev.nez.resource;
 
 import dev.nez.dto.RegisterRequest;
-import dev.nez.model.Device;
-import io.quarkus.elytron.security.common.BcryptUtil;
-import io.quarkus.hibernate.reactive.panache.Panache;
+import dev.nez.service.DeviceService;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -15,7 +14,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Bulkhead;
 
 import org.hibernate.exception.ConstraintViolationException;
@@ -26,33 +24,20 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Produces(MediaType.APPLICATION_JSON)
 public class RegisterResource {
 
-    @ConfigProperty(name = "bcrypt.cost", defaultValue = "8")
-    Integer BCRYPT_COST;
+    @Inject
+    DeviceService deviceService;
 
     @POST
     @Path("")
     @RolesAllowed("admin")
     @Bulkhead(value = 100, waitingTaskQueue = 1000)
     public Uni<RestResponse<Void>> register(@Valid RegisterRequest request) {
-        return Device.findByHardwareId(request.hardwareId()).chain(result -> {
+        return deviceService.findDeviceByHardwareId(request.hardwareId()).chain(result -> {
             if (result != null) {
                 return Uni.createFrom().item(RestResponse.status(RestResponse.Status.CONFLICT));
             }
 
-            return Panache.withTransaction(() -> {
-                    final var hashedPass = BcryptUtil.bcryptHash(request.password(), BCRYPT_COST);
-
-                    final var device = new Device(
-                        request.hardwareId(),
-                        hashedPass,
-                        Device.Status.ACTIVE,
-                        request.messageType(),
-                        request.topic(),
-                        request.batteryTopic()
-                    );
-
-                    return device.persist();
-                })
+            return deviceService.registerDevice(request)
                 .replaceWith(RestResponse.<Void>status(RestResponse.Status.CREATED))
                 .onFailure(PersistenceException.class).recoverWithItem(ex -> {
                     Log.warn("Error: ", ex);

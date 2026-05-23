@@ -4,12 +4,14 @@ import dev.nez.dto.LoginRequest;
 import dev.nez.dto.LoginResponse;
 
 import dev.nez.model.Device;
+import dev.nez.service.DeviceService;
 import io.quarkus.elytron.security.common.BcryptUtil;
 
 import io.quarkus.logging.Log;
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.mutiny.Uni;
 
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -30,6 +32,9 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthResource {
 
+    @Inject
+    DeviceService deviceService;
+
     @ConfigProperty(name = "auth.jwt.issuer", defaultValue = "auth-service")
     String jwtIssuer;
 
@@ -40,7 +45,7 @@ public class AuthResource {
     @Path("/login")
     @Bulkhead(value = 100, waitingTaskQueue = 1000)
     public Uni<RestResponse<LoginResponse>> login(@Valid LoginRequest request) {
-        return Device.findByHardwareId(request.hardwareId())
+        return deviceService.findDeviceByHardwareId(request.hardwareId())
                 .chain(device -> {
                     if (device == null || device.status != Device.Status.ACTIVE) {
                         return Uni.createFrom().item(RestResponse.status(RestResponse.Status.UNAUTHORIZED));

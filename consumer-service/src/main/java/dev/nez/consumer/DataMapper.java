@@ -1,11 +1,11 @@
 package dev.nez.consumer;
+import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.*;
 
 import jakarta.inject.Singleton;
 
 import io.vertx.mutiny.sqlclient.Tuple;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -62,6 +62,6 @@ public class DataMapper {
 
     private OffsetDateTime toOffsetDateTime(com.google.protobuf.Timestamp timestamp) {
         return OffsetDateTime.ofInstant(
-            Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos()), ZoneOffset.UTC);
+            ProtoUtils.toInstant(timestamp), ZoneOffset.UTC);
     }
 }
