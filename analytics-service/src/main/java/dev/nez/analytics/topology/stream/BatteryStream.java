@@ -17,6 +17,7 @@ import jakarta.inject.Singleton;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.Stores;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -58,7 +59,10 @@ public class BatteryStream extends TelemetryStreamBase {
 
         final KTable<Long, BatteryThresholds> thresholdsTable = builder.table(
             thresholdsTopic,
-            Consumed.with(longSerde, thresholdsSerde)
+            Consumed.with(longSerde, thresholdsSerde),
+            Materialized.<Long, BatteryThresholds>as(
+                Stores.inMemoryKeyValueStore("battery-thresholds-store")
+            ).withKeySerde(longSerde).withValueSerde(thresholdsSerde)
         );
 
         final KStream<Long, BatteryData> batteryStream = builder.stream(

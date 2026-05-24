@@ -16,6 +16,7 @@ import jakarta.inject.Singleton;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.Stores;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -57,7 +58,10 @@ public class SmokeDetectorStream extends TelemetryStreamBase {
 
         final KTable<Long, SmokeDetectorThresholds> thresholdsTable = builder.table(
             thresholdsTopic,
-            Consumed.with(longSerde, thresholdsSerde)
+            Consumed.with(longSerde, thresholdsSerde),
+            Materialized.<Long, SmokeDetectorThresholds>as(
+                Stores.inMemoryKeyValueStore("smoke-thresholds-store")
+            ).withKeySerde(longSerde).withValueSerde(thresholdsSerde)
         );
 
         final KStream<Long, SmokeDetectorData> smokeStream = builder.stream(

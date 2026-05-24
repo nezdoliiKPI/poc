@@ -11,10 +11,10 @@
   <modules>
     <module>producer-service</module>
     <module>edge-service</module>
-    <module>auth-service</module>
+    <module>device-service</module>
     <module>consumer-service</module>
     <module>analytics-service</module>
-    <module>main-service</module>
+    <module>monitor-service</module>
   </modules>
 
   <properties>

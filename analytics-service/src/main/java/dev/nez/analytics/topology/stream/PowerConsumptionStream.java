@@ -17,6 +17,7 @@ import jakarta.inject.Singleton;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.Stores;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -58,7 +59,10 @@ public class PowerConsumptionStream extends TelemetryStreamBase {
 
         final KTable<Long, PowerThresholds> thresholdsTable = builder.table(
             thresholdsTopic,
-            Consumed.with(longSerde, thresholdsSerde)
+            Consumed.with(longSerde, thresholdsSerde),
+            Materialized.<Long, PowerThresholds>as(
+                Stores.inMemoryKeyValueStore("power-thresholds-store")
+            ).withKeySerde(longSerde).withValueSerde(thresholdsSerde)
         );
 
         final KStream<Long, PowerConsumptionData> consumptionStream = builder.stream(
@@ -76,4 +80,3 @@ public class PowerConsumptionStream extends TelemetryStreamBase {
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }
-

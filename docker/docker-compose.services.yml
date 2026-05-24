@@ -2,9 +2,9 @@ version: '3.8'
 name: services
 
 services:
-  auth-service:
-    image: quarkus/auth-service-native:latest
-    container_name: auth-service-app
+  device-service:
+    image: quarkus/device-service-native:latest
+    container_name: device-service-app
     ports:
       - "8081:8081"
     volumes:
@@ -36,9 +36,9 @@ services:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
 
-  main-service:
-    image: quarkus/main-service-native:latest
-    container_name: main-service-app
+  consumer-service:
+    image: quarkus/consumer-service-native:latest
+    container_name: consumer-service-app
     ports:
       - "8083:8083"
     volumes:
@@ -47,7 +47,35 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:19092
       - QUARKUS_PROFILE=prod
       - SECRETS_DIR=/secrets
-      - RETENTION_BYTES=268435456
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  analytics-service:
+    image: quarkus/analytics-service-native:latest
+    container_name: analytics-service-app
+    ports:
+      - "8085:8085"
+    volumes:
+      - ../config/secrets/telegram/telegram.properties:/config/secrets/telegram/telegram.properties:ro
+    environment:
+      - QUARKUS_PROFILE=prod
+      - SECRETS_DIR=/secrets
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  monitor-service:
+    image: quarkus/monitor-service-native:latest
+    container_name: monitor-service-app
+    ports:
+      - "8086:8086"
+    volumes:
+      - ../config/secrets/admin/credentials.properties:/config/secrets/admin/credentials.properties:ro
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:19092
+      - QUARKUS_PROFILE=prod
+      - SECRETS_DIR=/secrets
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
@@ -67,20 +95,6 @@ services:
       - SECRETS_DIR=/secrets
     depends_on:
       - auth-service
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    restart: unless-stopped
-
-  analytics-service:
-    image: quarkus/analytics-service-native:latest
-    container_name: analytics-service-app
-    ports:
-      - "8085:8085"
-    volumes:
-      - ../config/secrets/telegram/telegram.properties:/config/secrets/telegram/telegram.properties:ro
-    environment:
-      - QUARKUS_PROFILE=prod
-      - SECRETS_DIR=/secrets
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

@@ -59,6 +59,38 @@ services:
         
         echo "Infrastructure ready."
 
+  redpanda-clean-thresholds:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda-clean-thresholds
+    depends_on:
+      - redpanda
+    entrypoint: [ "" ]
+    command:
+      - sh
+      - -c
+      - |
+        echo "Waiting for Redpanda to be ready..."
+        until rpk cluster info --brokers redpanda-0:9092; do sleep 1; done
+  
+        echo "Cleaning THRESHOLDS topics..."
+  
+        for topic in power-thresholds-topic smoke-thresholds-topic air-thresholds-topic batt-thresholds-topic temp-thresholds-topic; do
+          echo "  Deleting $topic..."
+          rpk --brokers redpanda-0:9092 topic delete "$topic" || true
+        done
+  
+        echo "Recreating THRESHOLDS topics (policy: compact)..."
+  
+        rpk --brokers redpanda-0:9092 topic create power-thresholds-topic -p 8 --topic-config cleanup.policy=compact || true
+        rpk --brokers redpanda-0:9092 topic create smoke-thresholds-topic  -p 1 --topic-config cleanup.policy=compact || true
+        rpk --brokers redpanda-0:9092 topic create air-thresholds-topic    -p 1 --topic-config cleanup.policy=compact || true
+        rpk --brokers redpanda-0:9092 topic create batt-thresholds-topic   -p 1 --topic-config cleanup.policy=compact || true
+        rpk --brokers redpanda-0:9092 topic create temp-thresholds-topic   -p 1 --topic-config cleanup.policy=compact || true
+  
+        echo "THRESHOLDS topics cleaned and recreated."
+    profiles:
+      - clean
+
   console:
     image: docker.redpanda.com/redpandadata/console:latest
     container_name: redpanda-console

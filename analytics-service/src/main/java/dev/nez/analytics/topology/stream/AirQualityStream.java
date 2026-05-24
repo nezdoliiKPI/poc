@@ -1,4 +1,5 @@
 package dev.nez.analytics.topology.stream;
+
 import dev.nez.analytics.analyzer.AirQualityAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
@@ -15,6 +16,7 @@ import jakarta.inject.Singleton;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.Stores;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -56,7 +58,10 @@ public class AirQualityStream extends TelemetryStreamBase {
 
         final KTable<Long, AirQualityThresholds> thresholdsTable = builder.table(
             thresholdsTopic,
-            Consumed.with(longSerde, thresholdsSerde)
+            Consumed.with(longSerde, thresholdsSerde),
+            Materialized.<Long, AirQualityThresholds>as(
+                Stores.inMemoryKeyValueStore("air-quality-thresholds-store")
+            ).withKeySerde(longSerde).withValueSerde(thresholdsSerde)
         );
 
         final KStream<Long, AirQualityData> airQualityStream = builder.stream(

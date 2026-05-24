@@ -2,12 +2,10 @@ package dev.nez.producer.client;
 
 import dev.nez.producer.dto.ProtocolBuffer;
 import dev.nez.producer.dto.rest.LoginRequest;
-import dev.nez.producer.dto.rest.PowerThresholdsRequest;
 import dev.nez.producer.dto.rest.RegisterRequest;
 
 import dev.nez.producer.simulation.generator.data.DeviceDataGenerator;
 import dev.nez.producer.simulation.generator.data.DeviceDataGenerator.MessageType;
-import dev.nez.producer.simulation.generator.data.PowerDataGenerator;
 import dev.nez.producer.simulation.model.MessageTiming;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
