@@ -20,7 +20,7 @@ public class MessageFilter {
     private final ConcurrentMap<String, ChannelFilter<?>> filters = new ConcurrentHashMap<>();
 
     @Inject
-    FilterConfig defaultConfig;
+    FilterConfiguration defaultConfig;
 
     @Inject
     ChannelTopicResolver topicResolver;
@@ -59,7 +59,7 @@ public class MessageFilter {
     public record TopicConfig(
         Boolean consume,
         Integer threshold
-    ) implements FilterConfig.TopicConfig {}
+    ) implements FilterConfiguration.TopicConfig {}
 
     @ConsumeEvent(CONFIG_ADDRESS)
     public void update(SimpleImmutableEntry<String, TopicConfig> event) {
@@ -76,19 +76,19 @@ public class MessageFilter {
         private final ConcurrentMap<Long, Value> lastValues = new ConcurrentHashMap<>();
         private final BiFunction<T, T, Boolean> filter;
 
-        private volatile FilterConfig.TopicConfig config;
+        private volatile FilterConfiguration.TopicConfig config;
 
         ChannelFilter(
             String topic,
             BiFunction<T, T, Boolean> filter,
-            FilterConfig.TopicConfig config
+            FilterConfiguration.TopicConfig config
         ) {
             this.topic = topic;
             this.filter = filter;
             this.config = config;
         }
 
-        public void setConfig(FilterConfig.TopicConfig config) {
+        public void setConfig(FilterConfiguration.TopicConfig config) {
             this.config = config;
         }
 

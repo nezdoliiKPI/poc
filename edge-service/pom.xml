@@ -25,7 +25,7 @@
             <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
         </dependency>
 
-        <!-- METRICS-LOGS-TRACES -->
+        <!-- METRICS-LOGS -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-micrometer-opentelemetry</artifactId>
@@ -40,20 +40,6 @@
             <groupId>io.quarkiverse.hivemqclient</groupId>
             <artifactId>quarkus-hivemq-client</artifactId>
             <version>2.5.0</version>
-        </dependency>
-
-        <!-- REST -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-validator</artifactId>
         </dependency>
     </dependencies>
 </project>

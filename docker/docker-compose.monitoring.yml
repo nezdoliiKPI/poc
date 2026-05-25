@@ -22,16 +22,16 @@ services:
     restart: unless-stopped
     command: -config.file=/etc/loki/local-config.yaml
 
-  tempo:
-    image: grafana/tempo:latest
-    container_name: tempo
-    command: [ "-config.file=/etc/tempo.yaml" ]
-    volumes:
-      - ../config/monitoring/tempo-config/tempo.yaml:/etc/tempo.yaml:ro
-    ports:
-      - "3200:3200"   # HTTP
-      - "9095:9095"   # Internal gRPC
-    restart: unless-stopped
+#  tempo:
+#    image: grafana/tempo:latest
+#    container_name: tempo
+#    command: [ "-config.file=/etc/tempo.yaml" ]
+#    volumes:
+#      - ../config/monitoring/tempo-config/tempo.yaml:/etc/tempo.yaml:ro
+#    ports:
+#      - "3200:3200"   # HTTP
+#      - "9095:9095"   # Internal gRPC
+#    restart: unless-stopped
 
   alloy:
     image: grafana/alloy:latest

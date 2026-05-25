@@ -57,6 +57,10 @@ services:
         rpk --brokers redpanda-0:9092 topic create batt-thresholds-topic -p 1 --topic-config cleanup.policy=compact || true
         rpk --brokers redpanda-0:9092 topic create temp-thresholds-topic -p 1 --topic-config cleanup.policy=compact || true
         
+        echo "Creating CONFIG topics (policy: delete)..."
+        
+        rpk --brokers redpanda-0:9092 topic create filter-config-topic -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=16777216 --topic-config segment.bytes=4194304 || true
+        
         echo "Infrastructure ready."
 
   redpanda-clean-thresholds:

@@ -21,13 +21,13 @@ datasources:
           datasourceUid: tempo-trace
           url: "$${__value.raw}"
 
-  - name: Tempo
-    type: tempo
-    uid: tempo-trace
-    access: proxy
-    url: http://tempo:3200
-    isDefault: false
-    jsonData:
-      tracesToLogsV2:
-        datasourceUid: 'loki-logs'
-        tags: [ 'job', 'instance', 'pod', 'namespace' ]
+#  - name: Tempo
+#    type: tempo
+#    uid: tempo-trace
+#    access: proxy
+#    url: http://tempo:3200
+#    isDefault: false
+#    jsonData:
+#      tracesToLogsV2:
+#        datasourceUid: 'loki-logs'
+#        tags: [ 'job', 'instance', 'pod', 'namespace' ]
