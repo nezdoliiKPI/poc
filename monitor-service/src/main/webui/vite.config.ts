@@ -1,15 +1,16 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // Base URL of the monitoring service.
 // Serves: /api/devices, /api/history, etc.
-const MONITORING_URL = process.env.VITE_MONITORING_URL ?? 'http://localhost:8080';
+// Change this if the monitoring service runs on a different port.
+const MONITORING_URL = 'https://localhost:8086';
 
 // Base URL of the configuration service.
 // Serves: /api/thresholds, /api/edge, /api/producer
 // If both services share one Quarkus process, leave this equal to MONITORING_URL.
-// If the configuration service runs separately, set VITE_CONFIG_URL in .env.local
-const CONFIG_URL = process.env.VITE_CONFIG_URL ?? MONITORING_URL;
+// If the configuration service runs separately, update this value.
+const CONFIG_URL = MONITORING_URL;
 
 export default defineConfig({
   plugins: [react()],
@@ -19,12 +20,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // SPA fallback: unknown routes return index.html
-    // (prevents 404 on page refresh in dev mode)
-    historyApiFallback: true,
     proxy: {
       // ── Configuration service endpoints ────────────────────────────────────
-      // More-specific rules must appear before the catch-all /api rule.
       '/api/thresholds': {
         target: CONFIG_URL,
         changeOrigin: true,
