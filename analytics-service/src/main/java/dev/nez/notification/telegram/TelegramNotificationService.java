@@ -25,9 +25,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TelegramNotificationService {
-    private final DateTimeFormatter TIME_FORMATTER =
-        DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(ZoneId.of("Europe/Berlin"));;
-
+    private final DateTimeFormatter TIME_FORMATTER;
     private final AlertDeserializer deserializer = new AlertDeserializer();
 
     @ConfigProperty(name = "telegram.bot.token")
@@ -42,6 +40,10 @@ public class TelegramNotificationService {
     @Inject
     @RestClient
     TelegramRestClient telegramRestClient;
+
+    public TelegramNotificationService() {
+        TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(ZoneId.of("Europe/Berlin"));
+    }
 
     void onStart(@Observes StartupEvent ev) {
         if (!useTelegram) {

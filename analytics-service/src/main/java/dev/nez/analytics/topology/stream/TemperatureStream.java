@@ -6,7 +6,6 @@ import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.ProtobufSerializer;
 import dev.nez.analytics.data.temperature.*;
 
-import dev.nez.analytics.data.temperature.TemperatureDeserializer;
 import dev.nez.analytics.filter.NotificationFilter;
 import dev.nez.dto.proto.timeddata.TemperatureData;
 

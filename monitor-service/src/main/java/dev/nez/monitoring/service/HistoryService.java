@@ -2,7 +2,7 @@ package dev.nez.monitoring.service;
 
 import dev.nez.monitoring.model.*;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.pgclient.PgPool;
+import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Tuple;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,7 +15,7 @@ import java.util.List;
 public class HistoryService {
 
     @Inject
-    PgPool db;
+    Pool db;
 
     public Uni<List<PowerConsumptionPoint>> getPowerHistory(
         long deviceId, OffsetDateTime from, OffsetDateTime to) {

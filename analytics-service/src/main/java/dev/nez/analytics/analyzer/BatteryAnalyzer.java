@@ -7,7 +7,6 @@ import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
 
 import java.time.Instant;
-import java.util.ArrayList;
 
 @Singleton
 public class BatteryAnalyzer {
