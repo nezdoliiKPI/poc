@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Path("/api/panel/thresholds")
+@Path("/api/thresholds")
 @RolesAllowed("admin")
 @Consumes(MediaType.APPLICATION_JSON)
 public class ThresholdsResource {

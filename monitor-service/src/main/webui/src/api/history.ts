@@ -1,4 +1,5 @@
 import { apiFetch } from './client';
+
 import type {
   PowerConsumptionPoint,
   TemperaturePoint,

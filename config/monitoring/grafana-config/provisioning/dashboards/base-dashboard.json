@@ -415,7 +415,7 @@
       },
       "id": 10,
       "panels": [],
-      "title": "Auth-service",
+      "title": "Device-service",
       "type": "row"
     },
     {
@@ -505,7 +505,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (increase(http_server_requests_milliseconds_count{job=\"auth-service\"}[$__rate_interval]))",
+          "expr": "sum by (instance) (increase(http_server_requests_milliseconds_count{job=\"device-service\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -601,7 +601,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (increase(postgresql_processing_milliseconds_count{job=\"auth-service\"}[$__rate_interval]))",
+          "expr": "sum by (instance) (increase(postgresql_processing_milliseconds_count{job=\"device-service\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -694,7 +694,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (jvm_memory_used_bytes{job=\"auth-service\"})",
+          "expr": "sum by (instance) (jvm_memory_used_bytes{job=\"device-service\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1013,7 +1013,7 @@
       },
       "id": 6,
       "panels": [],
-      "title": "Main-service",
+      "title": "Consumer-service",
       "type": "row"
     },
     {
@@ -1104,7 +1104,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(quarkus_messaging_message_count_total{job=\"main-service\", channel=~\"${main_channel_in}.*\"}[30s]))",
+          "expr": "sum by (instance) (rate(quarkus_messaging_message_count_total{job=\"consumer-service\", channel=~\"${consumer_channel_in}.*\"}[30s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1201,7 +1201,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(message_delay_milliseconds_count{job=\"main-service\"}[30s]))",
+          "expr": "sum(rate(message_delay_milliseconds_count{job=\"consumer-service\"}[30s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1298,7 +1298,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (instance) (jvm_memory_used_bytes{job=\"main-service\"})",
+          "expr": "sum by (instance) (jvm_memory_used_bytes{job=\"consumer-service\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -3349,22 +3349,20 @@
       {
         "current": {
           "text": "All",
-          "value": [
-            "$__all"
-          ]
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "PBFA97CFB590B2093"
         },
-        "definition": "label_values(quarkus_messaging_message_count_total{job=\"main-service\"},channel)",
+        "definition": "label_values(quarkus_messaging_message_count_total{job=\"consumer-service\"},channel)",
         "includeAll": true,
         "multi": true,
-        "name": "main_channel_in",
+        "name": "consumer_channel_in",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(quarkus_messaging_message_count_total{job=\"main-service\"},channel)",
+          "query": "label_values(quarkus_messaging_message_count_total{job=\"consumer-service\"},channel)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -3382,6 +3380,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 31,
+  "version": 2,
   "weekStart": ""
 }

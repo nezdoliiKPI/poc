@@ -34,7 +34,7 @@ h1, h2, h3, h4 {
   letter-spacing: 0;
 }
 
-/* Скролбар */
+/* Scrollbar */
 ::-webkit-scrollbar        { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track  { background: #d8dce4; }
 ::-webkit-scrollbar-thumb  { background: #b4bac6; border-radius: 3px; }
@@ -42,3 +42,8 @@ h1, h2, h3, h4 {
 
 /* Placeholder */
 ::placeholder { color: #8c97ad; opacity: 1; }
+
+/* Hide native number spinners — SpinBox provides its own custom up/down controls */
+.no-spinners::-webkit-inner-spin-button,
+.no-spinners::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.no-spinners { -moz-appearance: textfield; }

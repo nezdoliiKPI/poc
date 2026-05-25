@@ -14,7 +14,7 @@ import org.eclipse.microprofile.faulttolerance.Bulkhead;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.jboss.resteasy.reactive.RestResponse;
 
-@Path("/api/panel")
+@Path("/api/edge")
 @RolesAllowed("admin")
 @Consumes(MediaType.APPLICATION_JSON)
 public class EdgeConfigResource {

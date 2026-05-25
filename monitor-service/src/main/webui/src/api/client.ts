@@ -1,7 +1,7 @@
 /**
- * Базовий HTTP клієнт з підтримкою Basic Auth.
- * Облікові дані (base64) зберігаються в sessionStorage —
- * автоматично видаляються при закритті вкладки.
+ * Base HTTP client with Basic Auth support.
+ * Credentials (base64-encoded) are stored in sessionStorage
+ * and cleared automatically when the browser tab is closed.
  */
 
 const STORAGE_KEY = 'basic_credentials';
@@ -19,7 +19,9 @@ export const clearCredentials = (): void => {
 };
 
 /**
- * Уніфікований fetch з автоматичним підставленням Authorization: Basic.
+ * Wrapper around fetch that injects the Authorization: Basic header,
+ * handles 401 by clearing credentials and redirecting to /login,
+ * and returns undefined for 204 No Content responses.
  */
 export async function apiFetch<T>(
   url: string,

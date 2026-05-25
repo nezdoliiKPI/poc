@@ -1,9 +1,9 @@
 import { setCredentials, clearCredentials, getCredentials } from './client';
 
 /**
- * Логін через ендпоінт /api/auth/verify.
- * Якщо повертає 200 — credentials валідні, зберігаємо їх у sessionStorage.
- * Якщо 401 — кидаємо помилку.
+ * Authenticates against /api/auth/verify using Basic Auth.
+ * On 200 the credentials are persisted to sessionStorage.
+ * On 401 an error is thrown with a user-facing message.
  */
 export async function login(
   username: string,
@@ -27,8 +27,8 @@ export async function login(
 }
 
 /**
- * Перевірка, чи поточні збережені облікові дані ще валідні.
- * Використовується при завантаженні застосунку.
+ * Checks whether the stored credentials are still valid.
+ * Called on application startup to decide whether to show the login screen.
  */
 export async function verifyAuth(): Promise<boolean> {
   const credentials = getCredentials();
@@ -45,7 +45,7 @@ export async function verifyAuth(): Promise<boolean> {
 }
 
 /**
- * Вихід — очищуємо sessionStorage.
+ * Clears stored credentials and effectively logs the user out.
  */
 export function logout(): void {
   clearCredentials();

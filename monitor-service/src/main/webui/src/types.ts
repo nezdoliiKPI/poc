@@ -1,4 +1,4 @@
-// Відповідає dev.nez.monitoring.model.Device
+// Mirrors dev.nez.monitoring.model.Device
 export type DeviceStatus =
   | 'ACTIVE'
   | 'MAINTENANCE'
@@ -16,7 +16,7 @@ export interface Device {
   batteryTopic: string | null;
 }
 
-// Типи телеметрії
+// Supported telemetry data types
 export type TelemetryType =
   | 'power'
   | 'temperature'
@@ -24,7 +24,7 @@ export type TelemetryType =
   | 'battery'
   | 'smoke';
 
-// Відповідає PowerConsumptionPoint
+// Mirrors dev.nez.monitoring.model.PowerConsumptionPoint
 export interface PowerConsumptionPoint {
   timeDate: string;
   deviceId: number;
@@ -33,7 +33,7 @@ export interface PowerConsumptionPoint {
   power: number;
 }
 
-// Відповідає TemperaturePoint
+// Mirrors dev.nez.monitoring.model.TemperaturePoint
 export interface TemperaturePoint {
   timeDate: string;
   deviceId: number;
@@ -41,7 +41,7 @@ export interface TemperaturePoint {
   humidity: number;
 }
 
-// Відповідає AirQualityPoint
+// Mirrors dev.nez.monitoring.model.AirQualityPoint
 export interface AirQualityPoint {
   timeDate: string;
   deviceId: number;
@@ -53,14 +53,14 @@ export interface AirQualityPoint {
   humidity: number;
 }
 
-// Відповідає BatteryPoint
+// Mirrors dev.nez.monitoring.model.BatteryPoint
 export interface BatteryPoint {
   timeDate: string;
   deviceId: number;
   val: number;
 }
 
-// Відповідає SmokeDetectorPoint
+// Mirrors dev.nez.monitoring.model.SmokeDetectorPoint
 export interface SmokeDetectorPoint {
   timeDate: string;
   deviceId: number;

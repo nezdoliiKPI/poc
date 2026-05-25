@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useError } from '../hooks/useError';
 import { COLORS, STATUS_STYLES, MESSAGE_TYPE_LABELS } from '../theme';
 import type { Device, DeviceStatus } from '../types';
+import { GenTab, FilterTab, ThresholdsTab } from './AdminPanel';
 
 const PAGE_SIZE = 15;
 
@@ -29,6 +30,8 @@ export default function Dashboard() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<{ col: SortCol; dir: SortDir }>({ col: 'id', dir: 'asc' });
+  const [mainTab, setMainTab] = useState<'devices' | 'gen' | 'filter' | 'thresholds'>('devices');
+
 
   useEffect(() => {
     getDevices()
@@ -74,7 +77,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen" style={{ background: COLORS.bgPage }}>
-      {/* Шапка */}
+      {/* Header */}
       <header
         className="flex items-center justify-between px-6 py-3"
         style={{
@@ -100,8 +103,47 @@ export default function Dashboard() {
         </button>
       </header>
 
+      {/* Tab bar — switches between the device monitor and the three admin tabs. */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          borderBottom: `1px solid ${COLORS.border}`,
+          background: COLORS.bgCard,
+        }}
+      >
+        {(
+          [
+            { id: 'devices',    label: 'Пристрої'   },
+            { id: 'gen',        label: 'Генерація'  },
+            { id: 'filter',     label: 'Фільтри'    },
+            { id: 'thresholds', label: 'Пороги'     },
+          ] as const
+        ).map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setMainTab(id)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              borderBottom: mainTab === id ? `2px solid ${COLORS.accent}` : '2px solid transparent',
+              color: mainTab === id ? COLORS.accent : COLORS.textSecondary,
+              fontSize: 13,
+              fontWeight: 600,
+              padding: '12px 20px',
+              cursor: 'pointer',
+              transition: 'color 0.15s',
+              marginBottom: -1,
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {mainTab === 'devices' && (
       <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
-        {/* Статистика */}
+        {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <StatCard label="Всього"             value={stats.total}          />
           <StatCard label="Активні"            value={stats.active}         />
@@ -110,12 +152,12 @@ export default function Dashboard() {
           <StatCard label="Виведені"           value={stats.decommissioned} />
         </div>
 
-        {/* Таблиця пристроїв */}
+        {/* Device table */}
         <div
           className="rounded-lg overflow-hidden"
           style={{ background: COLORS.bgCard, border: `1px solid ${COLORS.border}` }}
         >
-          {/* Панель пошуку */}
+          {/* Search toolbar */}
           <div
             className="flex items-center gap-3 px-4 py-3"
             style={{ borderBottom: `1px solid ${COLORS.border}` }}
@@ -140,15 +182,15 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Таблиця */}
+          {/* Table */}
           <table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
-              <col style={{ width: '6%' }} />   {/* ID */}
-              <col style={{ width: '18%' }} />  {/* Hardware ID */}
-              <col style={{ width: '16%' }} />  {/* Статус */}
-              <col style={{ width: '14%' }} />  {/* Формат даних */}
-              <col />                            {/* Тема — залишок */}
-              <col style={{ width: '5%' }} />   {/* Дії */}
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '16%' }} />
+              <col style={{ width: '14%' }} />
+              <col />
+              <col style={{ width: '5%' }} />
             </colgroup>
             <thead>
               <tr style={{ background: COLORS.bgTableHead }}>
@@ -204,7 +246,7 @@ export default function Dashboard() {
             </tbody>
           </table>
 
-          {/* Пагінація */}
+          {/* Pagination */}
           {!loading && totalPages > 1 && (
             <Pagination
               page={safePage}
@@ -215,6 +257,30 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+    )}
+
+      {/* Admin tab panels — kept mounted at all times so their state survives tab switches.
+           Inactive panels are visually hidden with display:none, not unmounted. */}
+      {(['gen', 'filter', 'thresholds'] as const).map((id) => (
+        <div
+          key={id}
+          style={{
+            display: mainTab === id ? undefined : 'none',
+            background: COLORS.bgCard,
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: 8,
+            marginTop: 24,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            maxWidth: 860,
+            padding: '28px 32px 8px',
+          }}
+        >
+          {id === 'gen'        && <GenTab />}
+          {id === 'filter'     && <FilterTab />}
+          {id === 'thresholds' && <ThresholdsTab />}
+        </div>
+      ))}
     </div>
   );
 }
@@ -319,7 +385,7 @@ function Pagination({
   onChange: (p: number) => void;
   count: number;
 }) {
-  // Показуємо до 5 кнопок сторінок навколо поточної
+  // Show up to 5 page buttons centered around the current page
   const range: number[] = [];
   const from = Math.max(1, page - 2);
   const to = Math.min(total, from + 4);

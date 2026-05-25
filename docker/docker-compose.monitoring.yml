@@ -64,6 +64,6 @@ services:
     depends_on:
       - prometheus
       - loki
-      - tempo
+#      - tempo
     volumes:
       - ../config/monitoring/grafana-config/provisioning:/etc/grafana/provisioning
