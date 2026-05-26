@@ -1,8 +1,8 @@
 import type { TelemetryType } from './types';
 
 /**
- * Визначає тип телеметрії пристрою за рядком його топіку.
- * Повертає null якщо топік не розпізнано.
+ * Infers the telemetry type from a device topic string.
+ * Returns null if the topic does not match any known pattern.
  */
 export function getTelemetryType(topic: string): TelemetryType | null {
   if (/\/power\//.test(topic))  return 'power';
@@ -12,15 +12,15 @@ export function getTelemetryType(topic: string): TelemetryType | null {
   return null;
 }
 
-/** Форматує рядок дати до локального часу HH:MM */
+/** Formats a date string as a local HH:MM time. */
 export const fmtTime = (t: string): string =>
   new Date(t).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
 
-/** Форматує рядок дати до повного локального формату */
+/** Formats a date string as a full local date-time string. */
 export const fmtDateTime = (t: string): string =>
   new Date(t).toLocaleString('uk-UA');
 
-/** Час з масиву точок телеметрії: повертає форматований рядок останньої точки або null */
+/** Returns the formatted timestamp of the last point in a telemetry array, or null if empty. */
 export function lastMessageTime(points: { timeDate: string }[]): string | null {
   if (!points.length) return null;
   const last = points[points.length - 1].timeDate;

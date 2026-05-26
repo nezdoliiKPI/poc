@@ -1,15 +1,15 @@
 import type { TelemetryType } from './types';
 
 export type MetricDef = {
-  /** Ключ поля у точці даних (має збігатися з JSON-відповіддю API). */
+  /** Field key in the data point — must match the API JSON response. */
   key: string;
-  /** Назва метрики для людини. */
+  /** Human-readable metric name shown in chart titles and tooltips. */
   label: string;
-  /** Одиниця вимірювання (SI). Порожній рядок — без одиниці. */
+  /** SI unit of measurement. Empty string means dimensionless. */
   unit: string;
-  /** Колір лінії/градієнта в графіку. */
+  /** Line and gradient fill colour for the chart. */
   color: string;
-  /** Скільки знаків після коми показувати. Якщо не задано — авто. */
+  /** Number of decimal places to display. Omit for automatic precision. */
   precision?: number;
 };
 

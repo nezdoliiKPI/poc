@@ -54,7 +54,7 @@ export default function ErrorModal({ message, onClose }: ErrorModalProps) {
 
       {/* Modal */}
       <div className="relative z-10 w-full max-w-md bg-slate-800 border border-red-700/60 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden">
-        {/* Прогрес-бар */}
+        {/* Progress bar */}
         <div className="h-1 bg-slate-700">
           <div
             className="h-full bg-red-500 transition-none"
