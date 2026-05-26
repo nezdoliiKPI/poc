@@ -22,7 +22,7 @@ public class AirDataGenerator extends DeviceDataGenerator {
 
         final var device = new Device(hardwareId, password, topic, batteryTopic);
         final var mainTiming = new MessageTiming(TimeUnit.SECONDS, rnd.nextInt(2), 1, 1);
-        final var batteryTiming = new MessageTiming(TimeUnit.MINUTES, 0, 30, 30);
+        final var batteryTiming = new MessageTiming(TimeUnit.MINUTES, 0, 1, 60);
 
         super(device, messageType, mainTiming, batteryTiming);
     }

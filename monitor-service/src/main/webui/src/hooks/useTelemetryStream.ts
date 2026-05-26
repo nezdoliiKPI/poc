@@ -31,8 +31,9 @@ export function useSSEStream<T extends AnyPoint>(
 
     (async () => {
       try {
+        const since = new Date().toISOString();
         const response = await fetch(
-          `/api/devices/${deviceId}/stream/${type}`,
+          `/api/devices/${deviceId}/stream/${type}?since=${encodeURIComponent(since)}`,
           {
             headers: {
               Authorization: `Basic ${credentials}`,

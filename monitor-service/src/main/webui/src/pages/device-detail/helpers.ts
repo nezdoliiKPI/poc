@@ -246,9 +246,9 @@ export function timeAggregate(data: PlotPoint[], key: string, bucketMs: number):
 export function prepareChartData(data: PlotPoint[], key: string, windowMinutes: number, maxPts = 300): PlotPoint[] {
   if (data.length === 0) return data;
   if (windowMinutes >= 60) return timeAggregate(data, key, getBucketMs(windowMinutes));
-  const density  = data.length / maxPts;
-  const smoothed = density > 2 ? applySMA(data, key, Math.max(1, Math.round(density / 2))) : data;
-  return lttb(smoothed, key, maxPts);
+  // const density  = data.length / maxPts;
+  // const smoothed = density > 2 ? applySMA(data, key, Math.max(1, Math.round(density / 2))) : data;
+  return lttb(data, key, maxPts);
 }
 
 export { getBatteryHistory };

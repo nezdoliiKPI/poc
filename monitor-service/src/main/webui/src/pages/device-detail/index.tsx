@@ -67,7 +67,7 @@ export default function DeviceDetail() {
   const { showError } = useError();
 
   const [device,         setDevice]         = useState<Device | null>(null);
-  const [windowMinutes,  setWindowMinutes]  = useState(60);
+  const [windowMinutes,  setWindowMinutes]  = useState(5);
   const [historyPoints,  setHistoryPoints]  = useState<AnyPoint[]>([]);
   const [batteryHistory, setBatteryHistory] = useState<BatteryPoint[]>([]);
   const [loadingDev,     setLoadingDev]     = useState(true);

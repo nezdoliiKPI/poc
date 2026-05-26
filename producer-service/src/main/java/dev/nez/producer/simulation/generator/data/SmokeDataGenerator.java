@@ -18,7 +18,7 @@ public class SmokeDataGenerator extends DeviceDataGenerator {
     ) {
         final var device = new Device(hardwareId, password, topic, batteryTopic);
         final var mainTiming = new MessageTiming(TimeUnit.MINUTES, 0, 10, TimeUnit.MINUTES.toSeconds(10));
-        final var batteryTiming = new MessageTiming(TimeUnit.HOURS, 0, 12, TimeUnit.HOURS.toSeconds(12));
+        final var batteryTiming = new MessageTiming(TimeUnit.HOURS, 0, 1, TimeUnit.HOURS.toSeconds(1));
 
         super(device, messageType, mainTiming, batteryTiming);
     }
