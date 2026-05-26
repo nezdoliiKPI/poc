@@ -199,6 +199,7 @@ export default function DeviceDetail() {
         <div className="flex items-center gap-3">
           <Link
             to="/dashboard"
+            className="hover-accent"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -211,18 +212,7 @@ export default function DeviceDetail() {
               borderRadius: 5,
               border: `1px solid ${COLORS.border}`,
               background: COLORS.bgCard,
-              transition: 'color 0.15s, background 0.15s',
               flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = COLORS.accent;
-              e.currentTarget.style.background = COLORS.accentSubtle;
-              e.currentTarget.style.borderColor = COLORS.accent;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = COLORS.textSecondary;
-              e.currentTarget.style.background = COLORS.bgCard;
-              e.currentTarget.style.borderColor = COLORS.border;
             }}
           >
             ← На головну

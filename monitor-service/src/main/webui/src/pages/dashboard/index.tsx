@@ -167,6 +167,7 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           <button
             onClick={logout}
+            className="hover-danger"
             style={{
               fontSize: 12,
               padding: '4px 12px',
@@ -175,17 +176,6 @@ export default function Dashboard() {
               color: COLORS.textSecondary,
               background: 'transparent',
               cursor: 'pointer',
-              transition: 'color 0.15s, background 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = COLORS.danger;
-              e.currentTarget.style.borderColor = COLORS.dangerBorder;
-              e.currentTarget.style.background = COLORS.dangerBg;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = COLORS.textSecondary;
-              e.currentTarget.style.borderColor = COLORS.border;
-              e.currentTarget.style.background = 'transparent';
             }}
           >
             Вийти

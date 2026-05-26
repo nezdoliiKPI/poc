@@ -351,6 +351,7 @@ export function ApplyButton({
     <button
       onClick={onClick}
       disabled={isDisabled}
+      className="hover-dark"
       style={{
         background: COLORS.textPrimary,
         border: 'none',
@@ -365,13 +366,6 @@ export function ApplyButton({
         display: 'flex',
         alignItems: 'center',
         gap: 8,
-        transition: 'background 0.2s',
-      }}
-      onMouseEnter={(e) => {
-        if (!isDisabled) e.currentTarget.style.background = '#334155';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = COLORS.textPrimary;
       }}
     >
       {loading ? 'Застосовую...' : label}

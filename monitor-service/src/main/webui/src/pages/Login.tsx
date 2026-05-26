@@ -186,6 +186,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
+                className="hover-accent-solid"
                 style={{
                   marginTop: 4,
                   width: '100%',
@@ -199,13 +200,6 @@ export default function Login() {
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  transition: 'background 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  if (!loading) e.currentTarget.style.background = COLORS.accentHover;
-                }}
-                onMouseLeave={(e) => {
-                  if (!loading) e.currentTarget.style.background = COLORS.accent;
                 }}
               >
                 {loading ? 'Перевірка...' : 'УВІЙТИ'}

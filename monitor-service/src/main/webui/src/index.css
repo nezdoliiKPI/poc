@@ -43,6 +43,28 @@ h1, h2, h3, h4 {
 /* Placeholder */
 ::placeholder { color: #96a0b4; opacity: 1; }
 
+/* ── Hover utility classes ───────────────────────────────────────────────────
+   Used in place of onMouseEnter/onMouseLeave imperative handlers.
+   Transitions are declared here so the element styles stay clean.         */
+
+.hover-row                        { transition: background 0.15s; }
+.hover-row:hover:not(:disabled)  { background: #f3f5f8 !important; }
+
+.hover-danger       { transition: color 0.15s, background 0.15s, border-color 0.15s; }
+.hover-danger:hover { color: #dc2626 !important; border-color: #fecaca !important; background: #fef2f2 !important; }
+
+.hover-accent       { transition: color 0.15s, background 0.15s, border-color 0.15s; }
+.hover-accent:hover { color: #3b82f6 !important; border-color: #3b82f6 !important; background: #eff6ff !important; }
+
+.hover-accent-solid       { transition: background 0.15s; }
+.hover-accent-solid:hover { background: #2563eb !important; }
+
+.hover-primary       { transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.hover-primary:hover { background: #3b82f6 !important; color: #fff !important; border-color: #3b82f6 !important; }
+
+.hover-dark       { transition: background 0.2s; }
+.hover-dark:hover:not(:disabled) { background: #334155 !important; }
+
 /* Hide native number spinners — SpinBox provides its own custom up/down controls */
 .no-spinners::-webkit-inner-spin-button,
 .no-spinners::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }

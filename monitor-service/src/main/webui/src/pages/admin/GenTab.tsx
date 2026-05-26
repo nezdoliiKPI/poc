@@ -111,14 +111,13 @@ export function GenTab() {
           {group.map((row) => (
             <div
               key={row.key}
+              className="hover-row"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '2fr 2fr 148px',
                 alignItems: 'center',
                 padding: '10px 0',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bgRowHover)}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
             >
               <div
                 style={{

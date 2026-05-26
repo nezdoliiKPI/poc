@@ -9,9 +9,8 @@ export function DeviceRow({ device: d }: { device: Device }) {
   const s = STATUS_STYLES[d.status];
   return (
     <tr
+      className="hover-row"
       style={{ borderTop: `1px solid ${COLORS.border}` }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bgRowHover)}
-      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
     >
       <td className="px-4 py-3 text-sm" style={{ color: COLORS.textSecondary }}>
         {d.id}
@@ -36,6 +35,7 @@ export function DeviceRow({ device: d }: { device: Device }) {
       <td className="px-4 py-3 text-center">
         <Link
           to={`/devices/${d.id}`}
+          className="hover-primary"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -49,17 +49,6 @@ export function DeviceRow({ device: d }: { device: Device }) {
             color: COLORS.textSecondary,
             background: COLORS.bgCard,
             textDecoration: 'none',
-            transition: 'background 0.15s, color 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = COLORS.accent;
-            e.currentTarget.style.color = '#fff';
-            e.currentTarget.style.borderColor = COLORS.accent;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = COLORS.bgCard;
-            e.currentTarget.style.color = COLORS.textSecondary;
-            e.currentTarget.style.borderColor = COLORS.border;
           }}
         >
           &rsaquo;

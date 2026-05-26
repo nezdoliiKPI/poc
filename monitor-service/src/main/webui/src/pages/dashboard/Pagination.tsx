@@ -76,11 +76,10 @@ export function Pagination({
 
       {/* ‹ previous */}
       <button
+        className="hover-row"
         style={page === 1 ? btnDisabled : btnBase}
         disabled={page === 1}
         onClick={() => onChange(page - 1)}
-        onMouseEnter={(e) => { if (page !== 1) e.currentTarget.style.background = COLORS.bgRowHover; }}
-        onMouseLeave={(e) => { if (page !== 1) e.currentTarget.style.background = COLORS.bgCard; }}
         title="Попередня сторінка"
       >
         &lsaquo;
@@ -90,10 +89,9 @@ export function Pagination({
       {from > 1 && (
         <>
           <button
+            className="hover-row"
             style={btnBase}
             onClick={() => onChange(1)}
-            onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bgRowHover)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = COLORS.bgCard)}
           >
             1
           </button>
@@ -107,10 +105,9 @@ export function Pagination({
       {range.map((p) => (
         <button
           key={p}
+          className={p !== page ? 'hover-row' : undefined}
           style={p === page ? btnActive : btnBase}
           onClick={() => onChange(p)}
-          onMouseEnter={(e) => { if (p !== page) e.currentTarget.style.background = COLORS.bgRowHover; }}
-          onMouseLeave={(e) => { if (p !== page) e.currentTarget.style.background = COLORS.bgCard; }}
         >
           {p}
         </button>
@@ -123,10 +120,9 @@ export function Pagination({
             <span style={{ color: COLORS.textMuted, padding: '0 2px', fontSize: 13 }}>…</span>
           )}
           <button
+            className="hover-row"
             style={btnBase}
             onClick={() => onChange(total)}
-            onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bgRowHover)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = COLORS.bgCard)}
           >
             {total}
           </button>
@@ -135,11 +131,10 @@ export function Pagination({
 
       {/* › next */}
       <button
+        className="hover-row"
         style={page === total ? btnDisabled : btnBase}
         disabled={page === total}
         onClick={() => onChange(page + 1)}
-        onMouseEnter={(e) => { if (page !== total) e.currentTarget.style.background = COLORS.bgRowHover; }}
-        onMouseLeave={(e) => { if (page !== total) e.currentTarget.style.background = COLORS.bgCard; }}
         title="Наступна сторінка"
       >
         &rsaquo;

@@ -135,14 +135,13 @@ export function FilterTab() {
           {group.map((row, ri) => (
             <div
               key={row.topic}
+              className="hover-row"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '2fr 100px 120px 130px',
                 alignItems: 'center',
                 padding: '9px 0',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bgRowHover)}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
             >
               <div style={{ fontFamily: 'monospace', fontSize: 12, color: COLORS.textSecondary }}>
                 {row.topic}
