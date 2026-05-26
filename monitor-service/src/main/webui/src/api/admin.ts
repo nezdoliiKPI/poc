@@ -1,6 +1,5 @@
 import { getCredentials, clearCredentials } from './client';
 
-// ProducerConfig mirrors the backend DTO sent to /api/producer/update/gen.
 export interface ProducerConfig {
   powerProtoCount: number;
   powerJsonCount:  number;
@@ -12,14 +11,15 @@ export interface ProducerConfig {
   tempJsonCount:   number;
 }
 
-// EdgeConfig mirrors dev.nez.configuration.dto.conf.EdgeConfig.
 export interface EdgeConfig {
   topic:     string;
   consume:   boolean;
   threshold: number;
 }
 
-// Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
+/**
+ * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
+ */
 export interface PowerThresholds {
   deviceId:   number | null;
   minVoltage: number;
@@ -28,6 +28,9 @@ export interface PowerThresholds {
   maxPower:   number;
 }
 
+/**
+ * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
+ */
 export interface AirQualityThresholds {
   deviceId:       number | null;
   maxCo2:         number;
@@ -40,17 +43,26 @@ export interface AirQualityThresholds {
   maxHumidity:    number;
 }
 
+/**
+ * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
+ */
 export interface BatteryThresholds {
   deviceId:        number | null;
   minBatteryLevel: number;
 }
 
+/**
+ * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
+ */
 export interface SmokeDetectorThresholds {
   deviceId:    number | null;
   maxSmokeRaw: number;
   maxCoLevel:  number;
 }
 
+/**
+ * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
+ */
 export interface TemperatureThresholds {
   deviceId:       number | null;
   minTemperature: number;
@@ -61,7 +73,9 @@ export interface TemperatureThresholds {
 
 export type ThresholdType = 'power' | 'air' | 'battery' | 'smoke' | 'temperature';
 
-// Parses Quarkus/RESTEasy error response bodies into a readable message string.
+/**
+ * Parses Quarkus/RESTEasy error response bodies into a readable message string.
+ */
 function parseErrorBody(text: string, status: number): string {
   try {
     const err = JSON.parse(text);
@@ -74,11 +88,13 @@ function parseErrorBody(text: string, status: number): string {
   }
 }
 
-// Makes an authenticated POST request to an admin endpoint.
-// Redirects to /login on 401. Throws on non-2xx responses.
-// Tries to parse JSON body if content-type is application/json; otherwise returns undefined.
-// Throws if the response is HTML -- this happens when the proxy points to the wrong service
-// and Quinoa's SPA fallback serves index.html instead of the actual API response.
+/**
+ * Makes an authenticated POST request to an admin endpoint.
+ * Redirects to /login on 401. Throws on non-2xx responses.
+ * Tries to parse JSON body if content-type is application/json; otherwise returns undefined.
+ * Throws if the response is HTML -- this happens when the proxy points to the wrong service
+ * and Quinoa's SPA fallback serves index.html instead of the actual API response.
+ */
 async function adminPost<T = void>(url: string, body: unknown): Promise<T> {
   const credentials = getCredentials();
 
@@ -122,20 +138,26 @@ async function adminPost<T = void>(url: string, body: unknown): Promise<T> {
   return undefined as T;
 }
 
-// Sends producer (data generator) config to /api/producer/update/gen.
-// Returns the resulting total messages-per-second rate.
+/**
+ * Sends producer (data generator) config to /api/producer/update/gen.
+ * Returns the resulting total messages-per-second rate.
+ */
 export function updateProducerConfig(config: ProducerConfig): Promise<number> {
   return adminPost<number>('/api/producer/update/gen', config);
 }
 
-// Sends a single edge filter config entry to /api/edge/update.
+/**
+ * Sends a single edge filter config entry to /api/edge/update.
+ */
 export function updateEdgeConfig(config: EdgeConfig): Promise<void> {
   return adminPost('/api/edge/update', config);
 }
 
-// Sends threshold config to /api/thresholds/{type}.
-// The caller is responsible for building the full payloads array
-// (one entry per device when applying globally, or a single entry for a specific device).
+/**
+ * Sends threshold config to /api/thresholds/{type}.
+ * The caller is responsible for building the full payloads array
+ * (one entry per device when applying globally, or a single entry for a specific device).
+ */
 export function updateThresholds(type: ThresholdType, payloads: object[]): Promise<void> {
   return adminPost('/api/thresholds/' + type, payloads);
 }

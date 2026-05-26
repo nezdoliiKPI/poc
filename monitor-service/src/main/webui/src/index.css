@@ -9,12 +9,12 @@ html, body, #root {
 
 body {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background-color: #e3e6eb;
+  background-color: #f0f2f5;
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-  background-size: 28px 28px;
-  color: #1c2333;
+    linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: #1a2030;
   font-size: 14px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
@@ -36,12 +36,12 @@ h1, h2, h3, h4 {
 
 /* Scrollbar */
 ::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: #d8dce4; }
-::-webkit-scrollbar-thumb  { background: #b4bac6; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #8c97ad; }
+::-webkit-scrollbar-track  { background: #e8eaee; }
+::-webkit-scrollbar-thumb  { background: #c4c9d4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a0a8b8; }
 
 /* Placeholder */
-::placeholder { color: #8c97ad; opacity: 1; }
+::placeholder { color: #96a0b4; opacity: 1; }
 
 /* Hide native number spinners — SpinBox provides its own custom up/down controls */
 .no-spinners::-webkit-inner-spin-button,

@@ -21,7 +21,7 @@ public class HistoryService {
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
         String sql = """
-            SELECT time_bucket('%s', time_date) AS bucket,
+            SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(voltage) AS voltage,
                    AVG(current) AS current,
@@ -29,7 +29,7 @@ public class HistoryService {
             FROM power_consumption
             WHERE device_id = $1
               AND time_date BETWEEN $2 AND $3
-            GROUP BY bucket, device_id
+            GROUP BY time_bucket('%s', time_date), device_id
             ORDER BY bucket
             """.formatted(resolveBucket(from, to));
 
@@ -51,14 +51,14 @@ public class HistoryService {
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
         String sql = """
-            SELECT time_bucket('%s', time_date) AS bucket,
+            SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(temperature) AS temperature,
                    AVG(humidity)    AS humidity
             FROM temperature_data
             WHERE device_id = $1
               AND time_date BETWEEN $2 AND $3
-            GROUP BY bucket, device_id
+            GROUP BY time_bucket('%s', time_date), device_id
             ORDER BY bucket
             """.formatted(resolveBucket(from, to));
 
@@ -79,7 +79,7 @@ public class HistoryService {
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
         String sql = """
-            SELECT time_bucket('%s', time_date) AS bucket,
+            SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(co2)         AS co2,
                    AVG(pm25)        AS pm25,
@@ -90,7 +90,7 @@ public class HistoryService {
             FROM air_quality
             WHERE device_id = $1
               AND time_date BETWEEN $2 AND $3
-            GROUP BY bucket, device_id
+            GROUP BY time_bucket('%s', time_date), device_id
             ORDER BY bucket
             """.formatted(resolveBucket(from, to));
 
@@ -115,13 +115,13 @@ public class HistoryService {
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
         String sql = """
-            SELECT time_bucket('%s', time_date) AS bucket,
+            SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(val) AS val
             FROM battery_data
             WHERE device_id = $1
               AND time_date BETWEEN $2 AND $3
-            GROUP BY bucket, device_id
+            GROUP BY time_bucket('%s', time_date), device_id
             ORDER BY bucket
             """.formatted(resolveBucket(from, to));
 
@@ -141,14 +141,14 @@ public class HistoryService {
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
         String sql = """
-            SELECT time_bucket('%s', time_date) AS bucket,
+            SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(smoke_raw) AS smoke_raw,
                    AVG(co_level)  AS co_level
             FROM smoke_detector
             WHERE device_id = $1
               AND time_date BETWEEN $2 AND $3
-            GROUP BY bucket, device_id
+            GROUP BY time_bucket('%s', time_date), device_id
             ORDER BY bucket
             """.formatted(resolveBucket(from, to));
 
@@ -166,11 +166,14 @@ public class HistoryService {
     }
 
     private String resolveBucket(OffsetDateTime from, OffsetDateTime to) {
-        final long hours = ChronoUnit.HOURS.between(from, to);
+        long seconds = Math.abs(ChronoUnit.SECONDS.between(from, to));
 
-        if (hours <= 1)   return "1 minute";
-        if (hours <= 24)  return "5 minutes";
-        if (hours <= 168) return "1 hour";
+        if (seconds <= 60) return "1 second";
+        if (seconds <= 300) return "5 seconds";
+        if (seconds <= 1800) return "15 seconds";
+        if (seconds <= 3600) return "1 minute";
+        if (seconds <= 86400) return "5 minutes";
+        if (seconds <= 604800) return "1 hour";
         return "1 day";
     }
 }

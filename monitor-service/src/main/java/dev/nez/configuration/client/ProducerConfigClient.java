@@ -11,7 +11,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @RegisterRestClient(configKey = "producer-api")
-@Path("/api/producer/update")
+@Path("/api/update")
 public interface ProducerConfigClient {
 
     @POST

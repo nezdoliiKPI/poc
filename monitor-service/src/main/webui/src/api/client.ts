@@ -1,21 +1,21 @@
 /**
  * Base HTTP client with Basic Auth support.
- * Credentials (base64-encoded) are stored in sessionStorage
- * and cleared automatically when the browser tab is closed.
+ * Credentials (base64-encoded) are stored in localStorage so they persist
+ * across tabs and windows. Call clearCredentials() on logout to remove them.
  */
 
 const STORAGE_KEY = 'basic_credentials';
 
 export const getCredentials = (): string | null =>
-  sessionStorage.getItem(STORAGE_KEY);
+  localStorage.getItem(STORAGE_KEY);
 
 export const setCredentials = (username: string, password: string): void => {
   const encoded = btoa(`${username}:${password}`);
-  sessionStorage.setItem(STORAGE_KEY, encoded);
+  localStorage.setItem(STORAGE_KEY, encoded);
 };
 
 export const clearCredentials = (): void => {
-  sessionStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY);
 };
 
 /**

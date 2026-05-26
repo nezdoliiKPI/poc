@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { getCredentials } from '../api/client';
 import type { TelemetryType, AnyPoint } from '../types';
 
-// Opens an SSE stream for the given device and telemetry type, returning only live points.
-// Historical data is not fetched here — the component merges history with these live points.
-// Pass type = null to skip subscribing (returns empty array).
-// Points older than windowMs are dropped as new data arrives.
+/**
+ * Opens an SSE stream for the given device and telemetry type, returning only live points.
+ * Historical data is not fetched here — the component merges history with these live points.
+ * Pass type = null to skip subscribing (returns empty array).
+ * Points older than windowMs are dropped as new data arrives.
+ */
 export function useSSEStream<T extends AnyPoint>(
   deviceId: number,
   type: TelemetryType | null,

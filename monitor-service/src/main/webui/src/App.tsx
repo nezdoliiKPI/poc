@@ -7,8 +7,8 @@ import {
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { ErrorProvider } from './hooks/useError';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import DeviceDetail from './pages/DeviceDetail';
+import Dashboard from './pages/dashboard';
+import DeviceDetail from './pages/device-detail';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { isAuthenticated, loading } = useAuth();
