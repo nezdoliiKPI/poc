@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import ErrorModal from '../components/ErrorModal';
 
 interface ErrorContextValue {
@@ -7,7 +7,7 @@ interface ErrorContextValue {
 
 const ErrorContext = createContext<ErrorContextValue | null>(null);
 
-export function ErrorProvider({ children }: { children: React.ReactNode }) {
+export function ErrorProvider({ children }: { children: ReactNode }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const showError = useCallback((message: string) => {

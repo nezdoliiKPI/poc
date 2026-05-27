@@ -17,60 +17,6 @@ export interface EdgeConfig {
   threshold: number;
 }
 
-/**
- * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
- */
-export interface PowerThresholds {
-  deviceId:   number | null;
-  minVoltage: number;
-  maxVoltage: number;
-  maxCurrent: number;
-  maxPower:   number;
-}
-
-/**
- * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
- */
-export interface AirQualityThresholds {
-  deviceId:       number | null;
-  maxCo2:         number;
-  maxPm25:        number;
-  maxPm10:        number;
-  maxTvoc:        number;
-  minTemperature: number;
-  maxTemperature: number;
-  minHumidity:    number;
-  maxHumidity:    number;
-}
-
-/**
- * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
- */
-export interface BatteryThresholds {
-  deviceId:        number | null;
-  minBatteryLevel: number;
-}
-
-/**
- * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
- */
-export interface SmokeDetectorThresholds {
-  deviceId:    number | null;
-  maxSmokeRaw: number;
-  maxCoLevel:  number;
-}
-
-/**
- * Threshold DTOs -- deviceId null means the threshold applies globally to all devices of that type.
- */
-export interface TemperatureThresholds {
-  deviceId:       number | null;
-  minTemperature: number;
-  maxTemperature: number;
-  minHumidity:    number;
-  maxHumidity:    number;
-}
-
 export type ThresholdType = 'power' | 'air' | 'battery' | 'smoke' | 'temperature';
 
 /**
@@ -131,7 +77,7 @@ async function adminPost<T = void>(url: string, body: unknown): Promise<T> {
   }
 
   if (contentType.includes('application/json')) {
-    return resp.json() as Promise<T>;
+    return (await resp.json()) as T;
   }
 
   // 202 Accepted / 200 with no body -- success with no payload.

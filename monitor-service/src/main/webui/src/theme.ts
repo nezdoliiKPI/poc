@@ -1,4 +1,4 @@
-// Central theme config. All components import colours and styles from here.
+// Central theme config. All components import colors and styles from here.
 
 import type { DeviceStatus, TelemetryType } from './types';
 

@@ -5,7 +5,7 @@ import { COLORS } from '../theme';
 
 /**
  * Login page — styled to match the Producer Panel reference design.
- * Blue accent bar at the top of the card, labelled inputs, uppercase submit button.
+ * Blue accent bar at the top of the card, labeled inputs, uppercase submit button.
  */
 export default function Login() {
   const { login }   = useAuth();

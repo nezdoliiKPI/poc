@@ -7,7 +7,7 @@ export type MetricDef = {
   label: string;
   /** SI unit of measurement. Empty string means dimensionless. */
   unit: string;
-  /** Line and gradient fill colour for the chart. */
+  /** Line and gradient fill color for the chart. */
   color: string;
   /** Number of decimal places to display. Omit for automatic precision. */
   precision?: number;

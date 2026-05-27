@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getDevice } from '../../api/devices';
 import { getBatteryHistory } from '../../api/history';
@@ -20,7 +20,7 @@ import { MetricChart } from './MetricChart';
 // ── Small layout helpers ──────────────────────────────────────────────────────
 
 /** Full-screen centered wrapper used for loading and error states. */
-function Centered({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+function Centered({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, ...style }}>
       {children}
@@ -29,7 +29,7 @@ function Centered({ children, style }: { children: React.ReactNode; style?: Reac
 }
 
 /** Placeholder card shown while data is loading or when no data is available. */
-function EmptyState({ children }: { children: React.ReactNode }) {
+function EmptyState({ children }: { children: ReactNode }) {
   return (
     <div style={{ background: COLORS.bgCard, border: '1px solid ' + COLORS.border, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '56px 24px', fontSize: 14, color: COLORS.textMuted, textAlign: 'center' }}>
       {children}

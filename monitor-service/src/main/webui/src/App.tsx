@@ -1,3 +1,4 @@
+import { type ReactElement } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -10,7 +11,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/dashboard';
 import DeviceDetail from './pages/device-detail';
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+function PrivateRoute({ children }: { children: ReactElement }) {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -51,7 +52,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
-      </ErrorProvider>
+           </ErrorProvider>
     </AuthProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { getDevices } from '../../api/devices';
 import { useAuth } from '../../hooks/useAuth';
 import { useError } from '../../hooks/useError';
@@ -23,7 +23,7 @@ const COLUMNS: { label: string; col: SortCol | null }[] = [
 ];
 
 // Shared card style used by all four tab content areas.
-const TAB_CARD: React.CSSProperties = {
+const TAB_CARD: CSSProperties = {
   background: COLORS.bgCard,
   border: `1px solid ${COLORS.border}`,
   borderRadius: 8,

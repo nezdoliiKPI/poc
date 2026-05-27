@@ -1,3 +1,4 @@
+import { type CSSProperties } from 'react';
 import { COLORS } from '../../theme';
 
 /**
@@ -20,7 +21,7 @@ export function Pagination({
   const to   = Math.min(total, from + 4);
   for (let i = from; i <= to; i++) range.push(i);
 
-  const btnBase: React.CSSProperties = {
+  const btnBase: CSSProperties = {
     border: `1px solid ${COLORS.border}`,
     background: COLORS.bgCard,
     color: COLORS.textSecondary,
@@ -36,7 +37,7 @@ export function Pagination({
     justifyContent: 'center',
   };
 
-  const btnActive: React.CSSProperties = {
+  const btnActive: CSSProperties = {
     ...btnBase,
     background: COLORS.accent,
     color: '#fff',
@@ -44,7 +45,7 @@ export function Pagination({
     fontWeight: 600,
   };
 
-  const btnDisabled: React.CSSProperties = {
+  const btnDisabled: CSSProperties = {
     ...btnBase,
     opacity: 0.35,
     cursor: 'default',

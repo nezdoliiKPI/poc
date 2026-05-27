@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { COLORS } from '../../theme';
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -308,7 +308,7 @@ export function ThreshInput({
 /**
  * Two-column row inside the threshold form — label on the left, input on the right.
  */
-export function ThreshRow({ label, children }: { label: string; children: React.ReactNode }) {
+export function ThreshRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div
       style={{
@@ -378,7 +378,7 @@ export function ApplyButton({
 /**
  * Footer strip that centres the apply button (and optional status text) below the form.
  */
-export function TabFooter({ children }: { children: React.ReactNode }) {
+export function TabFooter({ children }: { children: ReactNode }) {
   return (
     <div
       style={{

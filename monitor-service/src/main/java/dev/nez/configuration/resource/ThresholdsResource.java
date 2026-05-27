@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Path("/api/thresholds")
 @RolesAllowed("admin")
 @Consumes(MediaType.APPLICATION_JSON)
+@Valid
 public class ThresholdsResource {
 
     @Inject
@@ -46,31 +47,31 @@ public class ThresholdsResource {
 
     @POST
     @Path("/air")
-    public Uni<RestResponse<Void>> updateAirThresholds(@Valid List<AirQualityThresholds> thresholdsList) {
+    public Uni<RestResponse<Void>> updateAirThresholds(List<AirQualityThresholds> thresholdsList) {
         return sendAll(thresholdsList, airEmitter, AirQualityThresholds::deviceId);
     }
 
     @POST
     @Path("/battery")
-    public Uni<RestResponse<Void>> updateBatteryThresholds(@Valid List<BatteryThresholds> thresholdsList) {
+    public Uni<RestResponse<Void>> updateBatteryThresholds(List<BatteryThresholds> thresholdsList) {
         return sendAll(thresholdsList, batteryEmitter, BatteryThresholds::deviceId);
     }
 
     @POST
     @Path("/power")
-    public Uni<RestResponse<Void>> updatePowerThresholds(@Valid List<PowerThresholds> thresholdsList) {
+    public Uni<RestResponse<Void>> updatePowerThresholds(List<PowerThresholds> thresholdsList) {
         return sendAll(thresholdsList, powerEmitter, PowerThresholds::deviceId);
     }
 
     @POST
     @Path("/smoke")
-    public Uni<RestResponse<Void>> updateSmokeThresholds(@Valid List<SmokeDetectorThresholds> thresholdsList) {
+    public Uni<RestResponse<Void>> updateSmokeThresholds(List<SmokeDetectorThresholds> thresholdsList) {
         return sendAll(thresholdsList, smokeEmitter, SmokeDetectorThresholds::deviceId);
     }
 
     @POST
     @Path("/temperature")
-    public Uni<RestResponse<Void>> updateTemperatureThresholds(@Valid List<TemperatureThresholds> thresholdsList) {
+    public Uni<RestResponse<Void>> updateTemperatureThresholds(List<TemperatureThresholds> thresholdsList) {
         return sendAll(thresholdsList, temperatureEmitter, TemperatureThresholds::deviceId);
     }
 

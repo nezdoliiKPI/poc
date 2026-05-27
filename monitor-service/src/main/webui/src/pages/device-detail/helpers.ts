@@ -155,23 +155,8 @@ export function toPlotPoints(data: AnyPoint[]): PlotPoint[] {
 }
 
 /**
- * Symmetric simple moving average — smooths noise before downsampling.
- */
-export function applySMA(data: PlotPoint[], key: string, halfWin: number): PlotPoint[] {
-  if (halfWin < 1) return data;
-  type R = Record<string, number>;
-  return data.map((p, i) => {
-    const lo = Math.max(0, i - halfWin);
-    const hi = Math.min(data.length - 1, i + halfWin);
-    let sum = 0;
-    for (let j = lo; j <= hi; j++) sum += (((data[j] as unknown) as R)[key] ?? 0);
-    return { ...p, [key]: Math.round(sum / (hi - lo + 1) * 1000) / 1000 };
-  });
-}
-
-/**
  * Largest-Triangle Three-Buckets downsampling (Steinarsson 2013).
- * Picks the point in each bucket that maximises triangle area, preserving peaks and dips.
+ * Picks the point in each bucket that maximizes triangle area, preserving peaks and dips.
  * Industry standard used in Grafana and Kibana.
  */
 export function lttb(data: PlotPoint[], key: string, threshold: number): PlotPoint[] {
@@ -246,8 +231,6 @@ export function timeAggregate(data: PlotPoint[], key: string, bucketMs: number):
 export function prepareChartData(data: PlotPoint[], key: string, windowMinutes: number, maxPts = 300): PlotPoint[] {
   if (data.length === 0) return data;
   if (windowMinutes >= 60) return timeAggregate(data, key, getBucketMs(windowMinutes));
-  // const density  = data.length / maxPts;
-  // const smoothed = density > 2 ? applySMA(data, key, Math.max(1, Math.round(density / 2))) : data;
   return lttb(data, key, maxPts);
 }
 
