@@ -1,7 +1,6 @@
 package dev.nez.edge.messaging.filter;
 
 import dev.nez.edge.messaging.ChannelTopicResolver;
-import dev.nez.edge.metrics.MetricsRecorder;
 import io.quarkus.logging.Log;
 import io.quarkus.vertx.ConsumeEvent;
 
@@ -25,9 +24,6 @@ public class MessageFilter {
     @Inject
     ChannelTopicResolver topicResolver;
 
-    @Inject
-    MetricsRecorder metricsRecorder;
-
     /**
      * Creates and registers a new {@link ChannelFilter} for the specified channel,
      * applying the provided comparison logic and fetching its specific dynamic configuration.
@@ -48,7 +44,7 @@ public class MessageFilter {
             defaultConfig.channels().get(channel), "No such config for topic: " + topic
         );
 
-        final var channelFilter = new ChannelFilter<>(topic, filter, topicConfig);
+        final var channelFilter = new ChannelFilter<>(filter, topicConfig);
         if (this.filters.put(topic, channelFilter) != null) {
             throw new IllegalStateException("Duplicate channel filter: " + topic);
         }
@@ -71,19 +67,13 @@ public class MessageFilter {
         filter.setConfig(event.getValue());
     }
 
-    public  class ChannelFilter<T> {
-        private final String topic;
+    public static class ChannelFilter<T> {
         private final ConcurrentMap<Long, Value> lastValues = new ConcurrentHashMap<>();
         private final BiFunction<T, T, Boolean> filter;
 
         private volatile FilterConfiguration.TopicConfig config;
 
-        ChannelFilter(
-            String topic,
-            BiFunction<T, T, Boolean> filter,
-            FilterConfiguration.TopicConfig config
-        ) {
-            this.topic = topic;
+        ChannelFilter(BiFunction<T, T, Boolean> filter, FilterConfiguration.TopicConfig config) {
             this.filter = filter;
             this.config = config;
         }
@@ -93,12 +83,7 @@ public class MessageFilter {
         }
 
         public boolean shouldConsume() {
-            if (config.consume()) {
-                return true;
-            }
-
-            metricsRecorder.recordMessageFilterDrop(topic);
-            return false;
+            return config.consume();
         }
 
         public boolean apply(long deviceId, T data) {
@@ -121,7 +106,6 @@ public class MessageFilter {
             }
             if (conf.threshold() > lastData.count) {
                 lastData.count++;
-                metricsRecorder.recordMessageFilterDrop(topic);
                 return false;
             }
 
