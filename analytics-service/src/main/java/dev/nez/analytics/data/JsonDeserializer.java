@@ -16,7 +16,7 @@ public class JsonDeserializer<T> implements Deserializer<T> {
         try {
             return (data != null && data.length > 0) ? Json.decodeValue(Buffer.buffer(data), targetClass) : null;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to deserialize JSON to TemperatureThresholds", e);
+            throw new RuntimeException("Failed to deserialize JSON to " + targetClass.getSimpleName(), e);
         }
     }
 }
