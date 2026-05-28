@@ -1,6 +1,6 @@
 package dev.nez.monitoring.service;
 
-import dev.nez.monitoring.model.*;
+import dev.nez.monitoring.dto.*;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -160,6 +160,43 @@ public class HistoryService {
                     row.getLong("device_id"),
                     row.getInteger("smoke_raw"),
                     row.getInteger("co_level")
+                ))
+                .toList()
+            );
+    }
+
+    public Uni<List<Alert>> getAlertHistory(
+        long deviceId, OffsetDateTime from, OffsetDateTime to) {
+
+        String sql = """
+            SELECT alert_uuid,
+                   device_id,
+                   metric,
+                   value,
+                   min_threshold,
+                   max_threshold,
+                   severity,
+                   message,
+                   time_date
+            FROM alerts
+            WHERE device_id = $1
+              AND time_date BETWEEN $2 AND $3
+            ORDER BY time_date DESC
+            """;
+
+        return db.preparedQuery(sql)
+            .execute(Tuple.of(deviceId, from, to))
+            .map(rows -> rows.stream()
+                .map(row -> new Alert(
+                    row.getUUID("alert_uuid"),
+                    row.getLong("device_id"),
+                    row.getString("metric"),
+                    row.getFloat("value"),
+                    row.getFloat("min_threshold"),
+                    row.getFloat("max_threshold"),
+                    Alert.Severity.valueOf(row.getString("severity")),
+                    row.getString("message"),
+                    row.getOffsetDateTime("time_date").toInstant()
                 ))
                 .toList()
             );

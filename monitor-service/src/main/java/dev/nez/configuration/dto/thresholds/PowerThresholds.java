@@ -1,4 +1,4 @@
-package dev.nez.configuration.dto.kafka;
+package dev.nez.configuration.dto.thresholds;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.Min;

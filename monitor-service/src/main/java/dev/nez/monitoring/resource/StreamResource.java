@@ -1,7 +1,7 @@
 package dev.nez.monitoring.resource;
 
-import dev.nez.monitoring.consumer.TelemetryConsumer;
-import dev.nez.monitoring.model.*;
+import dev.nez.monitoring.consumer.KafkaConsumer;
+import dev.nez.monitoring.dto.*;
 import io.smallrye.mutiny.Multi;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -15,7 +15,7 @@ import java.time.Instant;
 public class StreamResource {
 
     @Inject
-    TelemetryConsumer consumer;
+    KafkaConsumer consumer;
 
     @GET
     @Path("/power")
@@ -25,7 +25,7 @@ public class StreamResource {
     ) {
         return consumer.streamPower(deviceId)
             .filter(point -> point.timeDate().isAfter(since))
-            .onOverflow().dropPreviousItems();
+            .onOverflow().bufferUnconditionally();
     }
 
     @GET
@@ -36,7 +36,7 @@ public class StreamResource {
     ) {
         return consumer.streamTemperature(deviceId)
             .filter(point -> point.timeDate().isAfter(since))
-            .onOverflow().dropPreviousItems();
+            .onOverflow().bufferUnconditionally();
     }
 
     @GET
@@ -47,7 +47,7 @@ public class StreamResource {
     ) {
         return consumer.streamAir(deviceId)
             .filter(point -> point.timeDate().isAfter(since))
-            .onOverflow().dropPreviousItems();
+            .onOverflow().bufferUnconditionally();
     }
 
     @GET
@@ -58,7 +58,7 @@ public class StreamResource {
     ) {
         return consumer.streamBattery(deviceId)
             .filter(point -> point.timeDate().isAfter(since))
-            .onOverflow().dropPreviousItems();
+            .onOverflow().bufferUnconditionally();
     }
 
     @GET
@@ -69,6 +69,17 @@ public class StreamResource {
     ) {
         return consumer.streamSmoke(deviceId)
             .filter(point -> point.timeDate().isAfter(since))
-            .onOverflow().dropPreviousItems();
+            .onOverflow().bufferUnconditionally();
+    }
+
+    @GET
+    @Path("/alert")
+    public Multi<Alert> alert(
+        @PathParam("id") long deviceId,
+        @QueryParam("since") Instant since
+    ) {
+        return consumer.streamAlert(deviceId)
+            .filter(point -> point.ts().isAfter(since))
+            .onOverflow().bufferUnconditionally();
     }
 }

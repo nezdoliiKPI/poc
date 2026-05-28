@@ -1,6 +1,6 @@
 package dev.nez.configuration.resource;
 
-import dev.nez.configuration.dto.kafka.*;
+import dev.nez.configuration.dto.thresholds.*;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;

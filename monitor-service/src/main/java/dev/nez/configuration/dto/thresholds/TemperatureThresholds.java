@@ -1,4 +1,4 @@
-package dev.nez.configuration.dto.kafka;
+package dev.nez.configuration.dto.thresholds;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.Max;
@@ -6,26 +6,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 @RegisterForReflection
-public record AirQualityThresholds(
-    @NotNull(message = "deviceId cannot be null")
+public record TemperatureThresholds(
     @Min(value = 0, message = "deviceId cannot be negative")
     Long deviceId,
-
-    @NotNull(message = "maxCo2 cannot be null")
-    @Min(value = 0, message = "maxCo2 cannot be negative")
-    Integer maxCo2,
-
-    @NotNull(message = "maxPm25 cannot be null")
-    @Min(value = 0, message = "maxPm25 cannot be negative")
-    Float maxPm25,
-
-    @NotNull(message = "maxPm10 cannot be null")
-    @Min(value = 0, message = "maxPm10 cannot be negative")
-    Float maxPm10,
-
-    @NotNull(message = "maxTvoc cannot be null")
-    @Min(value = 0, message = "maxTvoc cannot be negative")
-    Float maxTvoc,
 
     @NotNull(message = "minTemperature cannot be null")
     @Min(value = -100, message = "minTemperature is too low")

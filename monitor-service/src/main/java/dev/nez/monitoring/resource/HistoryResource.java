@@ -1,6 +1,6 @@
 package dev.nez.monitoring.resource;
 
-import dev.nez.monitoring.model.*;
+import dev.nez.monitoring.dto.*;
 import dev.nez.monitoring.service.HistoryService;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
@@ -71,5 +71,15 @@ public class HistoryResource {
         @QueryParam("to")   @NotNull @PastOrPresent OffsetDateTime to
     ) {
         return historyService.getSmokeHistory(deviceId, from, to);
+    }
+
+    @GET
+    @Path("/alert")
+    public Uni<List<Alert>> alert(
+        @PathParam("id")    @NotNull Long deviceId,
+        @QueryParam("from") @NotNull @PastOrPresent OffsetDateTime from,
+        @QueryParam("to")   @NotNull @PastOrPresent OffsetDateTime to
+    ) {
+        return historyService.getAlertHistory(deviceId, from, to);
     }
 }

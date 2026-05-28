@@ -1,9 +1,9 @@
-package dev.nez.monitoring.model.deserealizer;
+package dev.nez.monitoring.dto.deserealizer;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
-import dev.nez.monitoring.model.SmokeDetectorPoint;
+import dev.nez.monitoring.dto.SmokeDetectorPoint;
 import org.apache.kafka.common.serialization.Deserializer;
 
 public class SmokeDetectorDeserializer implements Deserializer<SmokeDetectorPoint> {

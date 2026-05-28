@@ -1,9 +1,9 @@
-package dev.nez.monitoring.model.deserealizer;
+package dev.nez.monitoring.dto.deserealizer;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.AirQualityData;
-import dev.nez.monitoring.model.AirQualityPoint;
+import dev.nez.monitoring.dto.AirQualityPoint;
 import org.apache.kafka.common.serialization.Deserializer;
 
 public class AirQualityDeserializer implements Deserializer<AirQualityPoint> {

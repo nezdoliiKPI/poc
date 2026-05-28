@@ -1,9 +1,9 @@
-package dev.nez.monitoring.model.deserealizer;
+package dev.nez.monitoring.dto.deserealizer;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.TemperatureData;
-import dev.nez.monitoring.model.TemperaturePoint;
+import dev.nez.monitoring.dto.TemperaturePoint;
 import org.apache.kafka.common.serialization.Deserializer;
 
 public class TemperatureDeserializer implements Deserializer<TemperaturePoint> {

@@ -1,9 +1,9 @@
-package dev.nez.monitoring.model.deserealizer;
+package dev.nez.monitoring.dto.deserealizer;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.BatteryData;
-import dev.nez.monitoring.model.BatteryPoint;
+import dev.nez.monitoring.dto.BatteryPoint;
 import org.apache.kafka.common.serialization.Deserializer;
 
 public class BatteryDataDeserializer implements Deserializer<BatteryPoint> {

@@ -1,4 +1,4 @@
-package dev.nez.monitoring.model;
+package dev.nez.monitoring.dto;
 
 import java.time.Instant;
 

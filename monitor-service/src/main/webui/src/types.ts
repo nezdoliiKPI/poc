@@ -24,7 +24,7 @@ export type TelemetryType =
   | 'battery'
   | 'smoke';
 
-// Mirrors dev.nez.monitoring.model.PowerConsumptionPoint
+// Mirrors dev.nez.monitoring.dto.PowerConsumptionPoint
 export interface PowerConsumptionPoint {
   timeDate: string;
   deviceId: number;
@@ -33,7 +33,7 @@ export interface PowerConsumptionPoint {
   power: number;
 }
 
-// Mirrors dev.nez.monitoring.model.TemperaturePoint
+// Mirrors dev.nez.monitoring.dto.TemperaturePoint
 export interface TemperaturePoint {
   timeDate: string;
   deviceId: number;
@@ -41,7 +41,7 @@ export interface TemperaturePoint {
   humidity: number;
 }
 
-// Mirrors dev.nez.monitoring.model.AirQualityPoint
+// Mirrors dev.nez.monitoring.dto.AirQualityPoint
 export interface AirQualityPoint {
   timeDate: string;
   deviceId: number;
@@ -53,14 +53,14 @@ export interface AirQualityPoint {
   humidity: number;
 }
 
-// Mirrors dev.nez.monitoring.model.BatteryPoint
+// Mirrors dev.nez.monitoring.dto.BatteryPoint
 export interface BatteryPoint {
   timeDate: string;
   deviceId: number;
   val: number;
 }
 
-// Mirrors dev.nez.monitoring.model.SmokeDetectorPoint
+// Mirrors dev.nez.monitoring.dto.SmokeDetectorPoint
 export interface SmokeDetectorPoint {
   timeDate: string;
   deviceId: number;
