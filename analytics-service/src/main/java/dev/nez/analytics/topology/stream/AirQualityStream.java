@@ -9,7 +9,7 @@ import dev.nez.analytics.data.air.*;
 import dev.nez.analytics.filter.NotificationFilter;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 
-import dev.nez.notification.Alert;
+import dev.nez.analytics.data.alert.Alert;
 import jakarta.inject.Inject;
 
 import jakarta.inject.Singleton;
@@ -76,7 +76,7 @@ public class AirQualityStream extends TelemetryStreamBase {
                 Joined.with(longSerde, dataSerde, thresholdsSerde)
             )
             .flatMapValues(alerts -> alerts != null ? alerts : java.util.Collections.emptyList())
-            .filter((id, alert) -> alert != null && filter.apply(alert))
+            .filter((_, alert) -> alert != null && filter.apply(alert))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

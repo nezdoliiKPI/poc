@@ -1,7 +1,7 @@
 package dev.nez.notification.telegram;
 
-import dev.nez.notification.Alert;
-import dev.nez.notification.AlertDeserializer;
+import dev.nez.analytics.data.alert.Alert;
+import dev.nez.analytics.data.alert.AlertDeserializer;
 import dev.nez.notification.telegram.TelegramRestClient.TelegramMessage;
 
 import io.quarkus.logging.Log;
@@ -16,7 +16,6 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -75,44 +74,46 @@ public class TelegramNotificationService {
         return sendToTelegram(buildFinalMessage(groupAndDeduplicateAlerts(data)));
     }
 
-    private Map<Long, Map<String, Instant>> groupAndDeduplicateAlerts(List<Alert> batch) {
+    private Map<Long, Alert> groupAndDeduplicateAlerts(List<Alert> batch) {
         return batch.stream()
-            .collect(Collectors.groupingBy(
+            .collect(Collectors.toMap(
                 Alert::dID,
-                Collectors.toMap(
-                    Alert::msg,
-                    Alert::ts,
-                    (ts1, ts2) -> ts1.isAfter(ts2) ? ts1 : ts2
-                )
+                alert -> alert,
+                (a1, a2) -> {
+                    int sevCompare = a1.sev().compareTo(a2.sev());
+
+                    if (sevCompare > 0) return a1;
+                    if (sevCompare < 0) return a2;
+
+                    return a1.ts().isAfter(a2.ts()) ? a1 : a2;
+                }
             ));
     }
 
-    private String buildFinalMessage(Map<Long, Map<String, Instant>> groupedAlerts) {
+    private String buildFinalMessage(Map<Long, Alert> groupedAlerts) {
         final int MAX_MSG_LENGTH = 500;
         final var mainBuilder = new StringBuilder().append("<b>Alerts</b>\n");
 
-        for (Map.Entry<Long, Map<String, Instant>> entry : groupedAlerts.entrySet()) {
+        for (Map.Entry<Long, Alert> entry : groupedAlerts.entrySet()) {
+            Alert alert = entry.getValue();
+
             final var devBuilder = new StringBuilder()
                 .append("<b>Dev ID: ")
                 .append(entry.getKey())
-                .append("</b>\n");
-
-            for (Map.Entry<String, Instant> alertEntry : entry.getValue().entrySet()) {
-                devBuilder
-                    .append("  • [")
-                    .append(TIME_FORMATTER.format(alertEntry.getValue()))
-                    .append("] ")
-                    .append(alertEntry.getKey())
-                    .append("\n");
-            }
+                .append("</b>")
+                .append("  [")
+                .append(TIME_FORMATTER.format(alert.ts()))
+                .append("] <b>")
+                .append(alert.sev())
+                .append("</b>");
 
             if (mainBuilder.length() + devBuilder.length() <= MAX_MSG_LENGTH) {
-                mainBuilder.append("\n");
-                mainBuilder.append(devBuilder);
+                mainBuilder.append(devBuilder).append("\n");
             } else  {
                 mainBuilder
-                    .append("\nMessage is too large. Total devices with alerts: ")
-                    .append(groupedAlerts.size());
+                    .append("\n<i>Message is too large. Total devices with alerts: ")
+                    .append(groupedAlerts.size())
+                    .append("</i>");
                 break;
             }
         }

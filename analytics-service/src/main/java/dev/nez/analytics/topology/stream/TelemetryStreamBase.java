@@ -1,7 +1,7 @@
 package dev.nez.analytics.topology.stream;
 
 import dev.nez.analytics.filter.NotificationFilter;
-import dev.nez.notification.Alert;
+import dev.nez.analytics.data.alert.Alert;
 import org.apache.kafka.streams.StreamsBuilder;
 
 import java.time.Duration;

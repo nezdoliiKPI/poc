@@ -1,4 +1,4 @@
-package dev.nez.consumer;
+package dev.nez.consumer.data;
 import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.*;
 
@@ -58,6 +58,20 @@ public class DataMapper {
             proto.getCoLevel(),
             toOffsetDateTime(proto.getTimestamp())
         );
+    }
+
+    public Tuple toTuple(Alert alert) {
+        return Tuple.wrap(new Object[]{
+            alert.uuid(),
+            alert.dID(),
+            alert.metric(),
+            alert.val(),
+            alert.min(),
+            alert.max(),
+            alert.sev().name(),
+            alert.msg(),
+            alert.ts().atOffset(ZoneOffset.UTC)
+        });
     }
 
     private OffsetDateTime toOffsetDateTime(com.google.protobuf.Timestamp timestamp) {

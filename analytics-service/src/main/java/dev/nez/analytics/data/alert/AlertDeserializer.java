@@ -1,4 +1,4 @@
-package dev.nez.notification;
+package dev.nez.analytics.data.alert;
 
 import dev.nez.analytics.data.JsonDeserializer;
 

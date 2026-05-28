@@ -1,4 +1,4 @@
-package dev.nez.edge.messaging.telemetry;
+package dev.nez.edge.messaging.consumer;
 
 import dev.nez.edge.exception.MessageParseException;
 import dev.nez.edge.messaging.filter.MessageFilter.ChannelFilter;

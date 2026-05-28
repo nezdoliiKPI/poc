@@ -1,7 +1,8 @@
 package dev.nez.consumer.consumer;
 
-import dev.nez.consumer.DataMapper;
+import dev.nez.consumer.data.DataMapper;
 
+import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.TemperatureData;
 import io.smallrye.mutiny.Uni;
 
@@ -11,7 +12,9 @@ import jakarta.inject.Singleton;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.function.Function;
 
 @Singleton
 public class TemperatureConsumer extends BaseBatchConsumer<TemperatureData> {
@@ -25,7 +28,8 @@ public class TemperatureConsumer extends BaseBatchConsumer<TemperatureData> {
 
     @Inject
     TemperatureConsumer(DataMapper dataMapper) {
-        super(CHANNEL_TEMP_IN, dataMapper::toTuple, TemperatureData::getTimestamp, sql);
+        final Function<TemperatureData, Instant> getInstant = data -> ProtoUtils.toInstant(data.getTimestamp());
+        super(CHANNEL_TEMP_IN, dataMapper::toTuple, getInstant, sql);
     }
 
     @Incoming(CHANNEL_TEMP_IN)

@@ -8,11 +8,11 @@ CREATE SEQUENCE power_consumption_seq INCREMENT BY 1;
 CREATE TABLE power_consumption (
    id BIGINT DEFAULT nextval('power_consumption_seq'),
 
-   device_id BIGINT NOT NULL,
-   voltage REAL,
-   current REAL,
-   power REAL,
-   time_date TIMESTAMPTZ NOT NULL,
+   device_id    BIGINT NOT NULL,
+   voltage      REAL NOT NULL,
+   current      REAL NOT NULL,
+   power        REAL NOT NULL,
+   time_date    TIMESTAMPTZ NOT NULL,
 
    PRIMARY KEY (device_id, time_date)
 );
@@ -41,10 +41,10 @@ CREATE SEQUENCE temperature_data_seq INCREMENT BY 1;
 CREATE TABLE temperature_data (
   id BIGINT DEFAULT nextval('temperature_data_seq'),
 
-  device_id BIGINT NOT NULL,
-  temperature REAL,
-  humidity REAL,
-  time_date TIMESTAMPTZ NOT NULL,
+  device_id     BIGINT NOT NULL,
+  temperature   REAL NOT NULL,
+  humidity      REAL NOT NULL,
+  time_date     TIMESTAMPTZ NOT NULL,
 
   PRIMARY KEY (device_id, time_date)
 );
@@ -73,14 +73,14 @@ CREATE SEQUENCE air_quality_seq INCREMENT BY 1;
 CREATE TABLE air_quality (
      id BIGINT DEFAULT nextval('air_quality_seq'),
 
-     device_id BIGINT NOT NULL,
-     co2 INTEGER,
-     pm25 REAL,
-     pm10 REAL,
-     tvoc REAL,
-     temperature REAL,
-     humidity REAL,
-     time_date TIMESTAMPTZ NOT NULL,
+     device_id      BIGINT NOT NULL,
+     co2            INTEGER NOT NULL,
+     pm25           REAL NOT NULL,
+     pm10           REAL NOT NULL,
+     tvoc           REAL NOT NULL,
+     temperature    REAL NOT NULL,
+     humidity       REAL NOT NULL,
+     time_date      TIMESTAMPTZ NOT NULL,
 
      PRIMARY KEY (device_id, time_date)
 );
@@ -110,7 +110,7 @@ CREATE TABLE battery_data (
       id BIGINT DEFAULT nextval('battery_data_seq'),
 
       device_id BIGINT NOT NULL,
-      val REAL,
+      val       REAL NOT NULL,
       time_date TIMESTAMPTZ NOT NULL,
 
       PRIMARY KEY (device_id, time_date)
@@ -141,8 +141,8 @@ CREATE TABLE smoke_detector (
     id BIGINT DEFAULT nextval('smoke_detector_seq'),
 
     device_id BIGINT NOT NULL,
-    smoke_raw INTEGER,
-    co_level INTEGER,
+    smoke_raw INTEGER NOT NULL,
+    co_level INTEGER NOT NULL,
     time_date TIMESTAMPTZ NOT NULL,
 
     PRIMARY KEY (device_id, time_date)
@@ -170,13 +170,13 @@ SELECT add_retention_policy('smoke_detector', INTERVAL '30 days');
 CREATE SEQUENCE devices_seq INCREMENT BY 1;
 
 CREATE TABLE devices (
-     id BIGINT DEFAULT nextval('devices_SEQ') PRIMARY KEY,
-     hardware_id VARCHAR(127) NOT NULL UNIQUE,
-     password_hash VARCHAR(127),
-     status VARCHAR(31) CHECK (status IN ('ACTIVE','MAINTENANCE','BANNED','DECOMMISSIONED')),
-     message_type VARCHAR(15) CHECK (message_type IN ('JSON','PROTO')),
-     topic VARCHAR(127),
-     battery_topic VARCHAR(127)
+     id BIGINT      DEFAULT nextval('devices_SEQ') PRIMARY KEY,
+     hardware_id    VARCHAR(127) NOT NULL UNIQUE,
+     password_hash  VARCHAR(127) NOT NULL,
+     status         VARCHAR(31) NOT NULL,
+     message_type   VARCHAR(15) NOT NULL,
+     topic          VARCHAR(127) NOT NULL,
+     battery_topic  VARCHAR(127)
 );
 
 -- ==========================================
@@ -185,11 +185,13 @@ CREATE TABLE devices (
 CREATE TABLE alerts (
     alert_uuid    UUID         NOT NULL,
     device_id     BIGINT       NOT NULL REFERENCES devices(id),
-    metric        VARCHAR(32)  NOT NULL,
-    value         REAL,
-    severity      VARCHAR(16)  NOT NULL,
-    message       TEXT,
-    time_date     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    metric        TEXT         NOT NULL,
+    value         REAL         NOT NULL,
+    min_threshold REAL,
+    max_threshold REAL,
+    severity      TEXT         NOT NULL,
+    message       TEXT         NOT NULL,
+    time_date     TIMESTAMPTZ  NOT NULL,
 
     PRIMARY KEY (alert_uuid, time_date)
 );
@@ -207,7 +209,7 @@ CREATE INDEX alerts_severity_idx    ON alerts (severity, time_date DESC);
 ALTER TABLE alerts SET (
     timescaledb.compress,
     timescaledb.compress_segmentby = 'device_id, metric',
-    timescaledb.compress_orderby = 'time_date DESC'
+    timescaledb.compress_orderby = 'time_date DESC, alert_uuid DESC'
 );
 
 SELECT add_compression_policy('alerts', INTERVAL '3 day');

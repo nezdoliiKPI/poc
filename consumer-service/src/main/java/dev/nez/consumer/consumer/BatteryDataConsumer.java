@@ -1,7 +1,8 @@
 package dev.nez.consumer.consumer;
 
-import dev.nez.consumer.DataMapper;
+import dev.nez.consumer.data.DataMapper;
 
+import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.BatteryData;
 import io.smallrye.mutiny.Uni;
 
@@ -10,7 +11,9 @@ import jakarta.inject.Singleton;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.function.Function;
 
 @Singleton
 public class BatteryDataConsumer extends BaseBatchConsumer<BatteryData> {
@@ -24,7 +27,8 @@ public class BatteryDataConsumer extends BaseBatchConsumer<BatteryData> {
 
     @Inject
     BatteryDataConsumer(DataMapper dataMapper) {
-        super(CHANNEL_BATTERY_IN, dataMapper::toTuple, BatteryData::getTimestamp, sql);
+        final Function<BatteryData, Instant> getInstant = data -> ProtoUtils.toInstant(data.getTimestamp());
+        super(CHANNEL_BATTERY_IN, dataMapper::toTuple, getInstant, sql);
     }
 
     @Incoming(CHANNEL_BATTERY_IN)

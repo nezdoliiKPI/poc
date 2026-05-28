@@ -1,7 +1,8 @@
 package dev.nez.consumer.consumer;
 
-import dev.nez.consumer.DataMapper;
+import dev.nez.consumer.data.DataMapper;
 
+import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.AirQualityData;
 import io.smallrye.mutiny.Uni;
 
@@ -11,7 +12,9 @@ import jakarta.inject.Singleton;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.function.Function;
 
 @Singleton
 public class AirQualityConsumer extends BaseBatchConsumer<AirQualityData> {
@@ -25,7 +28,8 @@ public class AirQualityConsumer extends BaseBatchConsumer<AirQualityData> {
 
     @Inject
     AirQualityConsumer(DataMapper dataMapper) {
-        super(CHANNEL_AIR_IN, dataMapper::toTuple, AirQualityData::getTimestamp, sql);
+        final Function<AirQualityData, Instant> getInstant = data -> ProtoUtils.toInstant(data.getTimestamp());
+        super(CHANNEL_AIR_IN, dataMapper::toTuple, getInstant, sql);
     }
 
     @Incoming(CHANNEL_AIR_IN)

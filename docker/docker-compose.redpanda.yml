@@ -47,11 +47,11 @@ services:
         rpk --brokers redpanda-0:9092 topic create air-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
         rpk --brokers redpanda-0:9092 topic create batt-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
         rpk --brokers redpanda-0:9092 topic create temp-consumption-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
-        rpk --brokers redpanda-0:9092 topic create notifications-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
+        rpk --brokers redpanda-0:9092 topic create alert-events -p 1 --topic-config cleanup.policy=delete --topic-config retention.bytes=67108864 --topic-config segment.bytes=16777216 || true
         
         echo "Creating THRESHOLDS topics (policy: compact)..."
         
-        rpk --brokers redpanda-0:9092 topic create power-thresholds-topic -p 8 --topic-config cleanup.policy=compact || true
+        rpk --brokers redpanda-0:9092 topic create power-thresholds-topic -p 4 --topic-config cleanup.policy=compact || true
         rpk --brokers redpanda-0:9092 topic create smoke-thresholds-topic -p 1 --topic-config cleanup.policy=compact || true
         rpk --brokers redpanda-0:9092 topic create air-thresholds-topic -p 1 --topic-config cleanup.policy=compact || true
         rpk --brokers redpanda-0:9092 topic create batt-thresholds-topic -p 1 --topic-config cleanup.policy=compact || true

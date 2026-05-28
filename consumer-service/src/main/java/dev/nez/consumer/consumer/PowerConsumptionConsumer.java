@@ -1,7 +1,8 @@
 package dev.nez.consumer.consumer;
 
-import dev.nez.consumer.DataMapper;
+import dev.nez.consumer.data.DataMapper;
 
+import dev.nez.dto.proto.ProtoUtils;
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import io.smallrye.mutiny.Uni;
 
@@ -10,7 +11,9 @@ import jakarta.inject.Singleton;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.function.Function;
 
 @Singleton
 public class PowerConsumptionConsumer extends BaseBatchConsumer<PowerConsumptionData> {
@@ -24,7 +27,8 @@ public class PowerConsumptionConsumer extends BaseBatchConsumer<PowerConsumption
 
     @Inject
     PowerConsumptionConsumer(DataMapper dataMapper) {
-        super(CHANNEL_POWER_IN, dataMapper::toTuple, PowerConsumptionData::getTimestamp, sql);
+        final Function<PowerConsumptionData, Instant> getInstant = data -> ProtoUtils.toInstant(data.getTimestamp());
+        super(CHANNEL_POWER_IN, dataMapper::toTuple, getInstant, sql);
     }
 
     @Incoming(CHANNEL_POWER_IN)

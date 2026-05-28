@@ -1,6 +1,5 @@
 package dev.nez.consumer.consumer;
 
-import com.google.protobuf.Timestamp;
 import dev.nez.consumer.metrics.MetricsRecorder;
 
 import io.quarkus.logging.Log;
@@ -23,7 +22,7 @@ import java.util.function.Function;
 public abstract class BaseBatchConsumer<T> {
     private final String channel;
     private final Function<T, Tuple> mapper;
-    private final Function<T, Timestamp> getTimestamp;
+    private final Function<T, Instant> getInstant;
     private final String sql;
 
     @Inject
@@ -35,12 +34,12 @@ public abstract class BaseBatchConsumer<T> {
     BaseBatchConsumer(
         String channel,
         Function<T, Tuple> mapper,
-        Function<T, Timestamp> getTimestamp,
+        Function<T, Instant> getInstant,
         @Language("SQL") String sql
     ) {
         this.channel = channel;
         this.mapper = mapper;
-        this.getTimestamp = getTimestamp;
+        this.getInstant = getInstant;
         this.sql = sql;
     }
 
@@ -59,10 +58,7 @@ public abstract class BaseBatchConsumer<T> {
                 final var now = Instant.now();
 
                 for (var data : batch) {
-                    final var timestamp = getTimestamp.apply(data);
-                    final var time = Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
-                    final var delay = Duration.between(time, now);
-
+                    final var delay = Duration.between(getInstant.apply(data), now);
                     recorder.recordMessageDelay(channel, delay.isPositive() ? delay : Duration.ZERO);
                 }
             })

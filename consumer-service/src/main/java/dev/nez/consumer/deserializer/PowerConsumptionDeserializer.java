@@ -1,4 +1,4 @@
-package dev.nez.consumer.deserealizer;
+package dev.nez.consumer.deserializer;
 
 import dev.nez.dto.proto.timeddata.PowerConsumptionData;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -8,7 +8,7 @@ public class PowerConsumptionDeserializer implements Deserializer<PowerConsumpti
     @Override
     public PowerConsumptionData deserialize(String topic, byte[] data) {
         try {
-            return data == null ? null : PowerConsumptionData.parseFrom(data);
+            return (data != null && data.length > 0) ? PowerConsumptionData.parseFrom(data) : null;
         } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException("Error deserializing PowerConsumptionData", e);
         }

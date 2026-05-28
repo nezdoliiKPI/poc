@@ -1,6 +1,6 @@
 package dev.nez.analytics.filter;
 
-import dev.nez.notification.Alert;
+import dev.nez.analytics.data.alert.Alert;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -31,8 +31,6 @@ public class NotificationFilter {
 
         return new TopicFilter(filterCondition, topicConfig);
     }
-
-    private record FilterKey(Long deviceId, String metric) {}
 
     public static class TopicFilter {
         private final ConcurrentMap<FilterKey, Value> lastValues = new ConcurrentHashMap<>();
@@ -86,6 +84,11 @@ public class NotificationFilter {
             private Value(Alert data) {
                 this.data = data;
             }
+        }
+
+        private record FilterKey(
+            Long deviceId,
+            String metric) {
         }
     }
 }
