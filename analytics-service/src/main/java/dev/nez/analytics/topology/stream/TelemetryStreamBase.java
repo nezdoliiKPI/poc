@@ -8,10 +8,14 @@ import java.time.Duration;
 import java.util.function.BiFunction;
 
 public abstract class TelemetryStreamBase {
-    protected final NotificationFilter.TopicFilter<Alert> filter;
+    protected final NotificationFilter.TopicFilter filter;
 
     protected TelemetryStreamBase(NotificationFilter notificationFilter) {
         BiFunction<Alert, Alert, Boolean> alertFilter = (oldData, newData) -> {
+            if (newData.sev().ordinal() > oldData.sev().ordinal()) {
+                return true;
+            }
+
             final Duration diff = Duration.between(oldData.ts(), newData.ts());
             return diff.toMinutes() >= notificationFilter.getConfig().delay().min() || !oldData.msg().equals(newData.msg());
         };

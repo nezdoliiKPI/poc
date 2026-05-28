@@ -47,7 +47,7 @@ public class TemperatureStream extends TelemetryStreamBase {
             new JsonSerializer<>(),
             new JsonDeserializer<>(Alert.class)
         );
-        final var tempSerde = Serdes.serdeFrom(
+        final var dataSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),
             new TemperatureDeserializer()
         );
@@ -66,16 +66,17 @@ public class TemperatureStream extends TelemetryStreamBase {
 
         final KStream<Long, TemperatureData> tempStream = builder.stream(
             tempTopic,
-            Consumed.with(longSerde, tempSerde)
+            Consumed.with(longSerde, dataSerde)
         );
 
         tempStream
             .join(
                 thresholdsTable,
                 (event, latestThreshold) -> analyzer.checkThreshold(event, latestThreshold),
-                Joined.with(longSerde, tempSerde, thresholdsSerde)
+                Joined.with(longSerde, dataSerde, thresholdsSerde)
             )
-            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
+            .flatMapValues(alerts -> alerts != null ? alerts : java.util.Collections.emptyList())
+            .filter((id, alert) -> alert != null && filter.apply(alert))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

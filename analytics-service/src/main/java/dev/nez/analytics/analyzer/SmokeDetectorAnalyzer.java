@@ -1,46 +1,43 @@
 package dev.nez.analytics.analyzer;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import dev.nez.notification.Alert;
+import dev.nez.notification.Alert.Severity;
 import dev.nez.analytics.data.smoke.SmokeDetectorThresholds;
 import dev.nez.dto.proto.timeddata.SmokeDetectorData;
-import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Singleton
 public class SmokeDetectorAnalyzer {
 
-    @Nullable
-    public Alert checkThreshold(
-        SmokeDetectorData event,
-        SmokeDetectorThresholds thresholds
-    ) {
-        final String OUT_OF_RANGE_MSG = "The result is outside the expected range";
-        final String SENSOR_FAULT_MSG = "ERROR | SENSOR FAULT";
+    public List<Alert> checkThreshold(SmokeDetectorData event, SmokeDetectorThresholds thresholds) {
+        List<Alert> alerts = new ArrayList<>();
+        final long dId = event.getDeviceId();
+        final var ts = Instant.ofEpochSecond(event.getTimestamp().getSeconds(), event.getTimestamp().getNanos());
 
-        final long deviceId = event.getDeviceId();
-        final int smokeRaw = event.getSmokeRaw();
-        final int coLevel = event.getCoLevel();
-
-        final var instant = Instant.ofEpochSecond(
-            event.getTimestamp().getSeconds(),
-            event.getTimestamp().getNanos()
-        );
-
-        String msg = null;
-
-        if (smokeRaw < 0 || coLevel < 0) {
-            msg = SENSOR_FAULT_MSG;
-        } else if (
-            smokeRaw > thresholds.maxSmokeRaw() ||
-                coLevel > thresholds.maxCoLevel()
-        ) {
-            msg = OUT_OF_RANGE_MSG;
+        if (event.getSmokeRaw() < 0 || event.getCoLevel() < 0) {
+            alerts.add(createAlert(dId, "smoke_system", event.getSmokeRaw(), Severity.FAULT, "SENSOR FAULT | Показники диму/CO не можуть бути від'ємними", ts));
+            return alerts;
         }
 
-        return msg != null
-            ? new Alert(deviceId, msg, instant)
-            : null;
+        // Дим
+        if (event.getSmokeRaw() > thresholds.maxSmokeRaw()) {
+            alerts.add(createAlert(dId, "smoke", (float) event.getSmokeRaw(), Severity.CRITICAL, String.format("Виявлено дим! (Макс: %d)", thresholds.maxSmokeRaw()), ts));
+        }
+
+        // Чадний газ (CO)
+        if (event.getCoLevel() > thresholds.maxCoLevel()) {
+            alerts.add(createAlert(dId, "co_level", (float) event.getCoLevel(), Severity.CRITICAL, String.format("Небезпечний рівень чадного газу (Макс: %d)", thresholds.maxCoLevel()), ts));
+        }
+
+        return alerts;
+    }
+
+    private Alert createAlert(long dId, String metric, float val, Severity sev, String msg, Instant ts) {
+        return new Alert(UuidCreator.getTimeOrderedEpoch(), dId, metric, val, sev, msg, ts);
     }
 }

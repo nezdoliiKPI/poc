@@ -48,7 +48,7 @@ public class PowerConsumptionStream extends TelemetryStreamBase {
             new JsonSerializer<>(),
             new JsonDeserializer<>(Alert.class)
         );
-        final var consumptionSerde = Serdes.serdeFrom(
+        final var dataSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),
             new PowerConsumptionDeserializer()
         );
@@ -67,16 +67,17 @@ public class PowerConsumptionStream extends TelemetryStreamBase {
 
         final KStream<Long, PowerConsumptionData> consumptionStream = builder.stream(
             consumptionTopic,
-            Consumed.with(longSerde, consumptionSerde)
+            Consumed.with(longSerde, dataSerde)
         );
 
         consumptionStream
             .join(
                 thresholdsTable,
-                (consumptionEvent, latestThreshold) -> analyzer.checkThreshold(consumptionEvent, latestThreshold),
-                Joined.with(longSerde, consumptionSerde, thresholdsSerde)
+                (event, latestThreshold) -> analyzer.checkThreshold(event, latestThreshold),
+                Joined.with(longSerde, dataSerde, thresholdsSerde)
             )
-            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
+            .flatMapValues(alerts -> alerts != null ? alerts : java.util.Collections.emptyList())
+            .filter((id, alert) -> alert != null && filter.apply(alert))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }

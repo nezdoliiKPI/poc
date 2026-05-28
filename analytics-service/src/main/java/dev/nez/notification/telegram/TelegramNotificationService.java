@@ -78,7 +78,7 @@ public class TelegramNotificationService {
     private Map<Long, Map<String, Instant>> groupAndDeduplicateAlerts(List<Alert> batch) {
         return batch.stream()
             .collect(Collectors.groupingBy(
-                Alert::id,
+                Alert::dID,
                 Collectors.toMap(
                     Alert::msg,
                     Alert::ts,

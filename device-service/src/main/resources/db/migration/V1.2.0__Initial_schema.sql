@@ -179,3 +179,36 @@ CREATE TABLE devices (
      battery_topic VARCHAR(127)
 );
 
+-- ==========================================
+-- Alerts
+-- ==========================================
+CREATE TABLE alerts (
+    alert_uuid    UUID         NOT NULL,
+    device_id     BIGINT       NOT NULL REFERENCES devices(id),
+    metric        VARCHAR(32)  NOT NULL,
+    value         REAL,
+    severity      VARCHAR(16)  NOT NULL,
+    message       TEXT,
+    time_date     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+
+    PRIMARY KEY (alert_uuid, time_date)
+);
+
+SELECT create_hypertable(
+   'alerts',
+   'time_date',
+   chunk_time_interval => INTERVAL '1 day'
+);
+
+CREATE INDEX alerts_device_time_idx ON alerts (device_id, time_date DESC);
+CREATE INDEX alerts_metric_idx      ON alerts (metric, time_date DESC);
+CREATE INDEX alerts_severity_idx    ON alerts (severity, time_date DESC);
+
+ALTER TABLE alerts SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'device_id, metric',
+    timescaledb.compress_orderby = 'time_date DESC'
+);
+
+SELECT add_compression_policy('alerts', INTERVAL '3 day');
+SELECT add_retention_policy('alerts', INTERVAL '30 days');

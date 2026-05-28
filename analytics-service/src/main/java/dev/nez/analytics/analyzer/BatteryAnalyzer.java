@@ -1,42 +1,35 @@
 package dev.nez.analytics.analyzer;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import dev.nez.notification.Alert;
+import dev.nez.notification.Alert.Severity;
 import dev.nez.analytics.data.battery.BatteryThresholds;
 import dev.nez.dto.proto.timeddata.BatteryData;
-import io.smallrye.common.constraint.Nullable;
 import jakarta.inject.Singleton;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Singleton
 public class BatteryAnalyzer {
 
-    @Nullable
-    public Alert checkThreshold(
-        BatteryData event,
-        BatteryThresholds thresholds
-    ) {
-        final String OUT_OF_RANGE_MSG = "The result is outside the expected range";
-        final String SENSOR_FAULT_MSG = "ERROR | SENSOR FAULT";
-
-        final long deviceId = event.getDeviceId();
+    public List<Alert> checkThreshold(BatteryData event, BatteryThresholds thresholds) {
+        List<Alert> alerts = new ArrayList<>();
+        final long dId = event.getDeviceId();
+        final var ts = Instant.ofEpochSecond(event.getTimestamp().getSeconds(), event.getTimestamp().getNanos());
         final float val = event.getVal();
 
-        final var instant = Instant.ofEpochSecond(
-            event.getTimestamp().getSeconds(),
-            event.getTimestamp().getNanos()
-        );
-
-        String msg = null;
-
         if (val < 0) {
-            msg = SENSOR_FAULT_MSG;
+            alerts.add(createAlert(dId, "battery", val, Severity.FAULT, "SENSOR FAULT | Заряд не може бути від'ємним", ts));
         } else if (val < thresholds.minBatteryLevel()) {
-            msg = OUT_OF_RANGE_MSG;
+            alerts.add(createAlert(dId, "val", val, Severity.WARNING, String.format("Низький заряд батареї (Мін: %.2f%%)", thresholds.minBatteryLevel()), ts));
         }
 
-        return msg != null
-            ? new Alert(deviceId, msg, instant)
-            : null;
+        return alerts;
+    }
+
+    private Alert createAlert(long dId, String metric, float val, Severity sev, String msg, Instant ts) {
+        return new Alert(UuidCreator.getTimeOrderedEpoch(), dId, metric, val, sev, msg, ts);
     }
 }

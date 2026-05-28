@@ -48,7 +48,7 @@ public class BatteryStream extends TelemetryStreamBase {
             new JsonSerializer<>(),
             new JsonDeserializer<>(Alert.class)
         );
-        final var batterySerde = Serdes.serdeFrom(
+        final var dataSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),
             new BatteryDataDeserializer()
         );
@@ -67,16 +67,17 @@ public class BatteryStream extends TelemetryStreamBase {
 
         final KStream<Long, BatteryData> batteryStream = builder.stream(
             batteryTopic,
-            Consumed.with(longSerde, batterySerde)
+            Consumed.with(longSerde, dataSerde)
         );
 
         batteryStream
             .join(
                 thresholdsTable,
                 (event, latestThreshold) -> analyzer.checkThreshold(event, latestThreshold),
-                Joined.with(longSerde, batterySerde, thresholdsSerde)
+                Joined.with(longSerde, dataSerde, thresholdsSerde)
             )
-            .filter((id, alertMessage) -> alertMessage != null && filter.apply(id, alertMessage))
+            .flatMapValues(alerts -> alerts != null ? alerts : java.util.Collections.emptyList())
+            .filter((id, alert) -> alert != null && filter.apply(alert))
             .to(notificationsTopic, Produced.with(longSerde, alertSerde));
     }
 }
