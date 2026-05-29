@@ -6,8 +6,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 CREATE SEQUENCE power_consumption_seq INCREMENT BY 1;
 
 CREATE TABLE power_consumption (
-   id BIGINT DEFAULT nextval('power_consumption_seq'),
-
+   id           BIGINT NOT NULL DEFAULT nextval('power_consumption_seq'),
    device_id    BIGINT NOT NULL,
    voltage      REAL NOT NULL,
    current      REAL NOT NULL,
@@ -39,8 +38,7 @@ SELECT add_retention_policy('power_consumption', INTERVAL '30 days');
 CREATE SEQUENCE temperature_data_seq INCREMENT BY 1;
 
 CREATE TABLE temperature_data (
-  id BIGINT DEFAULT nextval('temperature_data_seq'),
-
+  id            BIGINT NOT NULL DEFAULT nextval('temperature_data_seq'),
   device_id     BIGINT NOT NULL,
   temperature   REAL NOT NULL,
   humidity      REAL NOT NULL,
@@ -71,8 +69,7 @@ SELECT add_retention_policy('temperature_data', INTERVAL '30 days');
 CREATE SEQUENCE air_quality_seq INCREMENT BY 1;
 
 CREATE TABLE air_quality (
-     id BIGINT DEFAULT nextval('air_quality_seq'),
-
+     id             BIGINT NOT NULL DEFAULT nextval('air_quality_seq'),
      device_id      BIGINT NOT NULL,
      co2            INTEGER NOT NULL,
      pm25           REAL NOT NULL,
@@ -107,8 +104,7 @@ SELECT add_retention_policy('air_quality', INTERVAL '30 days');
 CREATE SEQUENCE battery_data_seq INCREMENT BY 1;
 
 CREATE TABLE battery_data (
-      id BIGINT DEFAULT nextval('battery_data_seq'),
-
+      id        BIGINT NOT NULL DEFAULT nextval('battery_data_seq'),
       device_id BIGINT NOT NULL,
       val       REAL NOT NULL,
       time_date TIMESTAMPTZ NOT NULL,
@@ -138,8 +134,7 @@ SELECT add_retention_policy('battery_data', INTERVAL '30 days');
 CREATE SEQUENCE smoke_detector_seq INCREMENT BY 1;
 
 CREATE TABLE smoke_detector (
-    id BIGINT DEFAULT nextval('smoke_detector_seq'),
-
+    id        BIGINT NOT NULL DEFAULT nextval('smoke_detector_seq'),
     device_id BIGINT NOT NULL,
     smoke_raw INTEGER NOT NULL,
     co_level INTEGER NOT NULL,
@@ -170,7 +165,7 @@ SELECT add_retention_policy('smoke_detector', INTERVAL '30 days');
 CREATE SEQUENCE devices_seq INCREMENT BY 1;
 
 CREATE TABLE devices (
-     id BIGINT      DEFAULT nextval('devices_SEQ') PRIMARY KEY,
+     id             BIGINT NOT NULL DEFAULT nextval('devices_SEQ') PRIMARY KEY,
      hardware_id    VARCHAR(127) NOT NULL UNIQUE,
      password_hash  VARCHAR(127) NOT NULL,
      status         VARCHAR(31) NOT NULL,
