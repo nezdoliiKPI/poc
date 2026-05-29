@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { getCredentials } from '../api/client';
 import type { TelemetryType, AnyPoint } from '../types';
 
 const FLUSH_INTERVAL_MS = 500;
@@ -105,16 +104,14 @@ export function useSSEStream<T extends AnyPoint>(
   useEffect(() => {
     if (!type) return;
 
-    const credentials = getCredentials();
-    if (!credentials) return;
-
     let cancelled = false;
     const controller = new AbortController();
 
     (async () => {
       try {
         const response = await fetch(buildStreamUrl(deviceId, type), {
-          headers: { Authorization: `Basic ${credentials}`, Accept: 'text/event-stream' },
+          headers: { Accept: 'text/event-stream' },
+          credentials: 'include',
           signal: controller.signal,
         });
 

@@ -5,6 +5,7 @@ import dev.nez.monitoring.dto.*;
 import io.smallrye.mutiny.Multi;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import java.time.Instant;
@@ -12,6 +13,7 @@ import java.time.Instant;
 @Path("/api/devices/{id}/stream")
 @RolesAllowed("admin")
 @Produces(MediaType.SERVER_SENT_EVENTS)
+@Valid
 public class StreamResource {
 
     @Inject

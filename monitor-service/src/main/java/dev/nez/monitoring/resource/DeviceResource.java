@@ -3,6 +3,7 @@ package dev.nez.monitoring.resource;
 import dev.nez.monitoring.model.Device;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Path("/api/devices")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed("admin")
+@Valid
 public class DeviceResource {
 
     @GET

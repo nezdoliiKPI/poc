@@ -1,4 +1,4 @@
-import { getCredentials, clearCredentials } from './client';
+
 
 export interface ProducerConfig {
   powerProtoCount: number;
@@ -42,19 +42,14 @@ function parseErrorBody(text: string, status: number): string {
  * and Quinoa's SPA fallback serves index.html instead of the actual API response.
  */
 async function adminPost<T = void>(url: string, body: unknown): Promise<T> {
-  const credentials = getCredentials();
-
   const resp = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(credentials ? { Authorization: `Basic ${credentials}` } : {}),
-    },
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(body),
   });
 
   if (resp.status === 401) {
-    clearCredentials();
     window.location.href = '/login';
     throw new Error('Unauthorized');
   }

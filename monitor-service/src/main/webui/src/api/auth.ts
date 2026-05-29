@@ -1,43 +1,36 @@
-import { setCredentials, clearCredentials, getCredentials } from './client';
+/**
+ * Auth API — login, logout, and session check.
+ * Credentials are never stored on the client; the server manages the session
+ * via an HttpOnly cookie.
+ */
 
 /**
- * Authenticates against /api/auth/verify using Basic Auth.
- * On 200 the credentials are persisted to sessionStorage.
- * On 401 an error is thrown with a user-facing message.
+ * Sends username/password to the server. On success the server sets an
+ * HttpOnly session cookie; subsequent requests carry it automatically.
  */
-export async function login(
-  username: string,
-  password: string
-): Promise<void> {
-  const encoded = btoa(`${username}:${password}`);
-
-  const response = await fetch('/api/auth/verify', {
-    headers: { Authorization: `Basic ${encoded}` },
+export async function login(username: string, password: string): Promise<void> {
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ username, password }),
   });
 
   if (response.status === 401) {
     throw new Error('Невірний логін або пароль');
   }
-
   if (!response.ok) {
     throw new Error(`Помилка сервера: ${response.status}`);
   }
-
-  setCredentials(username, password);
 }
 
 /**
- * Checks whether the stored credentials are still valid.
- * Called on application startup to decide whether to show the login screen.
+ * Checks whether the current session cookie is still valid.
+ * Returns true if the server recognises the session, false otherwise.
  */
 export async function verifyAuth(): Promise<boolean> {
-  const credentials = getCredentials();
-  if (!credentials) return false;
-
   try {
-    const response = await fetch('/api/auth/verify', {
-      headers: { Authorization: `Basic ${credentials}` },
-    });
+    const response = await fetch('/api/auth/me', { credentials: 'include' });
     return response.ok;
   } catch {
     return false;
@@ -45,8 +38,11 @@ export async function verifyAuth(): Promise<boolean> {
 }
 
 /**
- * Clears stored credentials and effectively logs the user out.
+ * Invalidates the session on the server and clears the cookie.
  */
-export function logout(): void {
-  clearCredentials();
+export async function logout(): Promise<void> {
+  await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+  });
 }

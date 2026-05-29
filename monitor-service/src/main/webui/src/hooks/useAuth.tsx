@@ -1,22 +1,11 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from 'react';
-import {
-  login as apiLogin,
-  logout as apiLogout,
-  verifyAuth,
-} from '../api/auth';
-import { getCredentials } from '../api/client';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { login as apiLogin, logout as apiLogout, verifyAuth } from '../api/auth';
 
 interface AuthContextValue {
   isAuthenticated: boolean;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -25,11 +14,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // On startup, check with the server whether the session cookie is still valid.
   useEffect(() => {
-    if (!getCredentials()) {
-      setLoading(false);
-      return;
-    }
     verifyAuth()
       .then(setIsAuthenticated)
       .finally(() => setLoading(false));
@@ -40,8 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    apiLogout();
+  const logout = async () => {
+    await apiLogout();
     setIsAuthenticated(false);
   };
 
@@ -54,8 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth повинен використовуватися всередині AuthProvider');
-  }
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;
 }

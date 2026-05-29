@@ -74,3 +74,25 @@ export type AnyPoint =
   | AirQualityPoint
   | BatteryPoint
   | SmokeDetectorPoint;
+
+// Mirrors dev.nez.monitoring.dto.Alert
+export type AlertSeverity = 'WARNING' | 'CRITICAL' | 'FAULT';
+
+export interface Alert {
+  uuid:   string;
+  dID:    number;
+  metric: string;
+  val:    number;
+  min:    number | null;
+  max:    number | null;
+  sev:    AlertSeverity;
+  msg:    string;
+  ts:     string; // ISO Instant
+}
+
+// Severity ordering for comparison (higher = worse)
+export const SEVERITY_RANK: Record<AlertSeverity, number> = {
+  WARNING:  1,
+  CRITICAL: 2,
+  FAULT:    3,
+};

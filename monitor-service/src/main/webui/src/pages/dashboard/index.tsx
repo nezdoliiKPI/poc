@@ -5,6 +5,7 @@ import { useError } from '../../hooks/useError';
 import { COLORS } from '../../theme';
 import type { Device, DeviceStatus } from '../../types';
 import { GenTab, FilterTab, ThresholdsTab } from '../admin';
+import { AlertsTab } from './AlertsTab';
 import { DeviceRow } from './DeviceRow';
 import { Pagination } from './Pagination';
 
@@ -62,7 +63,7 @@ export default function Dashboard() {
   const [search,  setSearch]  = useState('');
   const [page,    setPage]    = useState(1);
   const [sort,    setSort]    = useState<{ col: SortCol; dir: SortDir }>({ col: 'id', dir: 'asc' });
-  const [mainTab, setMainTab] = useState<'devices' | 'gen' | 'filter' | 'thresholds'>('devices');
+  const [mainTab, setMainTab] = useState<'devices' | 'alerts' | 'gen' | 'filter' | 'thresholds'>('devices');
 
   useEffect(() => {
     getDevices()
@@ -132,10 +133,11 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'stretch' }}>
           {(
             [
-              { id: 'devices',    label: 'Пристрої'  },
-              { id: 'gen',        label: 'Генерація' },
-              { id: 'filter',     label: 'Фільтри'   },
-              { id: 'thresholds', label: 'Пороги'    },
+              { id: 'devices',    label: 'Пристрої'    },
+              { id: 'alerts',     label: 'Сповіщення' },
+              { id: 'gen',        label: 'Генерація'  },
+              { id: 'filter',     label: 'Фільтри'    },
+              { id: 'thresholds', label: 'Пороги'     },
             ] as const
           ).map(({ id, label }) => (
             <button
@@ -313,6 +315,11 @@ export default function Dashboard() {
             />
           )}
         </div>
+      </div>
+
+      {/* ── Alerts tab ──────────────────────────────────────────────────── */}
+      <div style={{ ...TAB_CARD, display: mainTab === 'alerts' ? undefined : 'none' }}>
+        <AlertsTab />
       </div>
 
       {/* ── Admin tabs — kept mounted so state survives tab switches ─────── */}

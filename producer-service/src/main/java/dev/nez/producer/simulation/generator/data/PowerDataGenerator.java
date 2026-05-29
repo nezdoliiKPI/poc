@@ -25,17 +25,17 @@ public class PowerDataGenerator extends DeviceDataGenerator {
 
     @Override
     public Object getData() {
-        final var cv = 230.0f;
-        final var cf = 1.0f;
-        final var pf = 0.8f; //Power Factor
-
         final float VOLTAGE_DELTA = 1.0f;
         final float CURRENT_DELTA = 0.05f;
 
+        final var cv = 230.0f + rnd.nextFloat(VOLTAGE_DELTA);
+        final var cf = 1.0f   + rnd.nextFloat(CURRENT_DELTA);
+        final var pf = 0.8f; //Power Factor
+
         return new PowerConsumption(
             this.deviceId,
-            cv + rnd.nextFloat(VOLTAGE_DELTA),
-            cf  + rnd.nextFloat(CURRENT_DELTA),
+            cv ,
+            cf  ,
             cv * cf * pf
         );
     }

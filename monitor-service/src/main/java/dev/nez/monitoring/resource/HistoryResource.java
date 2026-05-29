@@ -6,6 +6,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.ws.rs.*;
@@ -75,11 +76,21 @@ public class HistoryResource {
 
     @GET
     @Path("/alert")
-    public Uni<List<Alert>> alert(
+    public Uni<List<Alert>> alerts(
         @PathParam("id")    @NotNull Long deviceId,
         @QueryParam("from") @NotNull @PastOrPresent OffsetDateTime from,
         @QueryParam("to")   @NotNull @PastOrPresent OffsetDateTime to
     ) {
-        return historyService.getAlertHistory(deviceId, from, to);
+        return historyService.getAlertHistory(List.of(deviceId), from, to);
+    }
+
+    @GET
+    @Path("/alerts")
+    public Uni<List<Alert>> alertsDevices(
+        @QueryParam("deviceIds") @NotEmpty List<Long> deviceIds,
+        @QueryParam("from")      @NotNull @PastOrPresent OffsetDateTime from,
+        @QueryParam("to")        @NotNull @PastOrPresent OffsetDateTime to
+    ) {
+        return historyService.getAlertHistory(deviceIds, from, to);
     }
 }

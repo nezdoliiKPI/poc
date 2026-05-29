@@ -20,7 +20,7 @@ public class HistoryService {
     public Uni<List<PowerConsumptionPoint>> getPowerHistory(
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
-        String sql = """
+        final String sql = """
             SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(voltage) AS voltage,
@@ -50,7 +50,7 @@ public class HistoryService {
     public Uni<List<TemperaturePoint>> getTemperatureHistory(
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
-        String sql = """
+        final String sql = """
             SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(temperature) AS temperature,
@@ -78,7 +78,7 @@ public class HistoryService {
     public Uni<List<AirQualityPoint>> getAirQualityHistory(
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
-        String sql = """
+        final String sql = """
             SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(co2)         AS co2,
@@ -114,7 +114,7 @@ public class HistoryService {
     public Uni<List<BatteryPoint>> getBatteryHistory(
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
-        String sql = """
+        final String sql = """
             SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(val) AS val
@@ -140,7 +140,7 @@ public class HistoryService {
     public Uni<List<SmokeDetectorPoint>> getSmokeHistory(
         long deviceId, OffsetDateTime from, OffsetDateTime to) {
 
-        String sql = """
+        final String sql = """
             SELECT MAX(time_date) AS bucket,
                    device_id,
                    AVG(smoke_raw) AS smoke_raw,
@@ -166,9 +166,11 @@ public class HistoryService {
     }
 
     public Uni<List<Alert>> getAlertHistory(
-        long deviceId, OffsetDateTime from, OffsetDateTime to) {
-
-        String sql = """
+        List<Long> deviceIds,
+        OffsetDateTime from,
+        OffsetDateTime to
+    ) {
+        final String sql = """
             SELECT alert_uuid,
                    device_id,
                    metric,
@@ -179,13 +181,15 @@ public class HistoryService {
                    message,
                    time_date
             FROM alerts
-            WHERE device_id = $1
+            WHERE device_id = ANY($1)
               AND time_date BETWEEN $2 AND $3
             ORDER BY time_date DESC
-            """;
+        """;
+
+        final Long[] idsArray = deviceIds.toArray(new Long[0]);
 
         return db.preparedQuery(sql)
-            .execute(Tuple.of(deviceId, from, to))
+            .execute(Tuple.of(idsArray, from, to))
             .map(rows -> rows.stream()
                 .map(row -> new Alert(
                     row.getUUID("alert_uuid"),
@@ -205,9 +209,8 @@ public class HistoryService {
     private String resolveBucket(OffsetDateTime from, OffsetDateTime to) {
         long seconds = Math.abs(ChronoUnit.SECONDS.between(from, to));
 
-        if (seconds <= 60) return "1 second";
-        if (seconds <= 300) return "5 seconds";
-        if (seconds <= 1800) return "15 seconds";
+        if (seconds <= 300) return "1 seconds";
+        if (seconds <= 1800) return "10 seconds";
         if (seconds <= 3600) return "1 minute";
         if (seconds <= 86400) return "5 minutes";
         if (seconds <= 604800) return "1 hour";
