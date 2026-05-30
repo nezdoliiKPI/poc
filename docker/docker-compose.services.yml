@@ -14,8 +14,6 @@ services:
     environment:
       - QUARKUS_PROFILE=prod
       - SECRETS_DIR=/secrets
-    depends_on:
-      - main-service
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
@@ -72,10 +70,11 @@ services:
       - "8086:8086"
     volumes:
       - ../config/secrets/admin/credentials.properties:/config/secrets/admin/credentials.properties:ro
+      - ../config/secrets/tls:/config/secrets/tls:ro
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:19092
       - QUARKUS_PROFILE=prod
-      - SECRETS_DIR=/secrets
+      - SECRETS_DIR=/config
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
@@ -87,14 +86,13 @@ services:
       - "8084:8084"
     volumes:
       - ../config/secrets/admin/credentials.properties:/config/secrets/admin/credentials.properties:ro
-      - ../config/secrets/tls/ca.crt:/secrets/tls/ca.crt:ro
       - ../config/secrets/jwt:/secrets/jwt:ro
       - ../config/secrets/tls:/secrets/tls:ro
     environment:
       - QUARKUS_PROFILE=prod
       - SECRETS_DIR=/secrets
     depends_on:
-      - auth-service
+      - device-service
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

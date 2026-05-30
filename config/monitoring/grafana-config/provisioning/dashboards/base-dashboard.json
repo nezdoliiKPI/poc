@@ -123,7 +123,7 @@
           "refId": "A"
         }
       ],
-      "title": "Received messages",
+      "title": "Інтенсивність вхідних повідомлень",
       "type": "timeseries"
     },
     {
@@ -210,13 +210,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "(histogram_quantile(0.95, sum by(le) (rate(message_delay_milliseconds_bucket[30s]))))\r\n+ on() \r\n(sum(broker_messages_stored - 54) / sum(rate(broker_publish_messages_sent[30s])) * 1000)",
+          "expr": "(histogram_quantile(0.95, sum by(le) (rate(message_delay_milliseconds_bucket[30s]))))\r\n+ on() \r\n(clamp_min(sum(broker_messages_stored - 54), 0) / sum(rate(broker_publish_messages_sent[30s])) * 1000)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Total process delay",
+      "title": "Середня затримка обробки повідомлення",
       "type": "timeseries"
     },
     {
@@ -309,7 +309,7 @@
           "refId": "A"
         }
       ],
-      "title": "Inbound Traffic",
+      "title": "Вхідне навантаження",
       "type": "timeseries"
     },
     {
@@ -402,7 +402,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total services memory usage",
+      "title": "Загальне використання оперативної пам'яті сервісами",
       "type": "timeseries"
     },
     {
@@ -511,7 +511,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total Requests",
+      "title": "Загальна кількість запитів",
       "type": "timeseries"
     },
     {
@@ -607,7 +607,7 @@
           "refId": "A"
         }
       ],
-      "title": "DB Requests",
+      "title": "Кількість запитів в БД",
       "type": "timeseries"
     },
     {
@@ -700,7 +700,7 @@
           "refId": "A"
         }
       ],
-      "title": "Memory usage",
+      "title": "Використання оперативної пам'яті",
       "type": "timeseries"
     },
     {
@@ -810,7 +810,7 @@
           "refId": "A"
         }
       ],
-      "title": "Consume Rate from MQTT broker",
+      "title": "Вхідна інтенсивінсть повідомлень з MQTT-брокера",
       "type": "timeseries"
     },
     {
@@ -907,7 +907,7 @@
           "refId": "A"
         }
       ],
-      "title": "Produce Rate to MQ",
+      "title": "Вихідна інтенсивінсть повідомлень в подійну шину",
       "type": "timeseries"
     },
     {
@@ -1000,7 +1000,7 @@
           "refId": "A"
         }
       ],
-      "title": "Memory usage",
+      "title": "Використання оперативної пам'яті",
       "type": "timeseries"
     },
     {
@@ -1110,7 +1110,7 @@
           "refId": "A"
         }
       ],
-      "title": "Consume Rate from MQ",
+      "title": "Кількість записів БД",
       "type": "timeseries"
     },
     {
@@ -1207,7 +1207,7 @@
           "refId": "A"
         }
       ],
-      "title": "DB Write Throughput",
+      "title": "Кількість записаних структур в БД",
       "type": "timeseries"
     },
     {
@@ -1304,7 +1304,7 @@
           "refId": "A"
         }
       ],
-      "title": "Memory usage",
+      "title": "Використання оперативної пам'яті",
       "type": "timeseries"
     },
     {
@@ -1414,7 +1414,7 @@
           "refId": "A"
         }
       ],
-      "title": "Service Throughput",
+      "title": "Вхідна інтенсивінсть повідомлень з подійної шини",
       "type": "timeseries"
     },
     {
@@ -1511,7 +1511,7 @@
           "refId": "A"
         }
       ],
-      "title": "Analityc delay",
+      "title": "Затримка аналітики",
       "type": "timeseries"
     },
     {
@@ -1608,7 +1608,7 @@
           "refId": "A"
         }
       ],
-      "title": "Memory usage",
+      "title": "Використання оперативної пам'яті",
       "type": "timeseries"
     },
     {
@@ -1714,7 +1714,7 @@
           "refId": "A"
         }
       ],
-      "title": "Write latency",
+      "title": "Середня затримка відправки даних в подійну шину",
       "type": "timeseries"
     },
     {
@@ -1807,7 +1807,7 @@
           "refId": "A"
         }
       ],
-      "title": "Read latency",
+      "title": "Середня затримка читання даних з подійної шини",
       "type": "timeseries"
     },
     {
@@ -1888,7 +1888,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current disk usage vs target",
+      "title": "Поточне викоистання диску / цільове",
       "type": "bargauge"
     },
     {
@@ -1980,7 +1980,7 @@
           "refId": "A"
         }
       ],
-      "title": "Unprocessed Messages",
+      "title": "Кількість необроблених повідомлень",
       "type": "timeseries"
     },
     {
@@ -2072,7 +2072,7 @@
           "refId": "A"
         }
       ],
-      "title": "Active connections",
+      "title": "Кількість активних з'єднань",
       "type": "timeseries"
     },
     {
@@ -2178,7 +2178,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total write",
+      "title": "Інтенсивність записів",
       "type": "timeseries"
     },
     {
@@ -2270,7 +2270,7 @@
           "refId": "A"
         }
       ],
-      "title": "Active connections",
+      "title": "Кількість активних з'єднань",
       "type": "timeseries"
     },
     {
@@ -2345,7 +2345,7 @@
           "refId": "A"
         }
       ],
-      "title": "DB Size",
+      "title": "Розмір бази даних",
       "type": "stat"
     },
     {
@@ -2438,7 +2438,7 @@
           "refId": "A"
         }
       ],
-      "title": "Commits",
+      "title": "Інтенсивність транзакцій",
       "type": "timeseries"
     },
     {
@@ -2531,7 +2531,7 @@
           "refId": "A"
         }
       ],
-      "title": "Rollbacks",
+      "title": "Інтенсивність помилок",
       "type": "timeseries"
     },
     {
@@ -2623,7 +2623,7 @@
           "refId": "A"
         }
       ],
-      "title": "Locks",
+      "title": "Кількість блокувань",
       "type": "timeseries"
     },
     {
@@ -2715,7 +2715,7 @@
           "refId": "A"
         }
       ],
-      "title": "Deadlocks",
+      "title": "Кількість дедлоків",
       "type": "timeseries"
     },
     {
@@ -2821,7 +2821,7 @@
           "refId": "A"
         }
       ],
-      "title": "Received",
+      "title": "Інтенсивність вхідних повідомлень",
       "type": "timeseries"
     },
     {
@@ -2914,7 +2914,7 @@
           "refId": "A"
         }
       ],
-      "title": "Sent",
+      "title": "Інтенсивність вихідних повідомлень",
       "type": "timeseries"
     },
     {
@@ -3000,13 +3000,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "broker_messages_stored - 54",
+          "expr": "broker_messages_stored",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Unprocessed Messages",
+      "title": "Кількість необроблених повідомлень",
       "type": "timeseries"
     },
     {
@@ -3099,7 +3099,7 @@
           "refId": "A"
         }
       ],
-      "title": "Inbound Traffic",
+      "title": "Вхідне навантаження",
       "type": "timeseries"
     },
     {
@@ -3192,7 +3192,7 @@
           "refId": "A"
         }
       ],
-      "title": "Outbound Traffic",
+      "title": "Вихідне навантаження",
       "type": "timeseries"
     },
     {
@@ -3284,7 +3284,7 @@
           "refId": "A"
         }
       ],
-      "title": "Clients connected",
+      "title": "Кількість клієнтів",
       "type": "timeseries"
     }
   ],
@@ -3380,6 +3380,6 @@
   "timezone": "browser",
   "title": "BaseDashboard",
   "uid": "adqjtkd",
-  "version": 2,
+  "version": 5,
   "weekStart": ""
 }

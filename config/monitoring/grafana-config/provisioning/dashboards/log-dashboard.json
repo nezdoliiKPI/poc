@@ -160,7 +160,7 @@
           "refId": "A"
         }
       ],
-      "title": "Log volume by level",
+      "title": "Кількість логів за рівнем",
       "type": "timeseries"
     },
     {
@@ -229,7 +229,7 @@
           "refId": "A"
         }
       ],
-      "title": "Logs Processed",
+      "title": "Логів оброблено",
       "type": "stat"
     },
     {
@@ -304,7 +304,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total Errors",
+      "title": "Загальна кількість помилок",
       "type": "stat"
     },
     {
@@ -350,7 +350,7 @@
           "refId": "A"
         }
       ],
-      "title": "Service logs",
+      "title": "Логи",
       "type": "logs"
     }
   ],
@@ -362,8 +362,8 @@
     "list": [
       {
         "current": {
-          "text": "edge-service",
-          "value": "edge-service"
+          "text": "monitor-service",
+          "value": "monitor-service"
         },
         "datasource": {
           "type": "loki",
@@ -421,6 +421,6 @@
   "timezone": "browser",
   "title": "LogsDashboard",
   "uid": "log-dashboard-main",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
