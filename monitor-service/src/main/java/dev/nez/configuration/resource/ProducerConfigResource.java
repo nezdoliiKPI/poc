@@ -27,10 +27,17 @@ public class ProducerConfigResource {
     @RestClient
     ProducerConfigClient producerConfigClient;
 
-    @POST
+    @GET
     @Path("/gen")
     @RateLimit(value = 1, window = 500, windowUnit = ChronoUnit.MILLIS)
-    public Uni<RestResponse<Float>> updateGenerate(@Valid ProducerConfig request) {
+    public Uni<RestResponse<ProducerConfig>> getConfig() {
+        return producerConfigClient.getConfig();
+    }
+
+    @POST
+    @Path("/gen/update")
+    @RateLimit(value = 1, window = 500, windowUnit = ChronoUnit.MILLIS)
+    public Uni<RestResponse<ProducerConfig>> updateGenerate(@Valid ProducerConfig request) {
         return producerConfigClient.updateConfig(request);
     }
 }
