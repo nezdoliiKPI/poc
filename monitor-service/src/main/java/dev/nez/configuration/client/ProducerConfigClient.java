@@ -15,7 +15,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 public interface ProducerConfigClient {
 
     @POST
-    @Path("/gen")
+    @Path("/gen/update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     Uni<RestResponse<Float>> updateConfig(ProducerConfig request);

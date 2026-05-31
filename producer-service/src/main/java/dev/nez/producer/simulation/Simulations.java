@@ -1,6 +1,8 @@
 package dev.nez.producer.simulation;
 
 import dev.nez.producer.client.ProducerClient.DeviceSession;
+import dev.nez.producer.dto.rest.ProducerConfig;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -12,9 +14,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @ApplicationScoped
 public class Simulations {
     private final ConcurrentHashMap<String, CopyOnWriteArrayList<DeviceSession>> simulations = new ConcurrentHashMap<>();
+    private final SimulationConfig staticConfig;
 
     @Inject
     Simulations(SimulationConfig config) {
+        this.staticConfig = config;
+
         // AIR
         simulations.put(config.air().proto().topic(), new CopyOnWriteArrayList<>());
         simulations.put(config.air().json().topic(), new CopyOnWriteArrayList<>());
@@ -30,6 +35,22 @@ public class Simulations {
         // Temperature
         simulations.put(config.temp().proto().topic(), new CopyOnWriteArrayList<>());
         simulations.put(config.temp().json().topic(), new CopyOnWriteArrayList<>());
+    }
+
+    public Uni<ProducerConfig> getConfig() {
+        final var currentConfig = new ProducerConfig(
+            (int)getSessionList(staticConfig.air().json().topic()).stream().filter(DeviceSession::isRunning).count(),
+            (int)getSessionList(staticConfig.air().proto().topic()).stream().filter(DeviceSession::isRunning).count(),
+            (int)getSessionList(staticConfig.power().json().topic()).stream().filter(DeviceSession::isRunning).count(),
+            (int)getSessionList(staticConfig.power().proto().topic()).stream().filter(DeviceSession::isRunning).count(),
+            (int)getSessionList(staticConfig.smoke().json().topic()).stream().filter(DeviceSession::isRunning).count(),
+            (int)getSessionList(staticConfig.smoke().proto().topic()).stream().filter(DeviceSession::isRunning).count(),
+            (int)getSessionList(staticConfig.temp().json().topic()).stream().filter(DeviceSession::isRunning).count(),
+            (int)getSessionList(staticConfig.temp().proto().topic()).stream().filter(DeviceSession::isRunning).count(),
+            getIntensity()
+        );
+
+        return Uni.createFrom().item(currentConfig);
     }
 
     public float getIntensity() {

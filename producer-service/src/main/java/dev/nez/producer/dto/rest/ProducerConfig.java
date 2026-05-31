@@ -1,5 +1,6 @@
 package dev.nez.producer.dto.rest;
 
+import io.smallrye.common.constraint.Nullable;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +44,9 @@ public record ProducerConfig(
     @NotNull(message = "Field 'tempProtoCount' cannot be null")
     @Min(value = 0, message = "Field 'tempProtoCount' cannot be negative")
     @Max(value = 2000, message = "Field 'tempProtoCount' cannot exceed 2000")
-    Integer tempProtoCount
+    Integer tempProtoCount,
+
+    @Nullable
+    Float intensity
 ) {
 }

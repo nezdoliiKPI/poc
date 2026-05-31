@@ -3,11 +3,12 @@ package dev.nez.producer.simulation;
 import dev.nez.producer.client.ProducerClient;
 import dev.nez.producer.client.ProducerClient.DeviceSession;
 
+import dev.nez.producer.dto.rest.ProducerConfig;
 import dev.nez.producer.simulation.generator.GeneratorFactory;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
 
-import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 
@@ -18,7 +19,6 @@ import java.util.Objects;
 
 @ApplicationScoped
 public class Simulator {
-    public static final String CONFIG_ADDRESS = "config-change-event";
 
     @Inject
     Simulations simulations;
@@ -55,8 +55,11 @@ public class Simulator {
         Log.info("Predicted messages per second: " + simulations.getIntensity());
     }
 
-    @ConsumeEvent(CONFIG_ADDRESS)
-    Float onConfigChange(ConfigChangeEvent event) {
+    public Uni<ProducerConfig> getConfig() {
+        return simulations.getConfig();
+    }
+
+    public Uni<Float> configChange(ConfigChangeEvent event) {
         Log.info("Configuration set, topic: " + event.topic() + ", count: " + event.newCount());
 
         final var sessions = Objects.requireNonNull(simulations.getSessionList(event.topic()), "Not found topic: " + event.topic());
@@ -76,10 +79,8 @@ public class Simulator {
             }
         }
 
-        final float intensity = simulations.getIntensity();
-
-        Log.info("Predicted messages per second: " + intensity);
-        return intensity;
+        return Uni.createFrom().item(simulations.getIntensity())
+            .invoke(intensity -> Log.info("Predicted messages per second: " + intensity));
     }
 
     private void addGenerators(String topic, int count) {
