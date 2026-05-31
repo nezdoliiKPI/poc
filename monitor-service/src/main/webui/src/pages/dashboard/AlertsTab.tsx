@@ -231,7 +231,7 @@ export function AlertsTab() {
                     <td className="px-4 py-3 text-center">
                       <button
                         className="hover-primary"
-                        onClick={() => navigate(`/devices/${device.id}#alerts`)}
+                        onClick={() => navigate(`/devices/${device.id}#alerts`, { state: { windowMinutes } })}
                         style={{
                           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                           width: 26, height: 26, borderRadius: 4, fontSize: 16, lineHeight: 1,

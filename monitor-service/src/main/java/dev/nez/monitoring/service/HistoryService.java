@@ -210,8 +210,8 @@ public class HistoryService {
         long seconds = Math.abs(ChronoUnit.SECONDS.between(from, to));
 
         if (seconds <= 300) return "1 seconds";
-        if (seconds <= 1800) return "10 seconds";
-        if (seconds <= 3600) return "1 minute";
+        if (seconds <= 1800) return "5 seconds";
+        if (seconds <= 3600) return "30 seconds";
         if (seconds <= 86400) return "5 minutes";
         if (seconds <= 604800) return "1 hour";
         return "1 day";

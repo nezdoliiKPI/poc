@@ -43,16 +43,14 @@ export default function App() {
             <Route
               path="/devices/:id"
               element={
-                <PrivateRoute>
-                  <DeviceDetail />
-                </PrivateRoute>
+                <PrivateRoute><DeviceDetail /></PrivateRoute>
               }
             />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
-           </ErrorProvider>
+      </ErrorProvider>
     </AuthProvider>
   );
 }

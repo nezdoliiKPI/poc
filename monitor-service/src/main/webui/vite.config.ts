@@ -22,19 +22,23 @@ export default defineConfig({
       '/api/thresholds': {
         target: CONFIG_URL,
         changeOrigin: true,
+        secure: false,
       },
       '/api/edge': {
         target: CONFIG_URL,
         changeOrigin: true,
+        secure: false,
       },
       '/api/producer': {
         target: CONFIG_URL,
         changeOrigin: true,
+        secure: false,
       },
       // ── Monitoring service — catch-all ──────────────────────────────────────
       '/api': {
         target: MONITORING_URL,
         changeOrigin: true,
+        secure: false,
       },
     },
   },

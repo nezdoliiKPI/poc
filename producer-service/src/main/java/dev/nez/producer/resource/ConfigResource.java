@@ -17,8 +17,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-@Path("/api/update")
-@Consumes(MediaType.APPLICATION_JSON)
+@Path("/api")
 public class ConfigResource {
 
     @Inject
@@ -37,6 +36,7 @@ public class ConfigResource {
     @POST
     @Path("/gen/update")
     @RateLimit(value = 1, window = 500, windowUnit = ChronoUnit.MILLIS)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Uni<RestResponse<ProducerConfig>> updateGenerate(@Valid ProducerConfig request) {
         final var events = List.of(
             new Simulator.ConfigChangeEvent(config.air().json().topic(), request.airJsonCount()),

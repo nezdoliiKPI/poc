@@ -9,6 +9,7 @@ export interface ProducerConfig {
   airJsonCount:    number;
   tempProtoCount:  number;
   tempJsonCount:   number;
+  intensity:       number | null;
 }
 
 export interface EdgeConfig {
@@ -41,6 +42,23 @@ function parseErrorBody(text: string, status: number): string {
  * Throws if the response is HTML -- this happens when the proxy points to the wrong service
  * and Quinoa's SPA fallback serves index.html instead of the actual API response.
  */
+async function adminGet<T>(url: string): Promise<T> {
+  const resp = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    credentials: 'include',
+  });
+  if (resp.status === 401) { window.location.href = '/login'; throw new Error('Unauthorized'); }
+  if (!resp.ok) { const text = await resp.text(); throw new Error(parseErrorBody(text, resp.status)); }
+  const contentType = resp.headers.get('content-type') ?? '';
+  if (contentType.includes('text/html')) {
+    throw new Error(
+      'Endpoint ' + url + ' returned HTML instead of an API response. ' +
+      'Check the Vite proxy settings and the configuration service address.'
+    );
+  }
+  return resp.json();
+}
+
 async function adminPost<T = void>(url: string, body: unknown): Promise<T> {
   const resp = await fetch(url, {
     method: 'POST',
@@ -80,11 +98,20 @@ async function adminPost<T = void>(url: string, body: unknown): Promise<T> {
 }
 
 /**
- * Sends producer (data generator) config to /api/producer/update/gen.
- * Returns the resulting total messages-per-second rate.
+ * Fetches the current producer (data generator) configuration.
  */
-export function updateProducerConfig(config: ProducerConfig): Promise<number> {
-  return adminPost<number>('/api/producer/update/gen', config);
+export function getProducerConfig(): Promise<ProducerConfig> {
+  return adminGet<ProducerConfig>('/api/producer/gen');
+}
+
+/**
+ * Sends updated producer config to the server.
+ * Returns the resulting ProducerConfig as confirmed by the server.
+ */
+export function updateProducerConfig(config: ProducerConfig): Promise<ProducerConfig> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { intensity: _intensity, ...body } = config;
+  return adminPost<ProducerConfig>('/api/producer/gen/update', body);
 }
 
 /**
@@ -96,8 +123,6 @@ export function updateEdgeConfig(config: EdgeConfig): Promise<void> {
 
 /**
  * Sends threshold config to /api/thresholds/{type}.
- * The caller is responsible for building the full payloads array
- * (one entry per device when applying globally, or a single entry for a specific device).
  */
 export function updateThresholds(type: ThresholdType, payloads: object[]): Promise<void> {
   return adminPost('/api/thresholds/' + type, payloads);

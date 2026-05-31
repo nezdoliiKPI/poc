@@ -1,5 +1,5 @@
-import { useEffect, useRef, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useRef, useMemo, useState, useCallback, type CSSProperties, type ReactNode } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { getDevice } from '../../api/devices';
 import { getBatteryHistory, getAlertHistory } from '../../api/history';
 import { useSSEStream } from '../../hooks/useTelemetryStream';
@@ -18,6 +18,21 @@ import {
 } from './helpers';
 import { MetricChart } from './MetricChart';
 import { AlertList } from './AlertList';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Returns true only after `loading` has been true for `delay` ms continuously. */
+function useDelayedFlag(loading: boolean, delay = 1000): boolean {
+  const [show, setShow] = useState(false);
+  // useCallback to keep the reference stable
+  const clear = useCallback(() => setShow(false), []);
+  useEffect(() => {
+    if (!loading) { setShow(false); return; }
+    const id = setTimeout(() => setShow(true), delay);
+    return () => { clearTimeout(id); clear(); };
+  }, [loading, delay, clear]);
+  return show;
+}
 
 // ── Small layout helpers ──────────────────────────────────────────────────────
 
@@ -69,7 +84,10 @@ export default function DeviceDetail() {
   const { showError } = useError();
 
   const [device,         setDevice]         = useState<Device | null>(null);
-  const [windowMinutes,  setWindowMinutes]  = useState(5);
+  const location = useLocation();
+  const initWindow = (location.state as { windowMinutes?: number } | null)?.windowMinutes ?? 5;
+  const [windowMinutesCharts, setWindowMinutesCharts] = useState(initWindow);
+  const [windowMinutesAlerts, setWindowMinutesAlerts] = useState(initWindow);
   const [historyPoints,  setHistoryPoints]  = useState<AnyPoint[]>([]);
   const [batteryHistory, setBatteryHistory] = useState<BatteryPoint[]>([]);
   const [alertHistory,   setAlertHistory]   = useState<Alert[]>([]);
@@ -104,7 +122,7 @@ export default function DeviceDetail() {
     if (!type) return;
 
     const to   = new Date();
-    const from = new Date(to.getTime() - windowMinutes * 60 * 1000);
+    const from = new Date(to.getTime() - windowMinutesCharts * 60 * 1000);
     setLoadingData(true);
 
     const tasks: Promise<void>[] = [
@@ -122,19 +140,19 @@ export default function DeviceDetail() {
     }
 
     Promise.all(tasks).finally(() => setLoadingData(false));
-  }, [device?.id, device?.topic, device?.batteryTopic, deviceId, windowMinutes, showError]);
+  }, [device?.id, device?.topic, device?.batteryTopic, deviceId, windowMinutesCharts, showError]);
 
   // Reload alert history on device or window change. Old data kept during reload.
   useEffect(() => {
     if (!device) return;
     const to   = new Date();
-    const from = new Date(to.getTime() - windowMinutes * 60 * 1000);
+    const from = new Date(to.getTime() - windowMinutesAlerts * 60 * 1000);
     setLoadingAlerts(true);
     getAlertHistory(deviceId, from, to)
       .then((alerts) => setAlertHistory(alerts ?? []))
       .catch(() => {})
       .finally(() => setLoadingAlerts(false));
-  }, [device?.id, deviceId, windowMinutes]);
+  }, [device?.id, deviceId, windowMinutesAlerts]);
 
   // Scroll to alerts section when arriving via #alerts hash.
   useEffect(() => {
@@ -144,27 +162,29 @@ export default function DeviceDetail() {
   }, [loadingDev]);
 
   // SSE streams.
-  const windowMs      = windowMinutes * 60 * 1000;
+  const windowMsCharts = windowMinutesCharts * 60 * 1000;
+  const windowMsAlerts = windowMinutesAlerts * 60 * 1000;
+  const windowMs       = windowMsCharts; // kept for axis range
   const telemetryType = device ? getTelemetryType(device.topic) : null;
   const hasBattery    = Boolean(device?.batteryTopic);
 
-  const sseData    = useSSEStream<AnyPoint>(deviceId, telemetryType, windowMs);
-  const sseBattery = useSSEStream<BatteryPoint>(deviceId, hasBattery ? 'battery' : null, windowMs);
-  const sseAlerts  = useAlertStream(deviceId, windowMs);
+  const sseData    = useSSEStream<AnyPoint>(deviceId, telemetryType, windowMsCharts);
+  const sseBattery = useSSEStream<BatteryPoint>(deviceId, hasBattery ? 'battery' : null, windowMsCharts);
+  const sseAlerts  = useAlertStream(deviceId, windowMsAlerts);
 
   // Merge alert history and live SSE alerts, deduplicated by uuid.
   const allAlerts = useMemo(() => {
     const map = new Map<string, Alert>();
     [...alertHistory, ...sseAlerts].forEach((a) => map.set(a.uuid, a));
     return Array.from(map.values()).sort((a, b) => b.ts.localeCompare(a.ts));
-  }, [alertHistory, sseAlerts]);
+  }, [alertHistory, sseAlerts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Merge telemetry history and live SSE points.
-  const chartData    = useMemo(() => mergePoints(historyPoints, sseData, windowMs),    [historyPoints, sseData, windowMs]);
-  const chartBattery = useMemo(() => mergePoints(batteryHistory, sseBattery, windowMs), [batteryHistory, sseBattery, windowMs]);
+  const chartData    = useMemo(() => mergePoints(historyPoints, sseData, windowMsCharts),    [historyPoints, sseData, windowMsCharts]);
+  const chartBattery = useMemo(() => mergePoints(batteryHistory, sseBattery, windowMsCharts), [batteryHistory, sseBattery, windowMsCharts]);
 
   // Fixed time-axis bounds shared by all charts so they stay in sync.
-  const axisRange = useMemo(() => ({ from: now - windowMs, to: now }), [now, windowMs]);
+  const axisRange = useMemo(() => ({ from: now - windowMsCharts, to: now }), [now, windowMsCharts]);
 
   // Most-recent timestamp across history + live points.
   const lastTime: string | null = useMemo(() => {
@@ -178,6 +198,9 @@ export default function DeviceDetail() {
 
   const latestBattery: number | null =
     chartBattery.length > 0 ? (chartBattery[chartBattery.length - 1] as BatteryPoint).val : null;
+
+  const showDataSpinner   = useDelayedFlag(loadingData);
+  const showAlertsSpinner = useDelayedFlag(loadingAlerts);
 
   const metrics       = telemetryType ? METRICS_BY_TYPE[telemetryType] : [];
   const batteryMetric = METRICS_BY_TYPE.battery[0];
@@ -245,34 +268,73 @@ export default function DeviceDetail() {
           </div>
         </div>
 
-        {/* Sticky time window selector */}
-        <div className="flex items-center gap-2"
+        {/* Sticky time window selectors — one per data domain */}
+        <div className="flex items-center gap-4"
           style={{ position: 'sticky', top: 0, zIndex: 10, background: COLORS.bgPage, padding: '8px 0' }}>
-          <label htmlFor="time-window-select" className="text-xs uppercase tracking-wide"
-            style={{ color: COLORS.textMuted }}>
-            Період:
-          </label>
-          <select
-            id="time-window-select"
-            value={windowMinutes}
-            onChange={(e) => setWindowMinutes(Number(e.target.value))}
-            style={{
-              padding: '4px 10px', borderRadius: 4, fontSize: 13,
-              border: `1px solid ${COLORS.border}`, background: COLORS.bgCard,
-              color: COLORS.textPrimary, cursor: 'pointer', outline: 'none',
-            }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = COLORS.borderFocus)}
-            onBlur={(e)  => (e.currentTarget.style.borderColor = COLORS.border)}
-          >
-            {TIME_WINDOWS.map(({ label, minutes }) => (
-              <option key={minutes} value={minutes}>{label}</option>
-            ))}
-          </select>
-          {loadingData && (
-            <span style={{ fontSize: 12, color: COLORS.textMuted, marginLeft: 6 }}>
+
+          {/* Charts period */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="window-charts" className="text-xs uppercase tracking-wide"
+              style={{ color: COLORS.textMuted }}>
+              Графіки:
+            </label>
+            <select
+              id="window-charts"
+              value={windowMinutesCharts}
+              onChange={(e) => setWindowMinutesCharts(Number(e.target.value))}
+              style={{
+                padding: '4px 28px 4px 10px', borderRadius: 5, fontSize: 13,
+                border: `1px solid ${COLORS.border}`, background: COLORS.bgCard,
+                color: COLORS.textPrimary, cursor: 'pointer',
+                appearance: 'none', WebkitAppearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2396a0b4' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+                outline: 'none',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              }}
+            >
+              {TIME_WINDOWS.map(({ label, minutes }) => (
+                <option key={minutes} value={minutes}>{label}</option>
+              ))}
+            </select>
+            <span style={{ fontSize: 12, color: COLORS.textMuted, visibility: showDataSpinner ? 'visible' : 'hidden' }}>
               Оновлення...
             </span>
-          )}
+          </div>
+
+          <span style={{ color: COLORS.border }}>|</span>
+
+          {/* Alerts period */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="window-alerts" className="text-xs uppercase tracking-wide"
+              style={{ color: COLORS.textMuted }}>
+              Сповіщення:
+            </label>
+            <select
+              id="window-alerts"
+              value={windowMinutesAlerts}
+              onChange={(e) => setWindowMinutesAlerts(Number(e.target.value))}
+              style={{
+                padding: '4px 28px 4px 10px', borderRadius: 5, fontSize: 13,
+                border: `1px solid ${COLORS.border}`, background: COLORS.bgCard,
+                color: COLORS.textPrimary, cursor: 'pointer',
+                appearance: 'none', WebkitAppearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2396a0b4' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+                outline: 'none',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              }}
+            >
+              {TIME_WINDOWS.map(({ label, minutes }) => (
+                <option key={minutes} value={minutes}>{label}</option>
+              ))}
+            </select>
+            <span style={{ fontSize: 12, color: COLORS.textMuted, visibility: showAlertsSpinner ? 'visible' : 'hidden' }}>
+              Оновлення...
+            </span>
+          </div>
         </div>
 
         {/* ── Collapsible alert list — above charts ─────────────────────────── */}
@@ -317,7 +379,7 @@ export default function DeviceDetail() {
                     key={m.key}
                     data={chartData}
                     metric={m}
-                    windowMinutes={windowMinutes}
+                    windowMinutes={windowMinutesCharts}
                     fromMs={axisRange.from}
                     toMs={axisRange.to}
                   />
@@ -329,7 +391,7 @@ export default function DeviceDetail() {
                 <MetricChart
                   data={chartBattery}
                   metric={batteryMetric}
-                  windowMinutes={windowMinutes}
+                  windowMinutes={windowMinutesCharts}
                   fromMs={axisRange.from}
                   toMs={axisRange.to}
                 />
@@ -337,6 +399,7 @@ export default function DeviceDetail() {
             )}
           </>
         )}
+
       </div>
     </div>
   );
