@@ -13,7 +13,7 @@ otelcol.receiver.otlp "default" {
 output {
     metrics = [otelcol.exporter.prometheus.to_prom.input]
     logs    = [otelcol.exporter.loki.to_loki.input]
-    traces  = [otelcol.exporter.otlp.to_tempo.input]
+    //traces  = [otelcol.exporter.otlp.to_tempo.input]
   }
 }
 
@@ -59,14 +59,14 @@ prometheus.remote_write "local_prom" {
 // 3. TRACES (Tempo)
 // ==========================================
 
-otelcol.exporter.otlp "to_tempo" {
-  client {
-    endpoint = "tempo:4317"
-    tls {
-      insecure = true
-    }
-  }
-}
+//otelcol.exporter.otlp "to_tempo" {
+ // client {
+ //   endpoint = "tempo:4317"
+ //   tls {
+ //     insecure = true
+ //   }
+ // }
+//}
 
 // ==========================================
 // 4. LOGS (Docker Socket) - PROD APPROACH
