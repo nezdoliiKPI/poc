@@ -76,13 +76,13 @@ function validateDevice(
   if (!matches) {
     return {
       ok:  false,
-      msg: `Пристрій #${deviceId} (тема: ${device.topic}) не підходить для порогів «${THRESHOLD_TYPE_LABELS[type]}». Очікується тема, що містить «${pattern}».`,
+      msg: `Пристрій ${device.hardwareId} (тема: ${device.topic}) не підходить для порогів «${THRESHOLD_TYPE_LABELS[type]}». Очікується тема, що містить «${pattern}».`,
     };
   }
 
   return {
     ok:  true,
-    msg: `✓ Пристрій #${deviceId} (${device.hardwareId}) відповідає типу «${THRESHOLD_TYPE_LABELS[type]}».`,
+    msg: `✓ Пристрій ${device.hardwareId} відповідає типу «${THRESHOLD_TYPE_LABELS[type]}».`,
   };
 }
 
@@ -160,7 +160,7 @@ export function ThresholdsTab() {
       toast(
         deviceId === null
           ? `Пороги «${THRESHOLD_TYPE_LABELS[type]}» оновлено для ${payloads.length} пристроїв.`
-          : `Пороги «${THRESHOLD_TYPE_LABELS[type]}» оновлено для пристрою #${deviceId}.`,
+          : `Пороги «${THRESHOLD_TYPE_LABELS[type]}» оновлено для пристрою ID:${deviceId}.`,
         'success',
       );
     } catch (e) {
