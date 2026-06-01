@@ -171,7 +171,7 @@ export function AlertsTab() {
               <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide"
                 style={{ ...colStyle('severity'), borderBottom: `1px solid ${COLORS.border}` }}
                 onClick={() => handleSort('severity')}>
-                Severity {arrow('severity')}
+                Ступінь {arrow('severity')}
               </th>
               <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide"
                 style={{ ...colStyle('count'), borderBottom: `1px solid ${COLORS.border}` }}

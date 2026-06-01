@@ -76,7 +76,7 @@ export function AlertList({ alerts, loading }: Props) {
             </th>
             <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide"
               style={thStyle('sev')} onClick={() => handleSort('sev')}>
-              Severity {arrow('sev')}
+              Ступінь {arrow('sev')}
             </th>
             <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide"
               style={thStyle('metric')} onClick={() => handleSort('metric')}>
