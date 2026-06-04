@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Alert } from '../types';
 
-const FLUSH_INTERVAL_MS = 500;
+const FLUSH_INTERVAL_MS  = 500;
+const RETRY_DELAY_MS     = 2_000;
+const MAX_RETRY_DELAY_MS = 30_000;
 
 /**
  * Opens an SSE stream for alert events for a specific device.
+ * Automatically reconnects on failure or stream end (exponential backoff).
  * Buffers incoming alerts and flushes them into state every FLUSH_INTERVAL_MS ms.
  * Points older than windowMs are dropped on each flush.
  */
@@ -12,11 +15,11 @@ export function useAlertStream(deviceId: number, windowMs: number): Alert[] {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const pending = useRef<Alert[]>([]);
 
-  // Clear on window change.
+  // Clear on deviceId change.
   useEffect(() => {
     pending.current = [];
     setAlerts([]);
-  }, [windowMs]);
+  }, [deviceId]);
 
   // Flush buffer into state on a fixed interval.
   useEffect(() => {
@@ -34,59 +37,80 @@ export function useAlertStream(deviceId: number, windowMs: number): Alert[] {
     return () => clearInterval(timerId);
   }, [windowMs]);
 
-  // Open the SSE connection.
+  // Open the SSE connection with automatic reconnect on failure or stream end.
   useEffect(() => {
     let cancelled = false;
+    let retryDelay = RETRY_DELAY_MS;
     const controller = new AbortController();
-    const since = encodeURIComponent(new Date().toISOString());
 
-    (async () => {
-      try {
-        const response = await fetch(
-          `/api/devices/${deviceId}/stream/alert?since=${since}`,
-          {
-            headers: { Accept: 'text/event-stream' },
-            credentials: 'include',
-            signal: controller.signal,
-          }
-        );
+    const connect = async () => {
+      while (!cancelled) {
+        // Subtract a small offset from `since` to tolerate processing latency / clock skew.
+        const since = encodeURIComponent(new Date(Date.now() - 5_000).toISOString());
 
-        if (!response.ok || !response.body) return;
+        try {
+          const response = await fetch(
+            `/api/devices/${deviceId}/stream/alert?since=${since}`,
+            {
+              headers: { Accept: 'text/event-stream' },
+              credentials: 'include',
+              signal: controller.signal,
+            }
+          );
 
-        const reader  = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer    = '';
+          if (!response.ok) {
+            console.error(`Alert SSE stream: HTTP ${response.status} for device ${deviceId}`);
+            if (response.status === 401) {
+              window.location.href = '/login';
+              return;
+            }
+          } else if (response.body) {
+            retryDelay = RETRY_DELAY_MS; // reset backoff on successful connection
+            const reader  = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer    = '';
 
-        while (!cancelled) {
-          const { done, value } = await reader.read();
-          if (done) break;
+            while (!cancelled) {
+              const { done, value } = await reader.read();
+              if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const messages = buffer.split('\n\n');
-          buffer = messages.pop() ?? '';
+              buffer += decoder.decode(value, { stream: true });
+              const messages = buffer.split('\n\n');
+              buffer = messages.pop() ?? '';
 
-          for (const message of messages) {
-            const dataLine = message.split('\n').find((l) => l.startsWith('data:'));
-            if (!dataLine) continue;
-            const json = dataLine.slice(5).trim();
-            if (!json) continue;
-            try {
-              const alert: Alert = JSON.parse(json);
-              if (!cancelled) pending.current.push(alert);
-            } catch (e) {
-              console.error('Alert SSE parse error:', e);
+              for (const message of messages) {
+                const dataLine = message.split('\n').find((l) => l.startsWith('data:'));
+                if (!dataLine) continue;
+                const json = dataLine.slice(5).trim();
+                if (!json) continue;
+                try {
+                  const alert: Alert = JSON.parse(json);
+                  if (!cancelled) pending.current.push(alert);
+                } catch (e) {
+                  console.error('Alert SSE parse error:', e, json);
+                }
+              }
             }
           }
+        } catch (err) {
+          if ((err as Error).name === 'AbortError') return;
+          console.error(`Alert SSE stream error for device ${deviceId}:`, err);
         }
-      } catch (err) {
-        if (!cancelled && (err as Error).name !== 'AbortError') {
-          console.error('Alert SSE stream error:', err);
-        }
+
+        if (cancelled) return;
+
+        await new Promise<void>((resolve) => {
+          const id = setTimeout(resolve, retryDelay);
+          controller.signal.addEventListener('abort', () => { clearTimeout(id); resolve(); });
+        });
+        retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY_MS);
       }
-    })();
+    };
+
+    connect();
 
     return () => { cancelled = true; controller.abort(); };
-  }, [deviceId, windowMs]);
+  }, [deviceId]);
 
   return alerts;
 }

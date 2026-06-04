@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import type { TelemetryType, AnyPoint } from '../types';
 
-const FLUSH_INTERVAL_MS = 500;
+const FLUSH_INTERVAL_MS  = 500;
+const RETRY_DELAY_MS     = 2_000;
+const MAX_RETRY_DELAY_MS = 30_000;
 
 // ── Pure helpers ──────────────────────────────────────────────────────────────
 
-/** Builds the SSE endpoint URL for a given device and telemetry type. */
+/** Builds the SSE endpoint URL for a given device and telemetry type.
+ *  Subtracts a small offset from `since` to tolerate processing latency
+ *  and minor clock skew between client and server. */
 function buildStreamUrl(deviceId: number, type: TelemetryType): string {
-  const since = encodeURIComponent(new Date().toISOString());
+  const since = encodeURIComponent(new Date(Date.now() - 5_000).toISOString());
   return `/api/devices/${deviceId}/stream/${type}?since=${since}`;
 }
 
@@ -25,7 +29,7 @@ function parseSSEMessage<T>(message: string): T | null {
   try {
     return JSON.parse(json) as T;
   } catch (e) {
-    console.error('SSE parse error:', e);
+    console.error('SSE parse error:', e, json);
     return null;
   }
 }
@@ -62,8 +66,8 @@ async function readSSEStream<T>(
 
 /**
  * Opens an SSE stream for the given device and telemetry type, returning only live points.
- * Incoming points are buffered in a ref and flushed into state every FLUSH_INTERVAL_MS ms
- * to avoid a re-render on every individual message when data arrives at high frequency.
+ * Automatically reconnects on connection failure or stream end, using exponential backoff.
+ * Incoming points are buffered in a ref and flushed into state every FLUSH_INTERVAL_MS ms.
  * Pass type = null to skip subscribing (returns empty array).
  * Points older than windowMs are dropped on each flush.
  */
@@ -75,13 +79,15 @@ export function useSSEStream<T extends AnyPoint>(
   const [points, setPoints] = useState<T[]>([]);
   const pending = useRef<T[]>([]);
 
-  // Clear both state and buffer when the type or window changes.
+  // Clear both state and buffer when the telemetry type changes.
+  // windowMs change does NOT restart the stream — the flush filter handles windowing.
   useEffect(() => {
     pending.current = [];
     setPoints([]);
-  }, [type, windowMs]);
+  }, [type]);
 
   // Flush the pending buffer into state on a fixed interval.
+  // windowMs IS a dependency here since it controls which accumulated points to keep.
   useEffect(() => {
     if (!type) return;
 
@@ -101,40 +107,65 @@ export function useSSEStream<T extends AnyPoint>(
   }, [type, windowMs]);
 
   // Open the SSE connection and pipe incoming points into the pending buffer.
+  // Reconnects automatically on failure or stream end (exponential backoff).
+  // Does NOT depend on windowMs — the stream always delivers live data from "now",
+  // and windowing is handled by the flush effect above.
   useEffect(() => {
     if (!type) return;
 
     let cancelled = false;
+    let retryDelay = RETRY_DELAY_MS;
     const controller = new AbortController();
 
-    (async () => {
-      try {
-        const response = await fetch(buildStreamUrl(deviceId, type), {
-          headers: { Accept: 'text/event-stream' },
-          credentials: 'include',
-          signal: controller.signal,
-        });
+    const connect = async () => {
+      while (!cancelled) {
+        try {
+          const response = await fetch(buildStreamUrl(deviceId, type), {
+            headers: { Accept: 'text/event-stream' },
+            credentials: 'include',
+            signal: controller.signal,
+          });
 
-        if (!response.ok || !response.body) return;
-
-        await readSSEStream<T>(
-          response.body.getReader(),
-          new TextDecoder(),
-          (point) => pending.current.push(point),
-          () => cancelled,
-        );
-      } catch (err) {
-        if (!cancelled && (err as Error).name !== 'AbortError') {
-          console.error('SSE stream error:', err);
+          if (!response.ok) {
+            console.error(`SSE ${type} stream: HTTP ${response.status} for device ${deviceId}`);
+            // 401 → no point retrying until the user re-authenticates
+            if (response.status === 401) {
+              window.location.href = '/login';
+              return;
+            }
+          } else if (response.body) {
+            retryDelay = RETRY_DELAY_MS; // reset backoff on successful connection
+            await readSSEStream<T>(
+              response.body.getReader(),
+              new TextDecoder(),
+              (point) => pending.current.push(point),
+              () => cancelled,
+            );
+          }
+        } catch (err) {
+          if ((err as Error).name === 'AbortError') return;
+          console.error(`SSE ${type} stream error for device ${deviceId}:`, err);
         }
+
+        if (cancelled) return;
+
+        // Wait before retrying, then double the delay (up to MAX_RETRY_DELAY_MS).
+        await new Promise<void>((resolve) => {
+          const id = setTimeout(resolve, retryDelay);
+          // If cancelled during the wait, resolve immediately.
+          controller.signal.addEventListener('abort', () => { clearTimeout(id); resolve(); });
+        });
+        retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY_MS);
       }
-    })();
+    };
+
+    connect();
 
     return () => {
       cancelled = true;
       controller.abort();
     };
-  }, [deviceId, type, windowMs]);
+  }, [deviceId, type]); // windowMs intentionally omitted — see comment above
 
   return points;
 }
