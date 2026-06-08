@@ -8,7 +8,7 @@ public class PowerConsumptionDeserializer implements Deserializer<PowerConsumpti
     @Override
     public PowerConsumptionData deserialize(String topic, byte[] data) {
         try {
-            return data == null ? null : PowerConsumptionData.parseFrom(data);
+            return (data != null && data.length > 0) ? PowerConsumptionData.parseFrom(data) : null;
         } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException("Error deserializing PowerConsumptionData", e);
         }

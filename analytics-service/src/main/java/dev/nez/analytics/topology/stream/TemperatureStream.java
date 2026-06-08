@@ -4,6 +4,8 @@ import dev.nez.analytics.analyzer.TemperatureAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.ProtobufSerializer;
+import dev.nez.analytics.data.alert.AlertDeserializer;
+import dev.nez.analytics.data.alert.AlertSerializer;
 import dev.nez.analytics.data.temperature.*;
 
 import dev.nez.analytics.filter.NotificationFilter;
@@ -44,8 +46,8 @@ public class TemperatureStream extends TelemetryStreamBase {
         final var longSerde = Serdes.Long();
 
         final var alertSerde = Serdes.serdeFrom(
-            new JsonSerializer<>(),
-            new JsonDeserializer<>(Alert.class)
+            new AlertSerializer(),
+            new AlertDeserializer()
         );
         final var dataSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),

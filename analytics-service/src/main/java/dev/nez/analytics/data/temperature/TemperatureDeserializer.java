@@ -8,7 +8,7 @@ public class TemperatureDeserializer implements Deserializer<TemperatureData> {
     @Override
     public TemperatureData deserialize(String topic, byte[] data) {
         try {
-            return data != null ? TemperatureData.parseFrom(data) : null;
+            return (data != null && data.length > 0) ? TemperatureData.parseFrom(data) : null;
         } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException("Failed to deserialize Protobuf message TemperatureData", e);
         }

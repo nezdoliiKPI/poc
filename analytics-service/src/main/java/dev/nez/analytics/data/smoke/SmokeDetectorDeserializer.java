@@ -8,7 +8,7 @@ public class SmokeDetectorDeserializer implements Deserializer<SmokeDetectorData
     @Override
     public SmokeDetectorData deserialize(String topic, byte[] data) {
         try {
-            return data == null ? null : SmokeDetectorData.parseFrom(data);
+            return (data != null && data.length > 0) ? SmokeDetectorData.parseFrom(data) : null;
         } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException("Error deserializing SmokeDetectorData", e);
         }

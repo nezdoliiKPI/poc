@@ -85,3 +85,35 @@ message TemperatureData {
   float temperature = 2;
   float humidity = 3;
 }
+
+// Represents an alert event in the system.
+//
+// Attributes:
+//   - uuid:      The unique identifier of the alert event.
+//   - device_id: The unique identifier of the device associated with the alert.
+//   - metric:    The name of the metric that triggered the alert (e.g., "co2", "temperature").
+//   - value:     The actual numerical value that breached the threshold.
+//   - min:       The minimum allowable threshold for the metric.
+//   - max:       The maximum allowable threshold for the metric.
+//   - severity:  The severity level of the alert (WARNING, CRITICAL, FAULT).
+//   - message:   A descriptive message regarding the incident or event.
+//   - timestamp: The timestamp when the data was received.
+message AlertData {
+  enum Severity {
+    WARNING = 0;
+    CRITICAL = 1;
+    FAULT = 2;
+  }
+
+  google.protobuf.Timestamp timestamp = 9;
+  string uuid = 1;
+  int64 device_id = 2;
+  string metric = 3;
+  float value = 4;
+
+  optional float min = 5;
+  optional float max = 6;
+
+  Severity severity = 7;
+  string message = 8;
+}

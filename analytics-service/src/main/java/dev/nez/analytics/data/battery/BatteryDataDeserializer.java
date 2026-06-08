@@ -8,7 +8,7 @@ public class BatteryDataDeserializer implements Deserializer<BatteryData> {
     @Override
     public BatteryData deserialize(String topic, byte[] data) {
         try {
-            return data == null ? null : BatteryData.parseFrom(data);
+            return (data != null && data.length > 0) ? BatteryData.parseFrom(data) : null;
         } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException("Error deserializing BatteryData", e);
         }

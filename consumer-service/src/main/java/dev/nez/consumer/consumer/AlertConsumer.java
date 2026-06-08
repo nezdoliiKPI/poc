@@ -1,17 +1,20 @@
 package dev.nez.consumer.consumer;
 
-import dev.nez.consumer.data.Alert;
 import dev.nez.consumer.data.DataMapper;
+import dev.nez.dto.proto.ProtoUtils;
+import dev.nez.dto.proto.timeddata.AlertData;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.function.Function;
 
 @Singleton
-public class AlertConsumer  extends BaseBatchConsumer<Alert> {
+public class AlertConsumer  extends BaseBatchConsumer<AlertData> {
     private static final String CHANNEL_ALERT_IN = "alert-in";
 
     private static final String sql = """
@@ -22,11 +25,12 @@ public class AlertConsumer  extends BaseBatchConsumer<Alert> {
 
     @Inject
     AlertConsumer(DataMapper dataMapper) {
-        super(CHANNEL_ALERT_IN, dataMapper::toTuple, Alert::ts, sql);
+        final Function<AlertData, Instant> getInstant = data -> ProtoUtils.toInstant(data.getTimestamp());
+        super(CHANNEL_ALERT_IN, dataMapper::toTuple, getInstant, sql);
     }
 
     @Incoming(CHANNEL_ALERT_IN)
-    public Uni<Void> consumeAir(Message<List<Alert>> batchMessage) {
+    public Uni<Void> consumeAir(Message<List<AlertData>> batchMessage) {
         return consumeBatch(batchMessage);
     }
 }

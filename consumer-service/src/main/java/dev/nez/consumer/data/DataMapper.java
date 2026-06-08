@@ -60,17 +60,17 @@ public class DataMapper {
         );
     }
 
-    public Tuple toTuple(Alert alert) {
+    public Tuple toTuple(AlertData proto) {
         return Tuple.wrap(new Object[]{
-            alert.uuid(),
-            alert.dID(),
-            alert.metric(),
-            alert.val(),
-            alert.min(),
-            alert.max(),
-            alert.sev().name(),
-            alert.msg(),
-            alert.ts().atOffset(ZoneOffset.UTC)
+            proto.getUuid(),
+            proto.getDeviceId(),
+            proto.getMetric(),
+            proto.getValue(),
+            proto.hasMin() ? proto.getMin() : null,
+            proto.hasMax() ? proto.getMax() : null,
+            proto.getSeverity().name(),
+            proto.getMessage(),
+            toOffsetDateTime(proto.getTimestamp())
         });
     }
 

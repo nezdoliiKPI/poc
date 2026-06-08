@@ -4,6 +4,8 @@ import dev.nez.analytics.analyzer.BatteryAnalyzer;
 import dev.nez.analytics.data.JsonDeserializer;
 import dev.nez.analytics.data.JsonSerializer;
 import dev.nez.analytics.data.ProtobufSerializer;
+import dev.nez.analytics.data.alert.AlertDeserializer;
+import dev.nez.analytics.data.alert.AlertSerializer;
 import dev.nez.analytics.data.battery.BatteryDataDeserializer;
 import dev.nez.analytics.data.battery.BatteryThresholds;
 
@@ -45,8 +47,8 @@ public class BatteryStream extends TelemetryStreamBase {
         final var longSerde = Serdes.Long();
 
         final var alertSerde = Serdes.serdeFrom(
-            new JsonSerializer<>(),
-            new JsonDeserializer<>(Alert.class)
+            new AlertSerializer(),
+            new AlertDeserializer()
         );
         final var dataSerde = Serdes.serdeFrom(
             new ProtobufSerializer<>(),
