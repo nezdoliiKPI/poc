@@ -15,11 +15,12 @@ public class TemperatureAnalyzer {
 
     public List<Alert> checkThreshold(TemperatureData event, TemperatureThresholds thresholds) {
         List<Alert> alerts = new ArrayList<>();
+
         final long dId = event.getDeviceId();
         final var ts = ProtoUtils.toInstant(event.getTimestamp());
 
         // Temperature
-        if (event.getTemperature() < -100 || event.getTemperature() > 150) {
+        if (event.getTemperature() < -100 || event.getTemperature() > 1000) {
             alerts.add(Alert.createAlert(dId, "temperature", event.getTemperature(), null, null, Severity.FAULT, "SENSOR FAULT | Температура поза фізичними межами", ts));
         } else if (event.getTemperature() > thresholds.maxTemperature()) {
             alerts.add(Alert.createAlert(dId, "temperature", event.getTemperature(), thresholds.minTemperature(), thresholds.maxTemperature(), Severity.CRITICAL, String.format("Висока температура (Макс: %.2f)", thresholds.maxTemperature()), ts));

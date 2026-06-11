@@ -15,6 +15,7 @@ public class AirQualityAnalyzer {
 
     public List<Alert> checkThreshold(AirQualityData event, AirQualityThresholds thresholds) {
         List<Alert> alerts = new ArrayList<>();
+
         final long dId = event.getDeviceId();
         final var ts = ProtoUtils.toInstant(event.getTimestamp());
 

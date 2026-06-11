@@ -15,6 +15,7 @@ public class BatteryAnalyzer {
 
     public List<Alert> checkThreshold(BatteryData event, BatteryThresholds thresholds) {
         List<Alert> alerts = new ArrayList<>();
+
         final long dId = event.getDeviceId();
         final var ts = ProtoUtils.toInstant(event.getTimestamp());
         final float val = event.getVal();

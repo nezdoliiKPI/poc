@@ -16,6 +16,7 @@ public class PowerConsumptionAnalyzer {
 
     public List<Alert> checkThreshold(PowerConsumptionData event, PowerThresholds thresholds) {
         List<Alert> alerts = new ArrayList<>();
+
         final long dId = event.getDeviceId();
         final var ts = ProtoUtils.toInstant(event.getTimestamp());
 

@@ -15,6 +15,7 @@ public class SmokeDetectorAnalyzer {
 
     public List<Alert> checkThreshold(SmokeDetectorData event, SmokeDetectorThresholds thresholds) {
         List<Alert> alerts = new ArrayList<>();
+
         final long dId = event.getDeviceId();
         final var ts = ProtoUtils.toInstant(event.getTimestamp());
 

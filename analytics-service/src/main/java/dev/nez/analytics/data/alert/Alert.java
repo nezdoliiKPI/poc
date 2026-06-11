@@ -19,7 +19,6 @@ import java.util.UUID;
  * @param msg       A descriptive message regarding the incident or event.
  * @param ts        The timestamp when the data was received.
  */
-@RegisterForReflection
 public record Alert(
     UUID uuid,
     Long dID,
