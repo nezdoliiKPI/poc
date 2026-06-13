@@ -1,6 +1,7 @@
 package dev.nez.configuration.resource;
 
 import dev.nez.configuration.dto.thresholds.*;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
@@ -17,7 +18,6 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Path("/api/thresholds")
 @RolesAllowed("admin")
@@ -75,16 +75,19 @@ public class ThresholdsResource {
         return sendAll(thresholdsList, temperatureEmitter, TemperatureThresholds::deviceId);
     }
 
-    private <T> Uni<RestResponse<Void>> sendAll(List<T> items, MutinyEmitter<T> emitter, Function<T, Long> keyExtractor) {
+    private <T> Uni<RestResponse<Void>> sendAll(
+        List<T> items,
+        MutinyEmitter<T> emitter,
+        Function<T, Long> keyExtractor
+    ) {
         if (items == null || items.isEmpty()) {
             return Uni.createFrom().item(RestResponse.accepted());
         }
 
-        final List<Uni<Void>> emissions = items.stream()
-            .map(item -> emitter.sendMessage(newMessage(item, keyExtractor.apply(item))))
-            .collect(Collectors.toList());
-
-        return Uni.join().all(emissions).andFailFast()
+        return Multi.createFrom().iterable(items)
+            .onItem().transformToUniAndConcatenate(
+                item -> emitter.sendMessage(newMessage(item, keyExtractor.apply(item))))
+            .collect().asList()
             .replaceWith(RestResponse.accepted());
     }
 

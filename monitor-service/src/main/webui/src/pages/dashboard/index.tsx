@@ -319,7 +319,7 @@ export default function Dashboard() {
 
       {/* ── Alerts tab ──────────────────────────────────────────────────── */}
       <div style={{ ...TAB_CARD, display: mainTab === 'alerts' ? undefined : 'none' }}>
-        <AlertsTab />
+        <AlertsTab devices={devices} active={mainTab === 'alerts'} />
       </div>
 
       {/* ── Admin tabs — kept mounted so state survives tab switches ─────── */}
@@ -327,7 +327,7 @@ export default function Dashboard() {
         <div key={id} style={{ ...TAB_CARD, display: mainTab === id ? undefined : 'none' }}>
           {id === 'gen'        && <GenTab />}
           {id === 'filter'     && <FilterTab />}
-          {id === 'thresholds' && <ThresholdsTab />}
+          {id === 'thresholds' && <ThresholdsTab devices={devices} />}
         </div>
       ))}
 

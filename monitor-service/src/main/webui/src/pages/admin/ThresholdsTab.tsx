@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getDevices } from '../../api/devices';
+import { useMemo, useState } from 'react';
 import type { Device } from '../../types';
 import {
   updateThresholds,
@@ -90,17 +89,11 @@ function validateDevice(
  * Admin panel tab for configuring per-type alert thresholds.
  * When deviceId is null (global mode) the form expands to one payload per matching device.
  */
-export function ThresholdsTab() {
+export function ThresholdsTab({ devices = [] }: { devices?: Device[] }) {
   const [thresholds, setThresholds] = useState<ThresholdForms>(DEFAULT_THRESHOLDS);
   const [type, setType]             = useState<ThresholdType>('power');
   const [loading, setLoading]       = useState(false);
-  const [devices, setDevices]       = useState<Device[]>([]);
   const { toasts, toast }           = useToast();
-
-  // Load all devices once so we can validate the device ID against them.
-  useEffect(() => {
-    getDevices().then(setDevices).catch(() => {});
-  }, []);
 
   // Re-run validation whenever the device ID or threshold type changes.
   const validation = useMemo(

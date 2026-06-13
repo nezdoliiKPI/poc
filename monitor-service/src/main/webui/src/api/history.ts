@@ -45,12 +45,20 @@ export const getAlertHistory = (id: number, from: Date, to: Date) =>
   );
 
 /**
- * Fetches alerts for multiple devices in a single request.
- * Uses /api/devices/0/history/alerts?deviceIds=1&deviceIds=2&...
- * The path id is ignored by the server; deviceIds query params carry the actual ids.
+ * Fetches alerts for multiple devices in a single request using the bulk endpoint.
+ * The path {id} segment is required by JAX-RS routing but ignored by the server —
+ * the actual device IDs are carried via the deviceIds query parameters.
+ */
+/**
+ * Fetches alerts for multiple devices in one POST request.
+ * Device IDs are sent in the JSON body to avoid URL length limits (3000+ devices).
+ * Uses POST /api/devices/{id}/history/alerts — {id} is required by JAX-RS routing but ignored.
  */
 export function getAlertsForDevices(ids: number[], from: Date, to: Date): Promise<Alert[]> {
-  const params = new URLSearchParams({ from: from.toISOString(), to: to.toISOString() });
-  ids.forEach((id) => params.append('deviceIds', String(id)));
-  return apiFetch<Alert[]>(`/api/devices/0/history/alerts?${params.toString()}`);
+  if (ids.length === 0) return Promise.resolve([]);
+
+  return apiFetch<Alert[]>(
+    `/api/devices/0/history/alerts?from=${from.toISOString()}&to=${to.toISOString()}`,
+    { method: 'POST', body: JSON.stringify(ids) },
+  );
 }

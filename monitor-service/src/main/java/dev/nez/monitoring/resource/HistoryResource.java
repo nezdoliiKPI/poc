@@ -84,10 +84,10 @@ public class HistoryResource {
         return historyService.getAlertHistory(List.of(deviceId), from, to);
     }
 
-    @GET
+    @POST
     @Path("/alerts")
-    public Uni<List<Alert>> alertsDevices(
-        @QueryParam("deviceIds") @NotEmpty List<Long> deviceIds,
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Uni<List<Alert>> alertsDevices(@NotEmpty List<Long> deviceIds,
         @QueryParam("from")      @NotNull @PastOrPresent OffsetDateTime from,
         @QueryParam("to")        @NotNull @PastOrPresent OffsetDateTime to
     ) {

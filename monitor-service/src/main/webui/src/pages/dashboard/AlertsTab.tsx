@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDevices } from '../../api/devices';
 import { getAlertsForDevices } from '../../api/history';
 import { COLORS } from '../../theme';
 import { TIME_WINDOWS } from '../../theme';
@@ -27,64 +26,68 @@ interface DeviceAlertRow {
 type SortCol = 'device' | 'severity' | 'count' | 'latest';
 type SortDir = 'asc' | 'desc';
 
-export function AlertsTab() {
+export function AlertsTab({ devices = [], active = false }: { devices?: Device[]; active?: boolean }) {
   const navigate = useNavigate();
 
-  const [devices,       setDevices]       = useState<Device[]>([]);
   const [rows,          setRows]          = useState<DeviceAlertRow[]>([]);
   const [loading,       setLoading]       = useState(false);
   const [windowMinutes, setWindowMinutes] = useState(60);
   const [sort,          setSort]          = useState<{ col: SortCol; dir: SortDir }>({ col: 'latest', dir: 'desc' });
   const [page,          setPage]          = useState(1);
 
-  // Load device list once.
+  // Fetch alerts only when the tab is visible — runs immediately on open, then every 5 seconds.
+  // An in-flight guard prevents concurrent requests if one takes longer than the interval.
   useEffect(() => {
-    getDevices().then(setDevices).catch(() => {});
-  }, []);
-
-  // Fetch alerts for all devices — runs immediately and then every 5 seconds.
-  useEffect(() => {
-    if (devices.length === 0) return;
+    if (!active || devices.length === 0) return;
 
     const deviceMap = new Map(devices.map((d) => [d.id, d]));
+    let inFlight = false;
+    let cancelled = false;
 
-    const fetchAlerts = () => {
+    const fetchAlerts = async () => {
+      if (inFlight || cancelled) return;
+      inFlight = true;
       setLoading(true);
+
       const to   = new Date();
       const from = new Date(to.getTime() - windowMinutes * 60 * 1000);
 
-      getAlertsForDevices(devices.map((d) => d.id), from, to)
-        .then((alerts) => {
-          // Group alerts by deviceId.
-          const byDevice = new Map<number, Alert[]>();
-          alerts.forEach((a) => {
-            const list = byDevice.get(a.dID) ?? [];
-            list.push(a);
-            byDevice.set(a.dID, list);
-          });
+      try {
+        const alerts = await getAlertsForDevices(devices.map((d) => d.id), from, to);
+        if (cancelled) return;
 
-          const built: DeviceAlertRow[] = [];
-          byDevice.forEach((devAlerts, dID) => {
-            const device = deviceMap.get(dID);
-            if (!device) return;
-            const worstSev = devAlerts.reduce<AlertSeverity>((best, a) =>
-              SEVERITY_RANK[a.sev] > SEVERITY_RANK[best] ? a.sev : best, 'WARNING'
-            );
-            const latestTs = devAlerts.reduce((latest, a) =>
-              a.ts > latest ? a.ts : latest, devAlerts[0].ts
-            );
-            built.push({ device, worstSev, alertCount: devAlerts.length, latestTs });
-          });
-          setRows(built);
-        })
-        .catch(() => {})
-        .finally(() => setLoading(false));
+        // Group alerts by deviceId.
+        const byDevice = new Map<number, Alert[]>();
+        alerts.forEach((a) => {
+          const list = byDevice.get(a.dID) ?? [];
+          list.push(a);
+          byDevice.set(a.dID, list);
+        });
+
+        const built: DeviceAlertRow[] = [];
+        byDevice.forEach((devAlerts, dID) => {
+          const device = deviceMap.get(dID);
+          if (!device) return;
+          const worstSev = devAlerts.reduce<AlertSeverity>((best, a) =>
+            SEVERITY_RANK[a.sev] > SEVERITY_RANK[best] ? a.sev : best, 'WARNING',
+          );
+          const latestTs = devAlerts.reduce(
+            (latest, a) => (a.ts > latest ? a.ts : latest),
+            devAlerts[0].ts,
+          );
+          built.push({ device, worstSev, alertCount: devAlerts.length, latestTs });
+        });
+        if (!cancelled) setRows(built);
+      } finally {
+        inFlight = false;
+        if (!cancelled) setLoading(false);
+      }
     };
 
     fetchAlerts();
     const timerId = setInterval(fetchAlerts, 5_000);
-    return () => clearInterval(timerId);
-  }, [devices, windowMinutes]);
+    return () => { cancelled = true; clearInterval(timerId); };
+  }, [active, devices, windowMinutes]);
 
   useEffect(() => { setPage(1); }, [sort, windowMinutes]);
 
